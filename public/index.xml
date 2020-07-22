@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Bayesian Statistics</title>
-    <link>https://bayes.netlify.app//</link>
-      <atom:link href="https://bayes.netlify.app//index.xml" rel="self" type="application/rss+xml" />
+    <link>/</link>
+      <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <description>Bayesian Statistics</description>
     <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Wed, 22 Jul 2020 00:00:00 +0000</lastBuildDate>
     <image>
-      <url>https://bayes.netlify.app/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
+      <url>/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
       <title>Bayesian Statistics</title>
-      <link>https://bayes.netlify.app//</link>
+      <link>/</link>
     </image>
     
     <item>
       <title>test again</title>
-      <link>https://bayes.netlify.app//post/test-again/</link>
+      <link>/post/test-again/</link>
       <pubDate>Wed, 22 Jul 2020 00:00:00 +0000</pubDate>
-      <guid>https://bayes.netlify.app//post/test-again/</guid>
+      <guid>/post/test-again/</guid>
       <description>
 
 
@@ -26,13 +26,31 @@
     
     <item>
       <title>testagain</title>
-      <link>https://bayes.netlify.app//post/testagain/</link>
+      <link>/post/testagain/</link>
       <pubDate>Wed, 22 Jul 2020 00:00:00 +0000</pubDate>
-      <guid>https://bayes.netlify.app//post/testagain/</guid>
+      <guid>/post/testagain/</guid>
       <description>
 
 
 
+</description>
+    </item>
+    
+    <item>
+      <title>Privacy Policy</title>
+      <link>/privacy/</link>
+      <pubDate>Thu, 28 Jun 2018 00:00:00 +0100</pubDate>
+      <guid>/privacy/</guid>
+      <description>&lt;p&gt;&amp;hellip;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Terms</title>
+      <link>/terms/</link>
+      <pubDate>Thu, 28 Jun 2018 00:00:00 +0100</pubDate>
+      <guid>/terms/</guid>
+      <description>&lt;p&gt;&amp;hellip;&lt;/p&gt;
 </description>
     </item>
     
