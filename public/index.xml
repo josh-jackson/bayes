@@ -54,5 +54,66 @@
 </description>
     </item>
     
+    <item>
+      <title>Homeworks</title>
+      <link>/homeworks/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/homeworks/</guid>
+      <description>
+
+
+&lt;div id=&#34;homework-protocol&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Homework protocol&lt;/h2&gt;
+&lt;p&gt;Each will be turned in via email to a box.com address specific to the take home. For each you will need to attach to the email 1) an rmd or a rnw file of your code and answers and 2) a pdf of said file. Use your last name to label the files (e.g,. “Jackson_takehome1”) and include your name as part of the document front-/top-matter.&lt;/p&gt;
+&lt;p&gt;You may work together on each of these homeworks as long as everyone turns in a seperate file and understand EACH LINE OF CODE. If you do not understand then ask during class.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;take-home-homeworks&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Take home homeworks&lt;/h1&gt;
+&lt;p&gt;&lt;a href=&#34;/Homeworks/Takehome-1.html&#34;&gt;Take home #1&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Lectures</title>
+      <link>/lectures/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/lectures/</guid>
+      <description>
+
+
+&lt;div id=&#34;intro-week-1&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;INTRO Week 1&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;/Lectures/Week-1.html&#34;&gt;Introduction Slides&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Readings</title>
+      <link>/readings/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/readings/</guid>
+      <description>
+
+
+&lt;div id=&#34;textbooks&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Textbooks&lt;/h1&gt;
+&lt;ol style=&#34;list-style-type: decimal&#34;&gt;
+&lt;li&gt;&lt;p&gt;Statistical Rethinking by Richard McElreath (SR)&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Doing Bayesian Data Analysis by Krushke (DBDA)&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+&lt;div id=&#34;lecture-notes&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Lecture Notes&lt;/h1&gt;
+&lt;p&gt;&lt;a href=&#34;/Readings/Week-1-notes.html&#34;&gt;Week 1&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;standalone-papers-and-chapters&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Standalone papers and chapters&lt;/h1&gt;
+&lt;p&gt;&lt;a href=&#34;/Readings/Correlations.pdf&#34;&gt;Correlations&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
   </channel>
 </rss>

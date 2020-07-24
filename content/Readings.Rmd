@@ -1,0 +1,22 @@
+---
+title: "Readings"
+author: "Josh Jackson"
+date: "1/11/2020"
+output: html_document
+---
+
+# Textbooks
+
+1. Statistical Rethinking by Richard McElreath  (SR)
+
+2. Doing Bayesian Data Analysis by Krushke (DBDA)
+
+# Lecture Notes
+
+[Week 1](/Readings/Week-1-notes.html)
+
+# Standalone papers and chapters
+
+[Correlations](/Readings/Correlations.pdf)
+
+

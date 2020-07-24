@@ -1,0 +1,22 @@
+---
+title: "Homeworks"
+author: "Josh Jackson"
+date: "9/15/2020"
+output: html_document
+---
+
+
+## Homework protocol
+
+Each will be turned in via email to a box.com address specific to the take home. For each you will need to attach to the email 1) an rmd or a rnw file of your code and answers and 2) a pdf of said file. Use your last name to label the files (e.g,. “Jackson_takehome1”) and include your name as part of the document front-/top-matter.
+
+You may work together on each of these homeworks as long as everyone turns in a seperate file and understand EACH LINE OF CODE. If you do not understand then ask during class. 
+
+
+
+# Take home homeworks
+
+[Take home #1](/Homeworks/Takehome-1.html)
+
+
+

@@ -1,0 +1,11 @@
+---
+title: "Lectures"
+author: "Josh Jackson"
+date: "10/15/2020"
+output: html_document
+---
+
+
+## INTRO Week 1
+[Introduction Slides](/Lectures/Week-1.html)
+
