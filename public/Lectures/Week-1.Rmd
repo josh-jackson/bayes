@@ -42,18 +42,19 @@ library(broom)
 </style>
 
 
-Goals for today
+##Goals for today
+
 Probability, counting, and learning via Bayes
 
---- 
-# Goals of semester
+---
+## Goals of semester
 
 1. Take what you know and do it Bayesian (and more!)
 2. Know the advantages of Bayesian data analysis
 3. Rethink your approach to statistical inference
 
---- 
-# Structure of class 
+---
+## Structure of class
 
 Weekly lectures along with hands on examples
 
@@ -62,7 +63,7 @@ Important: weekly homework and weekly reading.
 Random quizzes both via email as well as in person 
 
 ---
-# Why not frequentist?
+## Why not frequentist?
 
 1. Assumptions! (Bayesian has assumptions too, just different)
 2. Incoherent interpretations. While you can get around this, it appears embedded in the philosophy of frequentist analysis. In contrast, Bayesian approaches are just counting. 
@@ -72,36 +73,36 @@ Random quizzes both via email as well as in person
 ---
 # History
 
-Bayes (died 1761). Presbyterian minister,
-mathematician. Was interested in the problem of `inverse probability` but he didn't really do much.
+- Bayes (died 1761). `inverse probability` 
 
-Laplace was the bad ass
+- Laplace was the bad ass
 
-Fisher (anti Bayesian)
+- Fisher (anti-Bayesian)
 
-Computational limitations
+- Computational limitations
 
 ---
-# 1.3 Probability
-Probabilistic statements are used to describe *uncertainty*. This is how you typicall think about uncertain events such as will it rain today. The statement "I think it is 25% possible" means that I'm more likely than not to have no rain on my shoulders. The alternative to it not raining is that it is raining, and this alternative is likely to occur 1/4 of the time. Contrast this with a frequentist way of describing uncertaintly: if i took these condidtions and observed them an infinite amount of times, 1/4 of them would find rain.  
+## Probability
 
-This frequentist approach has a number of shortcomings, however, firstmost in that we don't think about an infinite number of simulations. 
+- Probabilistic statements are used to describe *uncertainty*.  
 
-Bayesian analysis instead looks tries to take logic that boils down to yes/no and turns it into continuous plausibilities. Count all ways that something can happen (according to assumptions). Assumptions with more ways that are consistent with data are more plausable. 
+- Bayesian analysis count all ways that something can happen (according to assumptions/model). Assumptions with more ways that are consistent with data are more plausible. 
 
-Think of your future possibilities. Currently they are infinite. However, each day constrains these possibilities slightly. You are, in effect, collecting data about your future life. When you collect data about what your future life is, your possibile options are constrained relative to that initial infinite number of ways your life could turn out. This is exactly like Bayesian data analysis (and not all that different to normal data anlysis). 
+- We can then use these probabilistic statements to guide our scientific questions e.g., this model is more likely than that model or the best estimate of this regression parameter is most likely to fall from here to there. 
 
-# 1.4 Motivating examples
+---
+## Motivating examples
 
-Two main points you can always lean on: 
+- Two main points you can always lean on: 
 1. "Bayesian analysis is just counting"
 2. "Bayesian inference is reallocation of credibility across possibilities (which are parameter values)"
 
-What we are doing is incredibly intuitive, at least at the basic level. However, once we put in terms and try to put words towards what is intuitive, the intuitive gets difficult. 
+- Everything that we are going to do in class is just an extension of these simple examples, no matter how complicated it gets. 
 
-Everything that we are going to do in class is just an extension of these simple examples. 
+- Your prior knowledge of statistics `will get in the way` so be sure to read through the text and examples multiple times. 
 
-## 1.4.1. "Bayesian analysis is just counting"
+---
+## "Bayesian analysis is just counting"
 
 And counting is just a simplified way of understanding probability. Bayesian analysis is just a way to help us understand probabilities, as we are not well suited to do so.
 

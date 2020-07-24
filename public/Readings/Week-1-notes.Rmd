@@ -74,6 +74,10 @@ Bayesian analysis instead looks tries to take logic that boils down to yes/no an
 
 Think of your future possibilities. Currently they are infinite. However, each day constrains these possibilities slightly. You are, in effect, collecting data about your future life. When you collect data about what your future life is, your possible options are constrained relative to that initial infinite number of ways your life could turn out. This is exactly like Bayesian data analysis (and not all that different to normal data analysis). 
 
+We will be spending more time getting comfortable with probabilistic statements. Much like we moved beyond single point estimates and p values to confidence intervals, we are going to be focusing on distributions of plausibilities. We are going to focus on not the best guess, but one the guesses that are most plausible according to the data. 
+
+To do so Bayesian analysis uses probabilities, and probability distributions. The math can be complex. We will first work through the intuition behind what we are setting out to do. Then we will come back to dig deeper into the math. 
+
 # 1.4 Motivating examples
 
 Two main points you can always lean on: 
@@ -82,7 +86,7 @@ Two main points you can always lean on:
 
 What we are doing is incredibly intuitive, at least at the basic level. However, once we put in terms and try to put words towards what is intuitive, the intuitive gets difficult. 
 
-Everything that we are going to do in class is just an extension of these simple examples. Your prior knowledge of statistics `will get in the way` so be sure to read through the text and examples multipe times. 
+Everything that we are going to do in class is just an extension of these simple examples, no matter how complicated it gets. Your prior knowledge of statistics `will get in the way` so be sure to read through the text and examples multipe times. 
 
 ## 1.4.1. "Bayesian analysis is just counting"
 
@@ -95,7 +99,7 @@ Let's say our job is to figure out the proportion of blue marbles in a bag. They
 How should we go about answering this question? By counting! 
 
 What are our possibilities? 
-```{r}
+```{r, eval = FALSE}
 library(tidyverse)
 d <-
   tibble(p_1 = 0,
@@ -126,7 +130,7 @@ Well we need to count. And the way a Bayesian counts is they to count ALL ways t
 
 Assuming that the true bag contains 1/5 blue, how likely is it to give us 2/3 blues?
 
-```{r}
+```{r, eval = FALSE}
 d <-
   tibble(position = c((1:4^1) / 4^0, 
                       (1:4^2) / 4^1, 
@@ -184,7 +188,7 @@ These are the 64 ways that could come out of a 1 blue bag (number of marbles ^ n
 
 How many of these give us our Blue, White, Blue? 
 
-```{r}
+```{r, eval = FALSE}
 lines_1 <-
   lines_1 %>% 
   mutate(remain = c(rep(0:1, times = c(1, 3)),
@@ -232,7 +236,7 @@ d %>%
 
 We see hat 3 pathways could give us our data. Is that good, bad? what do we compare it to? 
 
-```{r}
+```{r, eval = FALSE}
 d <-
   tibble(position = c((1:4^1) / 4^0, 
                       (1:4^2) / 4^1, 
@@ -382,7 +386,7 @@ So what can we do with this? Looks like the bag as 3 or 2 blue marbles, but it i
 ### Collecting more data
 If we get 1 more blue, what does that say? We can take what we already know and expand upon it. Counting a lot is really just multiplication. Or multiplication is fancy counting. 
 
-```{r}
+```{r, eval = FALSE}
 n_blue <- function(x){
   rowSums(x == "b")
 }
@@ -420,7 +424,7 @@ Previous counts serve as our baseline knowledge and new counts serve as our new 
 
 Counts are difficult to work with because once you collect more data you get more possibilities. These possibilities expand very quickly. That is why instead of counting, we will talk about "plausibilities" or "credibilities". Credibilities can be defined as taking the number of ways p can produce the data mulipled by the prior credibility (divided by the sum of the products so the plausibility adds up to 1). We will cover priors in much more detail later, right now they are assumed to be the same for all counts. 
 
-```{r}
+```{r, eval = FALSE}
 t %>% 
   select(d_1:d_4) %>% 
   mutate(p                      = seq(from = 0, to = 1, by = .25),
@@ -453,7 +457,7 @@ Looking at Figure 2.3 in DBDA, we can imagine a marble producing factory. Marble
 
 How do we do this? Through `distributions`
 
-```{r}
+```{r, eval = FALSE}
 t2.3 <- tibble(mu = 1:4,
        p  = .25) %>% 
   expand(nesting(mu, p), 
@@ -533,7 +537,7 @@ library(patchwork)
 
 Then let's collect some data. We get 1.77, 2.23 and 2.7. Our queston is, which machine is this most likely from? The area under those curves adds up to 1. We now need to reallocate that credibility into new curves, based on the data. What does that reallocation look like? 
 
-```{r}
+```{r, eval = FALSE}
 t2.3b <- tibble(mu = 1:4,
        p  = c(.1, .58, .3, .02)) %>% 
   expand(nesting(mu, p), 
@@ -619,7 +623,7 @@ d4 <- ggplot(data = t2.3b) +
 The dots represent our data. The area under the curve represents the allocation of credibility. 
 
 And what if we put it all together, as it might be easier to take in the reallocation. 
-```{r}
+```{r, eval = FALSE}
  ggplot(data = t2.3b) +
   geom_col(data = t2.3b %>% distinct(mu, p),
            aes(x = mu, y = p),
@@ -704,7 +708,7 @@ After collecting data (eg figuring out it was a candelstick) I'm reallocating my
 
 In the above example, we have a prior of $\beta$ ~ Normal(0, 5), which provides us a general idea about what we would expect the regression to be BEFORE WE COLLECTED DATA. So here it says that we expect regression coefficient to be 0 (hey we're conservative) but wouldnt be suprised if it was 5 plus or minus. We would be maybe a little suprised if it was 10 plus or minus (remember what a z = 2 says about the area under the curve?). Depending on how we feel we could easily change this. 
 
-```{r}
+```{r, eval = FALSE}
 
 N10 <- ggplot() +
   aes(x = c(-35, 35)) +
@@ -730,7 +734,7 @@ N2 <- ggplot() +
   (N1 | N2 )
 ```
 
-```{r}
+```{r, eval = FALSE}
 s1 <- ggplot() +
   aes(x = c(0, 10)) +
   stat_function(fun = dcauchy, n = 200, args = list(0, 1)) +
@@ -779,7 +783,7 @@ pbinom(3, size = 10, prob = .5)
 
 Again, you have the skills to tell you whether or not something was fair or not, by specifying the parameter, p. In other words, L($\theta$) = p(data|$\theta$). But what we typically want when figuring out a parameter is not one specific parameter (ie is the tails heads or not) but what is the MOST likely parameter -- AND what is the probability of each possibility parameter. That is what the likelyhood tells us.  The probability of the data that you actually got, assuming a particular theta is true.
 
-```{r}
+```{r, eval = FALSE}
 
 ggplot(tibble(x = c(0, 1)), 
        aes(x = x)) + 
@@ -838,7 +842,7 @@ When running a Bayesian model, all go through the same steps: They take the prio
 
 We will talk about how it is done mathmatically later, but for now I want you to get comfortable with the mechanics of the process. SR describes it as conditioning the prior on the data to yield a posterior. Regardless of the complexity it is just counting, but the counting will be obscured quite quickly. Below, coopted from Solomon Kurtz's code from Statistical Rethinking, is a way to to see how different priors can influence the posterior, even with the same data (likelihood).
 
-```{r, message = FALSE}
+```{r, eval = FALSE}
 library(gridExtra)
 sequence_length <- 1e3
 
@@ -912,7 +916,7 @@ Three take a way points.
 
 The relative influence of the prior and the likelihood depends on 1) the sample size of the data collected and 2) the extremity of the prior (think peaked vs very flat), To see the influence of the sample size, lets look at two examples. Again, we will wait to see how these are explicitly calculated, I just want you to get the intuition of these three components. 
 
-```{r}
+```{r, eval = FALSE}
 
 bernoulli_likelihood <- function(theta, data) {
   # `theta` = success probability parameter ranging from 0 to 1
@@ -985,20 +989,20 @@ The gist is that you want to compute the posterior for different combinations of
 1. Define the grid you want to estimate. This involves the range of parameters you want in the posterior and the number of values you want to compute. 
 
 2. Define the prior. Right now lets work with a flat prior and then we will change it in a little bit. 
-```{r}
+```{r, eval = FALSE}
 library(tidyverse)
 grid <-tibble(p_grid= seq(from = 0, to = 1, length.out = 20), prior = 1) 
 grid
 ```
 3. Compute the likelihood at each parameter value you want to estimate. 
 
-```{r}
+```{r, eval = FALSE}
 grid <- grid %>% 
  mutate(likelihood  = dbinom(6, size = 9, prob = p_grid)) 
 ```
 
 4. Now that we have the likelihood, we can multiply it by the prior to get the unstandardized posterior
-```{r}
+```{r, eval = FALSE}
 grid <- grid %>% 
 mutate(unstd_posterior = likelihood * prior) 
 
@@ -1006,24 +1010,24 @@ grid
 ```
 
 5. we standardized the posterior by dividing by sum of all values. 
-```{r}
+```{r, eval = FALSE}
 grid <- grid %>% 
 mutate(posterior = unstd_posterior / sum(unstd_posterior))
 ```
 
 Lets check to see that the sum of the standardized and the unstandardized line up with what they should be
 
-```{r}
+```{r, eval = FALSE}
 grid %>% 
     summarize(unstd = sum(unstd_posterior),
             std = sum(posterior))
 ```
 
-```{r}
+```{r, eval = FALSE}
 grid
 ```
 
-```{r}
+```{r, eval = FALSE}
 
 g20 <- ggplot(grid, aes(x = p_grid, y = posterior)) +
   geom_point() +
@@ -1035,7 +1039,7 @@ g20 <- ggplot(grid, aes(x = p_grid, y = posterior)) +
 g20
 ```
 
-```{r}
+```{r, eval = FALSE}
 tibble(p_grid            = seq(from = 0, to = 1, length.out = 5),
        prior             = 1) %>%
   mutate(likelihood      = dbinom(6, size = 9, prob = p_grid)) %>%
@@ -1052,7 +1056,7 @@ tibble(p_grid            = seq(from = 0, to = 1, length.out = 5),
 ```
 
 Prior that is peaked, like before
-```{r}
+```{r, eval = FALSE}
 peaked <- tibble(p_grid = seq(from = 0, to = 1, length.out = 20),
        prior = c(seq(from = 0, to = 1, length.out = 10), seq(from = 0.998, to = 0, length.out = 10)))
 
@@ -1060,7 +1064,7 @@ peaked
 ```
 
 
-```{r}
+```{r, eval = FALSE}
 
 peaked <- peaked %>% 
   mutate(likelihood = dbinom(6, size = 9, prob = p_grid)) %>%

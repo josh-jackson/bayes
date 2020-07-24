@@ -3,61 +3,51 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/</loc>
+    <loc>https://bayes.netlify.app//</loc>
     <lastmod>2020-07-22T17:45:31-05:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/</loc>
+    <loc>https://bayes.netlify.app//post/</loc>
     <lastmod>2020-07-22T17:45:31-05:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/test-again/</loc>
+    <loc>https://bayes.netlify.app//post/test-again/</loc>
     <lastmod>2020-07-22T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/post/testagain/</loc>
+    <loc>https://bayes.netlify.app//post/testagain/</loc>
     <lastmod>2020-07-22T17:45:31-05:00</lastmod>
   </url>
   
   <url>
-    <loc>/privacy/</loc>
-    <lastmod>2018-06-28T00:00:00+01:00</lastmod>
+    <loc>https://bayes.netlify.app//authors/</loc>
   </url>
   
   <url>
-    <loc>/terms/</loc>
-    <lastmod>2018-06-28T00:00:00+01:00</lastmod>
+    <loc>https://bayes.netlify.app//categories/</loc>
   </url>
   
   <url>
-    <loc>/authors/</loc>
+    <loc>https://bayes.netlify.app//homeworks/</loc>
   </url>
   
   <url>
-    <loc>/categories/</loc>
+    <loc>https://bayes.netlify.app//lectures/</loc>
   </url>
   
   <url>
-    <loc>/homeworks/</loc>
+    <loc>https://bayes.netlify.app//publication_types/</loc>
   </url>
   
   <url>
-    <loc>/lectures/</loc>
+    <loc>https://bayes.netlify.app//readings/</loc>
   </url>
   
   <url>
-    <loc>/publication_types/</loc>
-  </url>
-  
-  <url>
-    <loc>/readings/</loc>
-  </url>
-  
-  <url>
-    <loc>/tags/</loc>
+    <loc>https://bayes.netlify.app//tags/</loc>
   </url>
   
 </urlset>
