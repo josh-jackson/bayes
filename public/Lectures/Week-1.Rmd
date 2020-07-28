@@ -5,7 +5,6 @@ date: "10-15-20"
 output:
   xaringan::moon_reader:
     mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
-    lib_dir: libs
     css: xaringan-themer.css
     seal: false
     nature:
@@ -53,6 +52,7 @@ Probability, counting, and learning via Bayes
 2. Know the advantages of Bayesian data analysis
 3. Rethink your approach to statistical inference
 
+test 
 ---
 ## Structure of class
 
@@ -104,13 +104,16 @@ Random quizzes both via email as well as in person
 ---
 ## "Bayesian analysis is just counting"
 
-And counting is just a simplified way of understanding probability. Bayesian analysis is just a way to help us understand probabilities, as we are not well suited to do so.
+- And counting is just a simplified way of understanding probability. 
 
-Our job is to figure out the proportion of blue marbles in a bag. They come in two forms, blue and white. To make it really simple, say there are only 4 marbles in the bag. The proportion of blue marbles can be thought of as a paramter we want to estimate. If there is only four marbles in the bag there are 5 possible combinations of marbles. So my parameter can take 5 different values. We can collect some data and ask: How likely are each my possible parameters likely? 
+- Our job is to figure out the proportion of blue (vs white) marbles in a bag. 
 
-(Note that this is similar to what you do in your analyses, you ask how likely is b, for example, negative infitine, 0,2, 30, all the way to positive infinity. Though we dont really ask it in this way)
+- The proportion of blue marbles can be thought of as a parameter we want to estimate. 
 
-How should we go about answering this question? By counting! 
+- If there is only four marbles in the bag there are 5 possible combinations of marbles. So my parameter can take 5 different values. We can collect some data and ask: How likely are each my possible parameters likely? 
+tesy
+---
+## We answer by counting! 
 
 What are our possibilities? 
 ```{r}

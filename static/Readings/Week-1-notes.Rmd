@@ -26,6 +26,8 @@ knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 
 ```
 
+
+
 # Goals for today
 Probability, counting, and learning via Bayes
 
