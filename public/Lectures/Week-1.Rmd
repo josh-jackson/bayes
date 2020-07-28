@@ -45,6 +45,7 @@ library(broom)
 
 Probability, counting, and learning via Bayes
 
+test again. 
 ---
 ## Goals of semester
 

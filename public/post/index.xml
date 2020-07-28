@@ -5,46 +5,23 @@
     <link>/post/</link>
       <atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     <description>Posts</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Mon, 27 Jul 2020 00:00:00 +0000</lastBuildDate>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Tue, 28 Jul 2020 00:00:00 +0000</lastBuildDate>
     <image>
-      <url>img/map[gravatar:%!s(bool=false) shape:circle]</url>
+      <url>/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
       <title>Posts</title>
       <link>/post/</link>
     </image>
     
     <item>
-      <title>wtf</title>
-      <link>/post/wtf/</link>
-      <pubDate>Mon, 27 Jul 2020 00:00:00 +0000</pubDate>
-      <guid>/post/wtf/</guid>
+      <title>what is happening</title>
+      <link>/post/what-is-happening/</link>
+      <pubDate>Tue, 28 Jul 2020 00:00:00 +0000</pubDate>
+      <guid>/post/what-is-happening/</guid>
       <description>
+&lt;script src=&#34;//rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
 
 
-&lt;p&gt;test test test&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>test again</title>
-      <link>/post/test-again/</link>
-      <pubDate>Wed, 22 Jul 2020 00:00:00 +0000</pubDate>
-      <guid>/post/test-again/</guid>
-      <description>
-
-
-
-</description>
-    </item>
-    
-    <item>
-      <title>testagain</title>
-      <link>/post/testagain/</link>
-      <pubDate>Wed, 22 Jul 2020 00:00:00 +0000</pubDate>
-      <guid>/post/testagain/</guid>
-      <description>
-
-
-
+&lt;p&gt;This is not responding.&lt;/p&gt;
 </description>
     </item>
     
