@@ -7,5 +7,5 @@ output: html_document
 
 
 ## INTRO Week 1
-[Introduction Slides](/Lectures/Week-1.html)
+[Introduction Slides](/Lectures/week1.html)
 

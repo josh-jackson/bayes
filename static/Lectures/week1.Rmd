@@ -1,0 +1,1122 @@
+---
+title: "Week 1"
+author: Josh Jackson
+date: "10-15-20"
+output:
+  xaringan::moon_reader:
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    css: xaringan-themer.css
+    seal: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      ratio: "16:9"
+---
+
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "#23395b",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Droid Mono"),
+)
+
+library(tidyverse)
+library(broom)
+```
+
+<style type="text/css">
+.remark-slide-content {
+    font-size: 30px;
+    padding: 1em 4em 1em 4em;
+}
+
+.small .remark-code { 
+  font-size: 80% !important;
+}
+.tiny .remark-code {
+  font-size: 65% !important;
+}
+</style>
+
+
+##Goals for today
+
+Probability, counting, and learning via Bayes
+
+test again. 
+---
+## Goals of semester
+
+1. Take what you know and do it Bayesian (and more!)
+2. Know the advantages of Bayesian data analysis
+3. Rethink your approach to statistical inference
+
+test 
+---
+## Structure of class
+
+Weekly lectures along with hands on examples
+
+Important: weekly homework and weekly reading. 
+
+Random quizzes both via email as well as in person 
+
+---
+## Why not frequentist?
+
+1. Assumptions! (Bayesian has assumptions too, just different)
+2. Incoherent interpretations. While you can get around this, it appears embedded in the philosophy of frequentist analysis. In contrast, Bayesian approaches are just counting. 
+3. Estimation. ML is cool and all but have you heard of MCMC?
+4. Jumping through hoops to do tasks that are simple in Bayesian Frameworks. E.g., regularization, error-corrections, contrasts, robust, calculating error bars/bands, et cetera.  
+
+---
+# History
+
+- Bayes (died 1761). `inverse probability` 
+
+- Laplace was the bad ass
+
+- Fisher (anti-Bayesian)
+
+- Computational limitations
+
+---
+## Probability
+
+- Probabilistic statements are used to describe *uncertainty*.  
+
+- Bayesian analysis count all ways that something can happen (according to assumptions/model). Assumptions with more ways that are consistent with data are more plausible. 
+
+- We can then use these probabilistic statements to guide our scientific questions e.g., this model is more likely than that model or the best estimate of this regression parameter is most likely to fall from here to there. 
+
+---
+## Motivating examples
+
+- Two main points you can always lean on: 
+1. "Bayesian analysis is just counting"
+2. "Bayesian inference is reallocation of credibility across possibilities (which are parameter values)"
+
+- Everything that we are going to do in class is just an extension of these simple examples, no matter how complicated it gets. 
+
+- Your prior knowledge of statistics `will get in the way` so be sure to read through the text and examples multiple times. 
+
+---
+## "Bayesian analysis is just counting"
+
+- And counting is just a simplified way of understanding probability. 
+
+- Our job is to figure out the proportion of blue (vs white) marbles in a bag. 
+
+- The proportion of blue marbles can be thought of as a parameter we want to estimate. 
+
+- If there is only four marbles in the bag there are 5 possible combinations of marbles. So my parameter can take 5 different values. We can collect some data and ask: How likely are each my possible parameters likely? 
+tesy
+---
+## We answer by counting! 
+
+What are our possibilities? 
+```{r}
+library(tidyverse)
+d <-
+  tibble(p_1 = 0,
+         p_2 = rep(1:0, times = c(1, 3)),
+         p_3 = rep(1:0, times = c(2, 2)),
+         p_4 = rep(1:0, times = c(3, 1)),
+         p_5 = 1)
+d %>% 
+  gather() %>% 
+  mutate(x = rep(1:4, times = 5),
+         possibility = rep(1:5, each = 4)) %>% 
+  
+  ggplot(aes(x = x, y = possibility, 
+             fill = value %>% as.character())) +
+  geom_point(shape = 21, size = 5) +
+  scale_fill_manual(values = c("white", "navy")) +
+  scale_x_continuous(NULL, breaks = NULL) +
+  coord_cartesian(xlim = c(.75, 4.25),
+                  ylim = c(.75, 5.25)) +
+  theme(legend.position = "none")
+```
+
+marbles ^ draw = numnber of possibilities. So if we collect 1 data point, there are 4 options. Two, 16. Three data points, there are 64. 
+
+We then go out and collect data. Say Blue, White, Blue. If you got this, what would you say about your parameter estimate, ie how many blues are in the bag? 1/2? 3/4? 1/4?
+
+Well we need to count. And the way a Bayesian counts is they to count ALL ways that the data *could* happen. To do so, we need to think about the possible ways a blue, white, blue could occur given what we know. To assist with this we can make a conjecture or a guess about the world. Based on the previous graph, we can see that we could only have blue white blue for 3/5 possibilities. 
+
+Assuming that the true bag contains 1/5 blue, how likely is it to give us 2/3 blues?
+
+```{r}
+d <-
+  tibble(position = c((1:4^1) / 4^0, 
+                      (1:4^2) / 4^1, 
+                      (1:4^3) / 4^2),
+         draw     = rep(1:3, times = c(4^1, 4^2, 4^3)),
+         fill     = rep(c("b", "w"), times = c(1, 3)) %>% 
+           rep(., times = c(4^0 + 4^1 + 4^2)))
+
+d <-
+  d %>% 
+  mutate(denominator = ifelse(draw == 1, .5,
+                              ifelse(draw == 2, .5 / 4,
+                                     .5 / 4^2))) %>% 
+  mutate(position    = position - denominator)
+
+lines_1 <-
+  tibble(x    = rep((1:4), each = 4),
+         xend = ((1:4^2) / 4),
+         y    = 1,
+         yend = 2)
+  lines_1 <-
+  lines_1 %>% 
+  mutate(x    = x - .5,
+         xend = xend - .5 / 4^1)
+  
+  lines_2 <-
+  tibble(x    = rep(((1:4^2) / 4), each = 4),
+         xend = (1:4^3) / (4^2),
+         y    = 2,
+         yend = 3)
+    lines_2 <-
+  lines_2 %>% 
+  mutate(x    = x - .5 / 4^1,
+         xend = xend - .5 / 4^2)
+  
+d %>% 
+  ggplot(aes(x = position, y = draw)) +
+  geom_segment(data  = lines_1,
+               aes(x = x, xend = xend,
+                   y = y, yend = yend),
+               size  = 1/3) +
+  geom_segment(data  = lines_2,
+               aes(x = x, xend = xend,
+                   y = y, yend = yend),
+               size  = 1/3) +
+  geom_point(aes(fill = fill),
+             shape = 21, size = 3) +
+    scale_x_continuous(NULL, limits = c(0, 4), breaks = NULL) +
+  scale_y_continuous(NULL, limits = c(0.75, 3), breaks = NULL) +
+  scale_fill_manual(values  = c("navy", "white")) +
+  theme(panel.grid.minor = element_blank(),
+        legend.position  = "none")
+```
+These are the 64 ways that could come out of a 1 blue bag (number of marbles ^ number of draws). 
+
+How many of these give us our Blue, White, Blue? 
+
+```{r}
+lines_1 <-
+  lines_1 %>% 
+  mutate(remain = c(rep(0:1, times = c(1, 3)),
+                    rep(0,   times = 4 * 3)))
+
+lines_2 <-
+  lines_2 %>% 
+  mutate(remain = c(rep(0,   times = 4),
+                    rep(1:0, times = c(1, 3)) %>% 
+                      rep(., times = 3),
+                    rep(0,   times = 12 * 4)))
+
+d <-
+  d %>% 
+  mutate(remain = c(rep(1:0, times = c(1, 3)),
+                    rep(0:1, times = c(1, 3)),
+                    rep(0,   times = 4 * 4),
+                    rep(1:0, times = c(1, 3)) %>% 
+                      rep(., times = 3),
+                    rep(0,   times = 12 * 4))) 
+
+d %>% 
+  ggplot(aes(x = position, y = draw)) +
+  geom_segment(data  = lines_1,
+               aes(x = x, xend = xend,
+                   y = y, yend = yend,
+                   alpha = remain %>% as.character()),
+               size  = 1/3) +
+  geom_segment(data  = lines_2,
+               aes(x = x, xend = xend,
+                   y = y, yend = yend,
+                   alpha = remain %>% as.character()),
+               size  = 1/3) +
+  geom_point(aes(fill = fill, alpha = remain %>% as.character()),
+             shape = 21, size = 4) +
+  # it's the alpha parameter that makes elements semitransparent
+  scale_alpha_manual(values = c(1/10, 1)) +
+  scale_fill_manual(values  = c("navy", "white")) +
+  scale_x_continuous(NULL, limits = c(0, 4), breaks = NULL) +
+  scale_y_continuous(NULL, limits = c(0.75, 3), breaks = NULL) +
+  theme(panel.grid      = element_blank(),
+        legend.position = "none")
+```
+
+
+We see hat 3 pathways could give us our data. Is that good, bad? what do we compare it to? 
+
+```{r}
+d <-
+  tibble(position = c((1:4^1) / 4^0, 
+                      (1:4^2) / 4^1, 
+                      (1:4^3) / 4^2),
+         draw     = rep(1:3, times = c(4^1, 4^2, 4^3)))
+
+
+  d <-
+  d %>% 
+  bind_rows(
+    d, d
+  ) %>% 
+  # here are the fill colors
+  mutate(fill = c(rep(c("w", "b"), times = c(1, 3)) %>% rep(., times = c(4^0 + 4^1 + 4^2)),
+                  rep(c("w", "b"), each  = 2)       %>% rep(., times = c(4^0 + 4^1 + 4^2)),
+                  rep(c("w", "b"), times = c(3, 1)) %>% rep(., times = c(4^0 + 4^1 + 4^2)))) %>% 
+  # now we need to shift the positions over in accordance with draw, like before
+  mutate(denominator = ifelse(draw == 1, .5,
+                              ifelse(draw == 2, .5 / 4,
+                                     .5 / 4^2))) %>% 
+  mutate(position = position - denominator) %>% 
+  # here we'll add an index for which pie wedge we're working with
+  mutate(pie_index = rep(letters[1:3], each = n()/3)) %>% 
+  # to get the position axis correct for pie_index == "b" or "c", we'll need to offset
+  mutate(position = ifelse(pie_index == "a", position,
+                           ifelse(pie_index == "b", position + 4,
+                                  position + 4 * 2)))
+ 
+   move_over <- function(position, index){
+  ifelse(index == "a", position,
+         ifelse(index == "b", position + 4,
+                position + 4 * 2)
+         )
+  }
+  
+   lines_1 <-
+  tibble(x    = rep((1:4), each = 4) %>% rep(., times = 3),
+         xend = ((1:4^2) / 4)        %>% rep(., times = 3),
+         y    = 1,
+         yend = 2) %>% 
+  mutate(x    = x - .5,
+         xend = xend - .5 / 4^1) %>% 
+  # here we'll add an index for which pie wedge we're working with
+  mutate(pie_index = rep(letters[1:3], each = n()/3)) %>% 
+  # to get the position axis correct for `pie_index == "b"` or `"c"`, we'll need to offset
+  mutate(x    = move_over(position = x,    index = pie_index),
+         xend = move_over(position = xend, index = pie_index))
+   
+   lines_2 <-
+  tibble(x    = rep(((1:4^2) / 4), each = 4)  %>% rep(., times = 3),
+         xend = (1:4^3 / 4^2)                 %>% rep(., times = 3),
+         y    = 2,
+         yend = 3) %>% 
+  mutate(x    = x - .5 / 4^1,
+         xend = xend - .5 / 4^2) %>% 
+  # here we'll add an index for which pie wedge we're working with
+  mutate(pie_index = rep(letters[1:3], each = n()/3)) %>% 
+  # to get the position axis correct for `pie_index == "b"` or `"c"`, we'll need to offset
+  mutate(x    = move_over(position = x,    index = pie_index),
+         xend = move_over(position = xend, index = pie_index))
+   
+   d <- 
+  d %>% 
+  mutate(remain = c(# `pie_index == "a"`
+                    rep(0:1, times = c(1, 3)),
+                    rep(0,   times = 4),
+                    rep(1:0, times = c(1, 3)) %>% 
+                      rep(., times = 3),
+                    rep(0,   times = 4 * 4),
+                    rep(c(0, 1, 0), times = c(1, 3, 4 * 3)) %>% 
+                      rep(., times = 3),
+                    # `pie_index == "b"`
+                    rep(0:1, each = 2),
+                    rep(0,   times = 4 * 2),
+                    rep(1:0, each = 2) %>% 
+                      rep(., times = 2),
+                    rep(0,   times = 4 * 4 * 2),
+                    rep(c(0, 1, 0, 1, 0), times = c(2, 2, 2, 2, 8)) %>% 
+                      rep(., times = 2),
+                    # `pie_index == "c"`
+                    rep(0:1, times = c(3, 1)),
+                    rep(0,   times = 4 * 3),
+                    rep(1:0, times = c(3, 1)), 
+                    rep(0,   times = 4 * 4 * 3),
+                    rep(0:1, times = c(3, 1)) %>% 
+                      rep(., times = 3),
+                    rep(0,   times = 4)
+                    )
+         )
+
+lines_1 <-
+  lines_1 %>% 
+  mutate(remain = c(rep(0,   times = 4),
+                    rep(1:0, times = c(1, 3)) %>% 
+                      rep(., times = 3),
+                    rep(0,   times = 4 * 2),
+                    rep(1:0, each  = 2) %>% 
+                      rep(., times = 2),
+                    rep(0,   times = 4 * 3),
+                    rep(1:0, times = c(3, 1))
+                    )
+         )
+
+lines_2 <-
+  lines_2 %>% 
+  mutate(remain = c(rep(0,   times = 4 * 4),
+                    rep(c(0, 1, 0), times = c(1, 3, 4 * 3)) %>% 
+                      rep(., times = 3),
+                    rep(0,   times = 4 * 8),
+                    rep(c(0, 1, 0, 1, 0), times = c(2, 2, 2, 2, 8)) %>% 
+                      rep(., times = 2),
+                    rep(0,   times = 4 * 4 * 3),
+                    rep(0:1, times = c(3, 1)) %>% 
+                      rep(., times = 3),
+                    rep(0,   times = 4)
+                    )
+         )
+
+d %>% 
+  ggplot(aes(x = position, y = draw)) +
+  geom_vline(xintercept = c(0, 4, 8), color = "white", size = 2/3) +
+  geom_segment(data  = lines_1,
+               aes(x = x, xend = xend,
+                   y = y, yend = yend,
+                   alpha = remain %>% as.character()),
+               size  = 1/3) +
+  geom_segment(data  = lines_2,
+               aes(x = x, xend = xend,
+                   y = y, yend = yend,
+                   alpha = remain %>% as.character()),
+               size  = 1/3) +
+  geom_point(aes(fill = fill, size = draw, alpha = remain %>% as.character()),
+             shape = 21) +
+  scale_size_continuous(range = c(3, 1.5)) +
+  scale_alpha_manual(values = c(1/10, 1)) +
+  scale_fill_manual(values  = c("navy", "white")) +
+  scale_x_continuous(NULL, limits = c(0, 12),     breaks = NULL) +
+  scale_y_continuous(NULL, limits = c(0.75, 3.5), breaks = NULL) +
+  theme(panel.grid      = element_blank(),
+        legend.position = "none") +
+  coord_polar()
+```
+3, 9 and 8 ways. This is all the ways the marbles could appear based on our assumptions about the model. This is the posterior probability distribution. 
+
+So what can we do with this? Looks like the bag as 3 or 2 blue marbles, but it is close. It still could be 1 marble. Not completely unthinkable. What about if we colleced more data? 
+
+### Collecting more data
+If we get 1 more blue, what does that say? We can take what we already know and expand upon it. Counting a lot is really just multiplication. Or multiplication is fancy counting. 
+
+```{r}
+n_blue <- function(x){
+  rowSums(x == "b")
+}
+
+n_white <- function(x){
+  rowSums(x == "w")
+}
+
+t <-
+  # for the first four columns, `p_` indexes position
+  tibble(d_1 = rep(c("w", "b"), times = c(1, 4)),
+         d_2 = rep(c("w", "b"), times = c(2, 3)),
+         d_3 = rep(c("w", "b"), times = c(3, 2)),
+         d_4 = rep(c("w", "b"), times = c(4, 1))) %>% 
+  mutate(`draw 1: blue`  = n_blue(.),
+         `draw 2: white` = n_white(.),
+         `draw 3: blue`  = n_blue(.)) %>% 
+  mutate(`ways to produce` = `draw 1: blue` * `draw 2: white` * `draw 3: blue`)
+
+t <-
+  t %>% 
+  rename(`previous counts` = `ways to produce`,
+         `ways to produce` = `draw 1: blue`) %>% 
+  select(d_1:d_4, `ways to produce`, `previous counts`) %>% 
+  mutate(`new count` = `ways to produce` * `previous counts`)
+
+t %>% 
+  knitr::kable()
+```
+
+Previous counts serve as our baseline knowledge and new counts serve as our new data. This is what is referred to as `Bayesian updating`. Our models are trying to learn about the world. We have learned something, we are now going to update that knowledge by learning more. 
+
+### Counts as probabilities
+"We dont know what caused the data, potential causes that may produce the data in more ways are more plausible/credible."
+
+Counts are difficult to work with because once you collect more data you get more possibilities. These possibilities expand very quickly. That is why instead of counting, we will talk about "plausibilities" or "credibilities". Credibilities can be defined as taking the number of ways p can produce the data mulipled by the prior credibility (divided by the sum of the products so the plausibility adds up to 1). We will cover priors in much more detail later, right now they are assumed to be the same for all counts. 
+
+```{r}
+t %>% 
+  select(d_1:d_4) %>% 
+  mutate(p                      = seq(from = 0, to = 1, by = .25),
+         `ways to produce data` = c(0, 3, 8, 9, 0)) %>% 
+  mutate(credibility           = `ways to produce data` / sum(`ways to produce data`))
+```
+
+Wayes to produce data divided by the total number of ways equals the credibility/plausibility. This way, we can think in terms of normalized probabilities that add up to 1 rather than counts that could extend to infinity. 
+
+Linking this example to the terms we will use throughout the class (meant to come back to later to fully digest this example, ignore for now). 
+
+The p here is a `parameter` that we want to estimate. Similar to regression equation bs or rs or any other statistic you encounter in frequentist land. 
+
+A `prior` can be thought of as previous counts -- which we can also make in the form of a parameter rather than a count variable. 
+
+The `likelihood` is the relative number of ways to produce the data. 
+
+The `posterior probability` is the credibilities/plausibility. 
+
+
+## 1.4.2. "Bayesian inference is reallocation of credibility across possibilities (which are parameter values)"
+
+We have seen this with the above example, where we start with all parameter values, p, being equally likely. This is usualy how we opperate; that is we are agnostic about what values are saying that it COULD BE anything. Frequentist does not have a good way to incorporate previous information. But we have previous information all the time, even in science. We know that a cohen's d of 8 is very unlikely, that a r of .8 is also unlikely unless we are measuring same thing. One of the main advantages of Bayesian analysis is cooking this idea into the model. This prior credibility that will then be re-assigned to new levels based on the data. This is what is known as `Bayesian updating` where we start with some prior credibility and then update based on new data. 
+
+With the above example, after the collection of data, we move that previously equal credibility to differnt buckets. We assign more credibility to .75 blue than .25 blue, but we do not totally rule out p(blue) = .25. This end result is the posterior probability distribution. It is our end goal that we are working towards. 
+
+We will explore this idea more, directly dealing with priors. Before, (until we already collected some marbles) we were completely ignorant about what proportion of Blue marbles were in a bag. How do we include these prior intuitions? 
+
+Looking at Figure 2.3 in DBDA, we can imagine a marble producing factory. Marbles are produced in 4 sizes (1-4), but of course, each #2 marble is not exactly 2 units in length, as there is measurement error. This sort of "error" is relavent to us because 1. psychological measurements have a lot of error and 2. most of our phenonema are probabilistic rather than determinative. That is, instead of being able to eliminate the candlestick maker thinking in terms of suspects we should think in terms of changing probabilities. But it is hard to entirely rule out certain possibilities in  contras to what we did above in the marble counting example. Or, in other words, what we are doing is induction, not deduction, and thus we need to explicitly account for the potential that we are wrong. 
+
+How do we do this? Through `distributions`
+
+```{r}
+t2.3 <- tibble(mu = 1:4,
+       p  = .25) %>% 
+  expand(nesting(mu, p), 
+         x = seq(from = -2, to = 6, by = .1)) %>% 
+  mutate(density = dnorm(x, mean = mu, sd = 1.2)) %>% 
+  mutate(d_max   = max(density)) %>% 
+  mutate(rescale = p / d_max) %>% 
+  mutate(density = density * rescale) 
+  
+  # plot!
+  a<- ggplot(data = t2.3, aes(x = x)) +
+  geom_col(data = t2.3 %>% filter(mu == 1),
+           aes(x = mu, y = p),
+           fill = "grey67", width = 1/3) +
+  geom_line(data = t2.3 %>% filter(mu == 1),
+            aes(y = density, group = mu )) +
+  scale_x_continuous(breaks = 1:4) +
+  scale_y_continuous(breaks = 0:5 / 5) +
+  coord_cartesian(xlim = c(0,5), ylim = c(0,1)) +
+  labs(title = "Prior",
+       x = "Possibilities", 
+       y = "Credibility") +
+  theme(panel.grid   = element_blank(),
+        axis.ticks.x = element_blank())
+  
+    b<- ggplot(data = t2.3, aes(x = x)) +
+  geom_col(data = t2.3 %>% filter(mu == 2),
+             #distinct(1, p),
+           aes(x = mu, y = p),
+           fill = "grey67", width = 1/3) +
+  geom_line(data = t2.3 %>% filter(mu == 2),
+            aes(y = density, group = mu )) +
+  scale_x_continuous(breaks = 1:4) +
+  scale_y_continuous(breaks = 0:5 / 5) +
+  coord_cartesian(xlim = c(0,5), ylim = c(0,1)) +
+  labs(title = "Prior",
+       x = "Possibilities", 
+       y = "Credibility") +
+  theme(panel.grid   = element_blank(),
+        axis.ticks.x = element_blank())
+    
+      c<- ggplot(data = t2.3, aes(x = x)) +
+  geom_col(data = t2.3 %>% filter(mu == 3),
+             #distinct(1, p),
+           aes(x = mu, y = p),
+           fill = "grey67", width = 1/3) +
+  geom_line(data = t2.3 %>% filter(mu == 3),
+            aes(y = density, group = mu )) +
+  scale_x_continuous(breaks = 1:4) +
+  scale_y_continuous(breaks = 0:5 / 5) +
+  coord_cartesian(xlim = c(0,5), ylim = c(0,1)) +
+  labs(title = "Prior",
+       x = "Possibilities", 
+       y = "Credibility") +
+  theme(panel.grid   = element_blank(),
+        axis.ticks.x = element_blank())
+      
+        d<- ggplot(data = t2.3, aes(x = x)) +
+  geom_col(data = t2.3 %>% filter(mu == 4),
+           aes(x = mu, y = p),
+           fill = "grey67", width = 1/3) +
+  geom_line(data = t2.3 %>% filter(mu == 4),
+            aes(y = density, group = mu )) +
+  scale_x_continuous(breaks = 1:4) +
+  scale_y_continuous(breaks = 0:5 / 5) +
+  coord_cartesian(xlim = c(0,5), ylim = c(0,1)) +
+  labs(title = "Prior",
+       x = "Possibilities", 
+       y = "Credibility") +
+  theme(panel.grid   = element_blank(),
+        axis.ticks.x = element_blank())
+        
+library(patchwork)
+     (a | b )/(c | d)
+        
+```
+
+Then let's collect some data. We get 1.77, 2.23 and 2.7. Our queston is, which machine is this most likely from? The area under those curves adds up to 1. We now need to reallocate that credibility into new curves, based on the data. What does that reallocation look like? 
+
+```{r}
+t2.3b <- tibble(mu = 1:4,
+       p  = c(.1, .58, .3, .02)) %>% 
+  expand(nesting(mu, p), 
+         x = seq(from = -2, to = 6, by = .1)) %>% 
+  mutate(density = dnorm(x, mean = mu, sd = 1.2)) %>% 
+  mutate(d_max   = max(density)) %>% 
+  mutate(rescale = p / d_max) %>% 
+  mutate(density = density * rescale) 
+  
+  # plot!
+
+a1 <- ggplot(data = t2.3b) +
+  geom_col(data = t2.3b  %>% filter(mu == 1), 
+           aes(x = mu, y = p),
+           fill = "grey67", width = 1/3) +
+  geom_line(data = t2.3b  %>% filter(mu == 1),aes(x = x, y = density, group = mu)) +
+  geom_point(data = tibble(x = c(1.77, 2.23, 2.7), y = 0),
+             aes(x = x, y = y),
+             size = 3, color = "grey33", alpha = 3/4) +
+  scale_x_continuous(breaks = 1:4) +
+  scale_y_continuous(breaks = 0:5 / 5) +
+  coord_cartesian(xlim = c(0,5), ylim = c(0,1)) +
+  labs(title = "Posterior",
+       x = "Possibilities", 
+       y = "Credibility") +
+  theme(panel.grid   = element_blank(),
+        axis.ticks.x = element_blank())
+
+b2 <- ggplot(data = t2.3b) +
+  geom_col(data = t2.3b  %>% filter(mu == 2), 
+           aes(x = mu, y = p),
+           fill = "grey67", width = 1/3) +
+  geom_line(data = t2.3b  %>% filter(mu == 2),aes(x = x, y = density, group = mu)) +
+  geom_point(data = tibble(x = c(1.77, 2.23, 2.7), y = 0),
+             aes(x = x, y = y),
+             size = 3, color = "grey33", alpha = 3/4) +
+  scale_x_continuous(breaks = 1:4) +
+  scale_y_continuous(breaks = 0:5 / 5) +
+  coord_cartesian(xlim = c(0,5), ylim = c(0,1)) +
+  labs(title = "Posterior",
+       x = "Possibilities", 
+       y = "Credibility") +
+  theme(panel.grid   = element_blank(),
+        axis.ticks.x = element_blank())
+
+c3 <- ggplot(data = t2.3b) +
+  geom_col(data = t2.3b  %>% filter(mu == 3), 
+           aes(x = mu, y = p),
+           fill = "grey67", width = 1/3) +
+  geom_line(data = t2.3b  %>% filter(mu == 3),aes(x = x, y = density, group = mu)) +
+  geom_point(data = tibble(x = c(1.77, 2.23, 2.7), y = 0),
+             aes(x = x, y = y),
+             size = 3, color = "grey33", alpha = 3/4) +
+  scale_x_continuous(breaks = 1:4) +
+  scale_y_continuous(breaks = 0:5 / 5) +
+  coord_cartesian(xlim = c(0,5), ylim = c(0,1)) +
+  labs(title = "Posterior",
+       x = "Possibilities", 
+       y = "Credibility") +
+  theme(panel.grid   = element_blank(),
+        axis.ticks.x = element_blank())
+
+d4 <- ggplot(data = t2.3b) +
+  geom_col(data = t2.3b  %>% filter(mu == 4), 
+           aes(x = mu, y = p),
+           fill = "grey67", width = 1/3) +
+  geom_line(data = t2.3b  %>% filter(mu == 4),aes(x = x, y = density, group = mu)) +
+  geom_point(data = tibble(x = c(1.77, 2.23, 2.7), y = 0),
+             aes(x = x, y = y),
+             size = 3, color = "grey33", alpha = 3/4) +
+  scale_x_continuous(breaks = 1:4) +
+  scale_y_continuous(breaks = 0:5 / 5) +
+  coord_cartesian(xlim = c(0,5), ylim = c(0,1)) +
+  labs(title = "Posterior",
+       x = "Possibilities", 
+       y = "Credibility") +
+  theme(panel.grid   = element_blank(),
+        axis.ticks.x = element_blank())
+
+(a1 | b2) /(c3 | d4)
+
+```
+The dots represent our data. The area under the curve represents the allocation of credibility. 
+
+And what if we put it all together, as it might be easier to take in the reallocation. 
+```{r}
+ ggplot(data = t2.3b) +
+  geom_col(data = t2.3b %>% distinct(mu, p),
+           aes(x = mu, y = p),
+           fill = "grey67", width = 1/3) +
+  geom_line(aes(x = x, y = density, group = mu)) +
+  geom_point(data = tibble(x = c(1.75, 2.25, 2.75), y = 0),
+             aes(x = x, y = y),
+             size = 3, color = "grey33", alpha = 3/4) +
+  scale_x_continuous(breaks = 1:4) +
+  scale_y_continuous(breaks = 0:5 / 5) +
+  coord_cartesian(xlim = c(0,5), ylim = c(0,1)) +
+  labs(title = "Posterior",
+       x = "Possibilities", 
+       y = "Credibility") +
+  theme(panel.grid   = element_blank(),
+        axis.ticks.x = element_blank())
+```
+
+Machine 4 seems about impossible, #1 has a 11% chance, #3 a 31% and #2 a 56%. Note you should mostly disregard the scale and the width of the posterior as it does NOT directly correspond to the x axis. Instead the shape is based on the prior, and the shape is directly proportional to the credibility assigned to it. That is, it is not like a sampling distribution where it gets skinnier and skinnier. That sort of inference will come later with more advanced analyses. 
+
+The gist of any statistical analysis is to give credence to a set of possible descriptions of the world. E.g., does this manipulation work, if so, to what extent and for whom? Often this goes in the form of estimates, standard errors, p-values, and confidence intervals. 
+
+Within Bayesian we are going to look at the how credible different values of parameters are. We can start with a relatively ambivilent or strong feeling about the state of these parameters, but then data will help us narrow down the possibilities, giving us associated probabilities for each parameter value. 
+
+# 1.5 Thinking in probability distributions
+Most of what we do is not in terms of finding a single outcome such as who is going to get elected or win sports ball game. Instead we will be estimating some continuous effect. This stems from most of our scientific questions being probabilistic rather than determinative. So we are going to be working with a lot of distributions. We will start building our models up thinking about what theoretical probability distribution "births" the data. 
+
+If you remember back to your frequentist training, you were often choosing which models to use based on how you measured your data --especially your DVs. How you measured your data were inpart decided upon based on the assumed theoretical probability distribution. Instead of being behind the scense, these theoretical probability distributions will be up front and center in Bayesian analysis. Thus it is important to revisit the most common ones. We will be adding to this, but remember these, including the parameters that make up the family of distributions (ie there isnt 1 binomial, there are many, depending on the parameters)
+
+Binomial (probability of success, number of trials). When number of trials = 1 it is called a Bernouli. 
+
+Gaussian/normal (mean and SD, also known as location and scale). Student and skew normal too. 
+
+Negative binomial, Poisson and geometric for counts
+
+Exponential, lognormal, gamma, weibull for surivial models
+
+Beta, Cauchy and LKJ for priors
+
+Exgaussian, weiner for response time. 
+
+We are going to be using these distributions 2 ways. 1) do describe priors and 2) to describe our likelihoods, which can be thought of as our Data Generaing Process (DGP), much like we do in frequintist statistics. We assume that the data are "birthed" or formed in a certain manner. Depending on this we may measure them differently, and the distribution of them may look differently. 
+
+We are going to spend most of the class using the Gaussian/normal distribution, much like you do with normal stats, as our DGP. (See SR about why). However, we are going to start with a binomial example. 
+
+# 1.6  Steps in Bayesian data analysis, part 1
+
+Unlike frequentist which requires different procedures for different kinds of questions and data, Bayesian represents a generic approach for data analysis. We will do the same steps each. Before we do these steps, we first need to introduce you to the components. 
+
+1. Design the model
+2. Condition on the model with data
+3. Evaluate the model
+4. Rinse and Repeat
+
+
+# 1.6.1 Design the model
+
+Much of the class will be set up doing this design phase. It is similar to setting up the regression model, only it will have a few more components. What is our first step? Describe how our or DV to the data via a likelihihood distribution. E.g., 
+
+DV ~ Normal($\mu_i$, $\sigma$)
+
+Here we say that our DGP is normal, with two paramters. The mean differs among i people. While this is a likelihood distribution it is not the likelihood that we will estimate. More on that later. 
+
+Next, we state that we want to understand why i people differ on the mean of the DV. We can do that through a normal equation like: 
+
+$\mu_i$ = $\beta$ X $X_i$
+
+At this point, this is no different that a normal regression you are all familiar with. The default link function in a regression is Gausian, you try to predict why some people have higher scores on the DV through a predictor X. The magnitudie of association across i people is quantified by a regression coefficient, Beta. And you have a parameter that is estimated called sigma, which in the output is hidden under the name Residual Standard Error. This is just a way to be explicit about 1. your data generating process and 2. what parameters you are modeling. 
+
+We will use this same nomenclature to describe our priors on each of the paramters we are modeling. For example, we are estimated $\beta$ and $\sigma$, and thus we need two priors. 
+
+
+$\beta$ ~ Normal(0, 5)
+$\sigma$ ~ HalfCauchy(0,1)
+
+# 1.7 Priors
+Priors are a way to incorporate your beliefs into the model. At first blush it feels as if this is wrong, and is the justification for many for why the standard approach is correct and Bayesian is wrong. I mean, most people are taught frequentest approaches, thus how can 10 million SPSS users be wrong? But priors allows us to include a priori intuition about what the findings are. 
+
+Priors will be discussed in the form of a probability distribution, but to simplify you can think about this as initial possibilities in a murder mystery. Each person has some slight possibility of being the murder, with some being more than others. The prior is another way of saying how likely someone is for the murder prior to collecting any clues (data). When we start collecting data these clues are interpreted through our original intuitions (priors). So if I find that the murder weapon is a candle stick, I may look more closely at the candlestick maker and less at the baker who has an irriational fear of candlesticks. If thought of as relative percentages out of 100 of likely being the murderer, I would take the number previously ascribed to the baker (say 20%) and move that to the candelstick maker (from 20 % -> 40%) and then the baker would go from (20% - 0%). 
+
+After collecting data (eg figuring out it was a candelstick) I'm reallocating my beliefs/credibility. The result of collecting data is documented in the posterior distribution. 
+
+In the above example, we have a prior of $\beta$ ~ Normal(0, 5), which provides us a general idea about what we would expect the regression to be BEFORE WE COLLECTED DATA. So here it says that we expect regression coefficient to be 0 (hey we're conservative) but wouldnt be suprised if it was 5 plus or minus. We would be maybe a little suprised if it was 10 plus or minus (remember what a z = 2 says about the area under the curve?). Depending on how we feel we could easily change this. 
+
+```{r}
+
+N10 <- ggplot(data.frame(x = c(-35, 35)), aes(x)) +
+  stat_function(fun = dnorm, n = 100, args = list(0, 10))+
+  labs(title = "B ~ Normal(0, 10)")
+
+N5 <- ggplot(data.frame(x = c(-35, 35)), aes(x)) +
+  stat_function(fun = dnorm, n = 100, args = list(0, 5)) +
+  labs(title = "B ~ Normal(0, 5)")
+
+N1 <- ggplot(data.frame(x = c(-35, 35)), aes(x)) +
+  stat_function(fun = dnorm, n = 100, args = list(0, 1)) +
+  labs(title = " B ~ Normal(0, 1)")
+
+N2 <- ggplot(data.frame(x = c(-35, 35)), aes(x)) +
+  stat_function(fun = dnorm, n = 100, args = list(0, 2)) +
+  labs(title = "B ~ Normal(0, 2)")
+
+(N10 | N5 )/
+  (N1 | N2 )
+```
+
+```{r}
+s1 <- ggplot(data.frame(x = c(0, 10)), aes(x)) +
+  stat_function(fun = dcauchy, n = 200, args = list(0, 1)) +  labs(title = "sigma ~ HalfCauchy(0,1)")
+
+s10 <- ggplot(data.frame(x = c(0, 10)), aes(x)) +
+  stat_function(fun = dcauchy, n = 200, args = list(0, 10)) +
+  labs(title = "sigma ~ HalfCauchy(0,10)")
+
+(s1 + s10)
+```
+
+We will often choose priors that are called `regularizing` or `weakly informative`. The purpose of these priors is to make sure that we are not overfitting our models. Instead we want to be both conservative as well as put in prior feelings of the model. Thus, as you can see with our $\beta$ prior we make the most likely value 0, meaning no effect. Strong effects are less likely. 
+
+This can be contrasted with a view that makes "guesses" about the effects rather than a weakly informative prior. Here maybe we make the most likely prior for the regression coefficient .5, as that was found in a previous study. This is not wrong per se. We will encounter some uses for this later in the semester, but at the moment this type of prior is not considered as cooth as the regularizing/weakly informative priors. 
+
+We ofen refer to the prior distribution as p($\theta$)
+
+
+# 1.8 Likelihood
+Mathmatical function (often) to identify the probability of different parameters. Technically it is the distribution of the likelihood of various hypothesis. Said again, it is the number of ways (counting) to see some data that you colleced, given certain guesses for the paramters. We've seen these before actually, and work with likelihoods when we use maximum likelihood estimation for frequentist SEM or MLM. What is slightly different here is that we are going to choose the likelihood distribution for each of our models. 
+
+Above we specified the likelihood we wanted to estimate via: 
+DV ~ Normal($\mu_i$, $\sigma$)
+
+To get to know the likelihood more in depth lets revisit a theoretical probability distribution from first year of stats. You remember the binomial distribution, right? It is an easy one to begin with because the outcome is a simple yes/no. Given number of trials (N) and the probability of being correct (p), you could calculate the probability of different number of successes (k).
+
+$$p(k|N,p) =   {{N}\choose{k}} \cdot p^kq^{N-k}$$
+
+After we collect some data, we can figure out the probability of getting 3 successes out of 10 trials, assuming a probability of .5. 
+```{r}
+dbinom(3, size = 10, prob = .5)
+```
+But does this tell me how likely .5 is? No. And that is the parameter we are interested in eg is this a fair coin. Think back to your first semester, you basically were able to say is this a fair coin, and give a probability of it being, but that was it. For example, if the coin was not fair but instead only gave heads 30% of the time, how likely is it that we would get 6 successes? 
+
+```{r}
+dbinom(3, size = 10, prob = .3)
+```
+
+We also did more calculations because the probability of getting three wasn't what we wanted, we also wanted the probability of getting 3 or less, assuming it was a fair coin. 
+
+```{r}
+pbinom(3, size = 10, prob = .5)
+```
+
+Again, you have the skills to tell you whether or not something was fair or not, by specifying the parameter, p. In other words, L($\theta$) = p(data|$\theta$). But what we typically want when figuring out a parameter is not one specific parameter (ie is the tails heads or not) but what is the MOST likely parameter -- AND what is the probability of each possibility parameter. That is what the likelyhood tells us.  The probability of the data that you actually got, assuming a particular theta is true.
+
+```{r}
+
+ggplot(tibble(x = c(0, 1)), 
+       aes(x = x)) + 
+  stat_function(fun = dbinom, args = list(x = 3, size = 10)) + 
+  labs(x = expression(theta), 
+       y = "likelihood")
+```
+
+You saw this before but never realized this was a likelihood.  Note this is the likelihood of  $\theta$, but probability about the data -- p(data|$\theta$). For a standard conditional probability, theta (your hypothsis) is treated as a given, and the data are free to vary. For likelihood, the data are treated as a given, and value of theta varies. 
+
+We differentiate likelihoods from probabilities because likelihoods do not have to add up to 1 (remember your basic probability rules)
+
+## 1.8.1 Maximum Likelihood
+You are already somewhat familiar with likelihoods in that you have used maximum likelihood. Maximum Likelihood for regression is equivalent to our typical OLS estimation you are familiar with. Why do we not use OLS? Because most problems do not have an analytic solution; that is, they need to be solved iteratively, through trial and error. Anytime you are working with generalized linear models, SEM and MLM models you will need to use ML.
+
+Maximum likelihood results can be throught of as he same as the above binomial example where there is a p(data|$\theta$) (More or less, there are some technical differences that we wont go into). But what is typically reported?: A mean estimate and an estimate of standard error. There are likelihoods for each hypothesis (parameter value) yet these are not typically reported. Moreover, there is an assumed normal distribution of these likelihoods. As we will see in a little bit that this assumption is likely fine for low dimensional models with assumed normal distributions. But the likelihood may not be normal and especially may not be normal once we take into account prior information. Thus Bayesian inference will be important. 
+
+Further, by thinking in distributions we are going to be moving away from thinking about point estimates. Just like we improved upon focusing on point estimates by doing confidence intervals, we are going to imrpove upon those by visualzing the entire distribution of possible parameter values given the data.
+
+One additional aside is that when the prior is flat, our likelihood ends up becomeing the posterior distribution and thus is going to be equivalent to the ML estimate. Said again, we can recreate an ML estimate through Bayesian inference. However, Bayes can also give you more -- so why not only use Bayes? 
+
+# 1.9 Posterior
+The `posterior distribution` is the distribution of our belief about the parameter values after taking into account the data and one's priors. p($\theta$|data). It describes how certain or confident we are about different values of $\theta$, given that we have observed data. These are our results, what we use to make inferences about our hypotheses. We obtain the posterior through the multiplication of the prior and the likelihood. 
+
+In terms of our murder mystery example, it is an updated prior distribution. That is, the only difference between the prior and the posterior is that you collected data. If you collect data and have a posterior and then want to collect more data, your posterior can then become the prior. Repeate this process an infinite number of possible times. Again, this is called `Bayesian Updating`.
+
+#1.10 Steps in BDA, part 2: Bayes theorem
+
+1. Design the model
+2. Condition on the model with data
+3. Evaluate the model
+4. Rinse and Repeat
+
+How do we condition the model with data? As seen above, we are going to estimate some parameter or parameteres, θ (i.e., some quantities of interest, such as population mean, regression coefficient, etc) by applying the Bayes’ Theorem. 
+
+$$\text{Posterior Probability} \propto \dfrac{\text{Likelihood} \times \text{Prior Probability}}{\text{Average Likelihood}}$$
+
+$$p(\theta | data) \propto \frac{p(data | \theta) \times p(\theta )}{p(data)}$$
+
+• P(θ|data) is the posterior probability. It describes how certain or confident we are that hypothesis H is true, given that we have observed data. Calculating posterior probabilities is the main goal of Bayesian statistics.
+
+• P(θ) is the prior probability, which describes how sure we were that theta was true, before we observed the data D.
+
+• P(data|θ) is the likelihood. If you were to assume that theta is true, this is the probability that you would have observed data.
+
+• P(data) is the average or marginal likelihood, sometimes called "the evidence". This is the probability that you would have observed data, whether theta is true or not. In other words, it is the average likelihood of the data. The main purpose of this is to standardize the posterior so it integrates (adds up) to 1, like we would want it to do as it is a probability distribution. 
+
+We do not discuss the average likelihood in depth, just because it involves integrals so the computation is difficult, it doesn't necessarily help in understanding, and I think it takes awhile for it to click. For those that want to know more you should look in DBDA chapter 5 for an example with dichomtous predictors and outcomes.  
+
+Often, we ignore the average likelihood and just talk about the posterior being proptional to the likelihood multiplied by the prior. 
+$$\text{Posterior Probability} \propto\text{Likelihood} \times \text{Prior Probability}$$
+The (relatively) intuitive reason this is the case is because multiplication is just formalized and expediated counting. This is where the heavy lifting is done. The average likelihood standardizes these counts into proportions that add up to 1.
+
+##1.10.1 Running a model
+When running a Bayesian model, all go through the same steps: They take the prior information and incorporate the current data to make a new distribution to tell you about the probability of different parameters, given your data. 
+
+We will talk about how it is done mathmatically later, but for now I want you to get comfortable with the mechanics of the process. SR describes it as conditioning the prior on the data to yield a posterior. Regardless of the complexity it is just counting, but the counting will be obscured quite quickly. Below, coopted from Solomon Kurtz's code from Statistical Rethinking, is a way to to see how different priors can influence the posterior, even with the same data (likelihood).
+
+```{r, message = FALSE}
+library(gridExtra)
+sequence_length <- 1e3
+
+d <-
+  tibble(probability = seq(from = 0, to = 1, length.out = sequence_length)) %>% 
+  expand(probability, row = c("flat", "stepped", "Laplace")) %>% 
+  arrange(row, probability) %>% 
+  mutate(prior = ifelse(row == "flat", 1,
+                        ifelse(row == "stepped", rep(0:1, each = sequence_length / 2),
+                               exp(-abs(probability - .5) / .25) / ( 2 * .25))),
+         likelihood = dbinom(x = 6, size = 9, prob = probability)) %>% 
+  group_by(row) %>% 
+  mutate(posterior = prior * likelihood / sum(prior * likelihood)) %>% 
+  gather(key, value, -probability, -row) %>% 
+  ungroup() %>% 
+  mutate(key = factor(key, levels = c("prior", "likelihood", "posterior")),
+         row = factor(row, levels = c("flat", "stepped", "Laplace"))) 
+
+p1 <-
+  d %>%
+  filter(key == "prior") %>% 
+  ggplot(aes(x = probability, y = value)) +
+  geom_line() +
+  scale_x_continuous(NULL, breaks = c(0, .5, 1)) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  labs(subtitle = "prior") +
+  theme(panel.grid       = element_blank(),
+        strip.background = element_blank(),
+        strip.text       = element_blank()) +
+  facet_wrap(row ~ ., scales = "free_y", ncol = 1)
+
+p2 <-
+  d %>%
+  filter(key == "likelihood") %>% 
+  ggplot(aes(x = probability, y = value)) +
+  geom_line() +
+  scale_x_continuous(NULL, breaks = c(0, .5, 1)) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  labs(subtitle = "likelihood") +
+  theme(panel.grid       = element_blank(),
+        strip.background = element_blank(),
+        strip.text       = element_blank()) +
+  facet_wrap(row ~ ., scales = "free_y", ncol = 1)
+
+p3 <-
+  d %>%
+  filter(key == "posterior") %>% 
+  ggplot(aes(x = probability, y = value)) +
+  geom_line() +
+  scale_x_continuous(NULL, breaks = c(0, .5, 1)) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  labs(subtitle = "posterior") +
+  theme(panel.grid       = element_blank(),
+        strip.background = element_blank(),
+        strip.text       = element_blank()) +
+  facet_wrap(row ~ ., scales = "free_y", ncol = 1)
+
+library(gridExtra)
+
+grid.arrange(p1, p2, p3, ncol = 3)
+```
+
+Three take a way points. 
+1. The probability of any parameter in the posterior is found by counting, but the counting depends on the prior (previous counts or information) as well as new data collected. These are combined to create probabilities of any given parameter. They are combined through multiplication. Hopefully the intuition that highly likely prior theta value mulitplied by highly likely likelihood yeilds a highly likely poserior. 
+
+2. If your prior says an option is impossible (Eg below .5, second row) your posterior will incorporate that information, just as if you were a detective and you already ruled out a suspect. Or, if the prior is 0 and you multiple anything by 0 you get zero back. 
+
+3. When the prior is uniform (ie flat) the likelihood is equivalent to the posterior. This means you can fit "frequentist" models with Bayesian estiamtion. So at one level there is nothing new from what you are used to other than a few names and a few additional options. But if you wanted to replicate MLE estimates, you can.
+
+##1.10.2 sample size influence
+
+The relative influence of the prior and the likelihood depends on 1) the sample size of the data collected and 2) the extremity of the prior (think peaked vs very flat), To see the influence of the sample size, lets look at two examples. Again, we will wait to see how these are explicitly calculated, I just want you to get the intuition of these three components. 
+
+```{r}
+
+bernoulli_likelihood <- function(theta, data) {
+  # `theta` = success probability parameter ranging from 0 to 1
+  # `data` = the vector of data (i.e., a series of 0s and 1s)
+  n   <- length(data)
+  return(theta^sum(data) * (1 - theta)^(n - sum(data)))
+}
+  
+small_data <- rep(0:1, times = c(3, 1))
+
+s <- tibble(theta =   seq(from = 0,     to = 1, by = .001),
+       Prior = c(seq(from = 0,     to = 1, length.out = 501),
+                 seq(from = 0.998, to = 0, length.out = 500))) %>% 
+  mutate(Prior      = Prior / sum(Prior),
+         Likelihood = bernoulli_likelihood(theta = theta,
+                                           data  = small_data)) %>% 
+  mutate(marginal_likelihood = sum(Prior * Likelihood)) %>% 
+  mutate(Posterior           = (Prior * Likelihood) / marginal_likelihood) %>% 
+  select(theta, Prior, Likelihood, Posterior) %>% 
+  gather(key, value, -theta) %>% 
+  mutate(key = factor(key, levels = c("Prior", "Likelihood", "Posterior")))  
+
+small <- ggplot(s, aes(x = theta, ymin = 0, ymax = value)) +
+  geom_ribbon(fill = "grey67") +
+  scale_x_continuous(breaks = seq(from = 0, to = 1, by = .2)) +
+  labs(x = expression(theta),
+       y = "probability density") +
+  theme(panel.grid = element_blank()) +
+  facet_wrap(~key, scales = "free_y", ncol = 1)
+
+
+large_data <- rep(0:1, times = c(30, 10))
+
+l <- tibble(theta =   seq(from = 0,     to = 1, by = .001),
+       Prior = c(seq(from = 0,     to = 1, length.out = 501),
+                 seq(from = 0.998, to = 0, length.out = 500))) %>% 
+  mutate(Prior      = Prior / sum(Prior),
+         Likelihood = bernoulli_likelihood(theta = theta,
+                                           data  = large_data)) %>% 
+  mutate(marginal_likelihood = sum(Prior * Likelihood)) %>% 
+  mutate(Posterior           = (Prior * Likelihood) / marginal_likelihood) %>% 
+  select(theta, Prior, Likelihood, Posterior) %>% 
+  gather(key, value, -theta) %>% 
+  mutate(key = factor(key, levels = c("Prior", "Likelihood", "Posterior"))) 
+  
+ large <- ggplot(l, aes(x = theta, ymin = 0, ymax = value)) +
+  geom_ribbon(fill = "grey67") +
+  scale_x_continuous(breaks = seq(from = 0, to = 1, by = .2)) +
+  labs(x = expression(theta),
+       y = "probability density") +
+  theme(panel.grid = element_blank()) +
+  facet_wrap(~key, scales = "free_y", ncol = 1)
+
+(small | large)
+```
+
+In the left side there are 4 people whereas in the right there are 50. Notice that the likelihood is 1) skinnier in the larger sample size and 2) that the posterior is skinnier. That means you can be more confident in the parameter values with the large sample size. Hopefully it is clear that with enough data the prior quickly becomes inconsequential. 
+
+### Similarity with sampling distribution? 
+One parallel you might be making in your head is that the posterior is like a sampling distribution. This is right and wrong. It is wrong in the sense that a sampling distribution is build upon the assumption that "in the long run" you will end up getting the correct mean and SD. With Bayesian, the probability focus is different. Here, given what you previously know and what new information you collected this is the logical result of those imputs (elong with choice of likelihood and estimation). SR talks about this being a Golem or a robot whose only job is to synthasize information you programmed it to synthasize. This is correct, in that according to the inputs this yields the best result. What is amazing is that this is proven to be true, at least in the "small world" that SR talks about. Talking about populations, and in the long run is so different from this perspective. 
+
+The simularity is that with more data you have more accurate inferences, in so much as the precision of your inference is closer. With larger sample size (all else being the same) you have a skinnier posterior distribution. 
+
+#1.11 Grid Estimation
+
+The most basic way to compute the posterior is known as grid approximation. This is literally computing the posterior, by hand, by interacting the prior with the likelihood. This is pedagocially great in that you can directly see how the sausage gets made. Computationally, however, it is incredibly inefficent. Part of the reason for Bayesian methods not be mainstream compared to frequentist is that they require a lot of computation -- and computation has been very expensive up until a decade or two ago. 
+
+The gist is that you want to compute the posterior for different combinations of the prior and likelihood. How do you do it? 
+
+1. Define the grid you want to estimate. This involves the range of parameters you want in the posterior and the number of values you want to compute. 
+
+2. Define the prior. Right now lets work with a flat prior and then we will change it in a little bit. 
+```{r}
+library(tidyverse)
+grid <-tibble(p_grid= seq(from = 0, to = 1, length.out = 20), prior = 1) 
+grid
+```
+3. Compute the likelihood at each parameter value you want to estimate. 
+
+```{r}
+grid <- grid %>% 
+ mutate(likelihood  = dbinom(6, size = 9, prob = p_grid)) 
+```
+
+4. Now that we have the likelihood, we can multiply it by the prior to get the unstandardized posterior
+```{r}
+grid <- grid %>% 
+mutate(unstd_posterior = likelihood * prior) 
+
+grid
+```
+
+5. we standardized the posterior by dividing by sum of all values. 
+```{r}
+grid <- grid %>% 
+mutate(posterior = unstd_posterior / sum(unstd_posterior))
+```
+
+Lets check to see that the sum of the standardized and the unstandardized line up with what they should be
+
+```{r}
+grid %>% 
+    summarize(unstd = sum(unstd_posterior),
+            std = sum(posterior))
+```
+
+```{r}
+grid
+```
+
+```{r}
+
+g20 <- ggplot(grid, aes(x = p_grid, y = posterior)) +
+  geom_point() +
+  geom_line() +
+  labs(subtitle = "20 points",
+       x = "theta",
+       y = "posterior probability") +
+  theme(panel.grid = element_blank())
+g20
+```
+
+```{r}
+tibble(p_grid            = seq(from = 0, to = 1, length.out = 5),
+       prior             = 1) %>%
+  mutate(likelihood      = dbinom(6, size = 9, prob = p_grid)) %>%
+  mutate(unstd_posterior = likelihood * prior) %>%
+  mutate(posterior       = unstd_posterior / sum(unstd_posterior)) %>% 
+  
+  ggplot(aes(x = p_grid, y = posterior)) +
+  geom_point() +
+  geom_line() +
+  labs(subtitle = "5 points",
+       x = "theta",
+       y = "posterior probability") +
+  theme(panel.grid = element_blank())
+```
+
+Prior that is peaked, like before
+```{r}
+peaked <- tibble(p_grid = seq(from = 0, to = 1, length.out = 20),
+       prior = c(seq(from = 0, to = 1, length.out = 10), seq(from = 0.998, to = 0, length.out = 10)))
+
+peaked
+```
+
+
+```{r}
+
+peaked <- peaked %>% 
+  mutate(likelihood = dbinom(6, size = 9, prob = p_grid)) %>%
+  mutate(unstd_posterior = likelihood * prior) %>%
+  mutate(posterior= unstd_posterior / sum(unstd_posterior)) 
+  
+g.peaked  <- ggplot(peaked, aes(x = p_grid, y = posterior)) +
+  geom_point() +
+  geom_line() +
+  labs(subtitle = "peaked prior",
+       x = "theta",
+       y = "posterior probability") +
+  theme(panel.grid = element_blank())
+
+(g.peaked)/(g20)
+  
+```
+
+We will see other types of estimation in the next few weeks. We cannot rely on grid approximation because more complex models will require too large of grids to efficiently compute. For example, if we use 100 grid points for a regression with three predictors (not that large of a model) we would need to do 1,000,000 calculations. 
+
+#1.12 Steps in BDA part 3: Evaluate
+ 
+1. Design the model
+2. Condition on the model with data
+3. Evaluate the model
+4. Rinse and Repeat
+
+After we fit the model we then make sense of it the same way we usually do with frequentist stats.  
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
