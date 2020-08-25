@@ -53,15 +53,6 @@ Probability, counting, and learning via Bayes
 3. Rethink your approach to statistical inference
 
 ---
-## Structure of class
-
-Weekly lectures along with hands on examples
-
-Important: weekly homework and weekly reading. 
-
-Random quizzes both via email as well as in person 
-
----
 ## "Frequentist" analysis
 
 $$ Y_i = \beta_0 + \beta_1 + B_2 + \epsilon_i     $$
@@ -86,8 +77,7 @@ $$ Y_i = \beta_0 + \beta_1 + B_2 + \epsilon_i     $$
 7. How we (humans) learn
 
 ---
-## History
-
+### History
 - Bayes (died 1761). Clergyman. Interested in `inverse probability` -- reasoning from data --> probability distribution. Much easier to have a probability distribution and know what data is likely or unlikely under it.  
 
 - Laplace (died 1827). Polymath, identified central limit theorem. Did the heavy lifting moving Bayes forward.  
@@ -145,7 +135,7 @@ d %>%
 ```
 
 ---
-## Bayesian analysis is just counting
+### Bayesian analysis is just counting
 Marbles^draws = number of possibilities. 1 data point, there are 4 options. 2, 16. 3, 64. 
 
 We then go out and collect data. Say Blue, White, Blue. If you got this, what would you say about your parameter estimate, ie how many blues are in the bag? 1/2? 3/4? 1/4?
@@ -468,10 +458,10 @@ t %>%
   knitr::kable(format = "html")
 ```
 
-Ways to produce is how many different blue marbles we could pull. Previous counts serve as our baseline knowledge and new counts serve as our new data. This is what is referred to as `Bayesian updating`.
+Ways to produce is how many different blue marbles we could pull. Previous counts serve as our baseline knowledge and new counts serve as our new data. 
 
 ---
-## Counts as probabilities
+### Counts as probabilities
 "We don't know what caused the data, potential causes that may produce the data in more ways are more plausible/credible."
 
 Counts are difficult to work with because once you collect more data you get more possibilities."Plausibilities" or "credibilities" can be defined as taking the number of ways p can produce the data (multiplied by the prior credibility, 1 for simplicity) (divided by the sum of the products so the plausibility adds up to 1).
@@ -505,7 +495,7 @@ The `posterior probability` is the credibilities/plausibility
 - We can then use these probabilistic statements to guide our scientific questions e.g., this model is more likely than that model or the best estimate of this regression parameter is most likely to fall from here to there. 
 
 ---
-## "Bayesian inference is reallocation of credibility"
+### "Bayesian inference is reallocation of credibility"
 .pull-left[
 .small[
 Above we assumed all parameter values, p, were equally likely. But we have previous information all the time. 
@@ -595,7 +585,7 @@ library(patchwork)
 ]]
 
 ---
-## Bayesian inference is reallocation of credibility
+### Bayesian inference is reallocation of credibility
 
 .small[
 .pull-left[
@@ -690,7 +680,7 @@ d4 <- ggplot(data = t2.3b) +
 ]]
 
 ---
-## Bayesian inference is reallocation of credibility 
+### Bayesian inference is reallocation of credibility 
 .pull-left[
 ```{r, echo = FALSE}
  ggplot(data = t2.3b) +
@@ -1344,7 +1334,7 @@ p1 | p2
 
 
 ---
-## Posterior Predictive Distribution
+### Posterior Predictive Distribution
 Predictions help us evaluate models. Remember R^2 and RSE/SEE?  
 
 When we make predictions there will be error. Where does this error come from? 1) Our inability to know the "actual" value of some parameter theta. 2) Our variability from person-to-person. 
@@ -1355,8 +1345,10 @@ When we make predictions there will be error. Where does this error come from? 1
 
 ---
 ## PP Checks
+.pull-left[
+Let's evaluate our model. How do we do that? ]
 
-Let's evaluate our model. How do we do that? 
+.pull-right[
 ```{r, echo = FALSE}
 # how many grid points would you like?
 n <- 1001
@@ -1390,14 +1382,17 @@ n_trials  <- 9
   scale_y_continuous(NULL, breaks = NULL) +
   theme(panel.grid = element_blank())
 ```
-
+]
 
 ---
 ## PP Checks
 
+.pull-left[
 Now lets assume each of these parameter values are true. What would we expect? 
+]
 
-```{r}
+.pull-right[
+```{r, echo = FALSE}
 n_draws <- 1e5
 
 simulate_binom <- function(probability) {
@@ -1423,6 +1418,7 @@ d_small %>%
   facet_wrap(~ label, ncol = 9) 
 
 ```
+]
 
 ---
 ## PP Checks
@@ -1458,7 +1454,7 @@ This is the prediction if we include every value of θ to make the prediction, n
 We went over the basics. Be sure you can descibe what is meant by: 
 
 Prior, Likelihood, Posterior. 
-Grid estimation, credible interval, Highest Posterior Density Interval, MAP, Posterior Predictive Distribution, 
+Grid estimation, Credible Interval, Highest Posterior Density Interval, MAP, Posterior Predictive Distribution, 
 
 
 

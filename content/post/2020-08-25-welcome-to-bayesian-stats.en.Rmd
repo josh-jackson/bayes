@@ -16,3 +16,5 @@ image:
   preview_only: no
 projects: []
 ---
+This website serves as your homebase. Check this landing page for all updates. 
+
