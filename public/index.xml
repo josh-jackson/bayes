@@ -5,12 +5,24 @@
     <link>/</link>
       <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <description>Bayesian Statistics</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Tue, 28 Jul 2020 00:00:00 +0000</lastBuildDate>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Tue, 25 Aug 2020 00:00:00 +0000</lastBuildDate>
     <image>
       <url>/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
       <title>Bayesian Statistics</title>
       <link>/</link>
     </image>
+    
+    <item>
+      <title>Welcome to Bayesian Stats! </title>
+      <link>/post/welcome-to-bayesian-stats/</link>
+      <pubDate>Tue, 25 Aug 2020 00:00:00 +0000</pubDate>
+      <guid>/post/welcome-to-bayesian-stats/</guid>
+      <description>
+&lt;script src=&#34;//rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
     
     <item>
       <title>what is happening</title>
@@ -40,6 +52,169 @@
       <pubDate>Thu, 28 Jun 2018 00:00:00 +0100</pubDate>
       <guid>/terms/</guid>
       <description>&lt;p&gt;&amp;hellip;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Applied Bayesian Statistics, Psych 5167</title>
+      <link>/syllabus/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/syllabus/</guid>
+      <description>
+&lt;script src=&#34;//rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Instructor&lt;/strong&gt;: Joshua Jackson&lt;br /&gt;
+&lt;strong&gt;Office&lt;/strong&gt;: Spare Bedroom&lt;br /&gt;
+&lt;strong&gt;Office hours&lt;/strong&gt;: By appointment&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;div id=&#34;course-description&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Course Description&lt;/h4&gt;
+&lt;p&gt;Bayesian parameter estimation and hypothesis testing offer a useful alternative to the classic frequentist paradigm within psychological science. This class will cover the foundations of Bayesian inference and hypothesis testing with the primary emphasis on fitting multiple regression and multi-level models common within psychology. A variety of response distributions will be discussed: Gaussian, binary and count, ordinal, survival, probability, and zero-inflated models, among others. Topics include: model calibration, regularization, prior and posterior predictions, Bayes factors, missing data, Bayesian power, cross-validation, Bayesian meta-analysis, distributional models, and multivariate response models.&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;class-textbook&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Class textbook&lt;/h4&gt;
+&lt;p&gt;-McElreath, R. (2020). Statistical Rethinking: A Bayesian Course with Examples in R. SECOND EDITION CRC Press.&lt;/p&gt;
+&lt;p&gt;-Kruschke, J. (2015). Doing Bayesian Data Analysis. SECOND EDITION&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Recommended text (not required)&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Farrell, S., &amp;amp; Lewandowsky, S. (2018). Computational modeling of cognition and behavior. Cambridge University Press
+(Good for those who predominantly do cognitive models/behavioral tasks)&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Gelman, A., Hill, J., &amp;amp; Vehtari, A. (2020). Regression and other stories. Cambridge University Press. (A practical compendium of how to approach GLMs)&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Lee, M. D., &amp;amp; Wagenmakers, E. J. (2014). Bayesian cognitive modeling: A practical course. Cambridge university press (Terse but technically correct intro of Bayesian stats, best for completing your collection of Bayesian books by psychologists)&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;grading&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Grading&lt;/h4&gt;
+&lt;p&gt;Grades consist of two components: weekly homework and a takehome project. Each will count for half of your grade.&lt;/p&gt;
+&lt;p&gt;Weekly homework consists of thought questions, as well as computations. Homework may be worked on together in groups. However, short answer portions should be in your own words. Each homework is graded on a scale of 1-10.&lt;/p&gt;
+&lt;p&gt;You will also have random “quizzes,” which are not graded but are submitted. These serves as progress checks for both me and you.&lt;/p&gt;
+&lt;p&gt;The takehome project is a series of models and visualizations using your own data. We (you and Josh) will work together to go over what your data are, and what sort of analyses, checks and visualizations you should do. The sooner in the semester you have these conversations with me, the better. By week 6 you need to have a plan approved by me.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Grades&lt;/strong&gt;:&lt;br /&gt;
+100% - A+&lt;br /&gt;
+99-92 - A&lt;br /&gt;
+90-91 - A-&lt;br /&gt;
+89 - B+&lt;br /&gt;
+88-81 - B&lt;br /&gt;
+80 - B-&lt;br /&gt;
+79-70 - C&lt;br /&gt;
+69-60 - D&lt;br /&gt;
+&amp;lt;60 - F&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;class-procedure&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Class procedure&lt;/h4&gt;
+&lt;p&gt;The class will be a mix of in person and recorded lectures. Synchronous and Asynchronous are the latest buzz words. The mix will hopefully be beneficial. On one hand, you can be more flexible with your schedule – something that everyone needs during these times. On the other hand, having in person sessions facilitates discussion and QnA, an important component of learning the material. The exact breakdown will differ from week to week. However, after the first week, we will likely have Thursday’s be the day that will minimize in-person contact. Thursday instead will be for viewing lectures and for doing the weekly homework.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;schedule&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Schedule&lt;/h4&gt;
+&lt;p&gt;Note that dates and readings are tentative. Topics will likely shift; all changes will be updated on the homepage, not necessarily in the syllabus below.&lt;/p&gt;
+&lt;table&gt;
+&lt;colgroup&gt;
+&lt;col width=&#34;9%&#34; /&gt;
+&lt;col width=&#34;9%&#34; /&gt;
+&lt;col width=&#34;56%&#34; /&gt;
+&lt;col width=&#34;23%&#34; /&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th&gt;Week&lt;/th&gt;
+&lt;th&gt;Date&lt;/th&gt;
+&lt;th&gt;Topic&lt;/th&gt;
+&lt;th&gt;Readings&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;9/15&lt;/td&gt;
+&lt;td&gt;Overview 1: Probability, counting, and learning via Bayes&lt;/td&gt;
+&lt;td&gt;SR 1 &amp;amp; 2; DBDA 2 &amp;amp; 5&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;9/22&lt;/td&gt;
+&lt;td&gt;Overview 2: Model building, sampling, evaluation with brms&lt;/td&gt;
+&lt;td&gt;SR 3; DBDA 4 for review&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;9/29&lt;/td&gt;
+&lt;td&gt;Basic Linear Models (t-test, Regression)&lt;/td&gt;
+&lt;td&gt;SR 4; DBDA 16,17&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;td&gt;10/6&lt;/td&gt;
+&lt;td&gt;Basic Linear Models (continued)&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;td&gt;10/13&lt;/td&gt;
+&lt;td&gt;Markov chain Monte Carlo Estimation (MCMC)&lt;/td&gt;
+&lt;td&gt;SR 9&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td&gt;6&lt;/td&gt;
+&lt;td&gt;10/20&lt;/td&gt;
+&lt;td&gt;Linear Models with multiple predictors&lt;/td&gt;
+&lt;td&gt;SR 5&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;7&lt;/td&gt;
+&lt;td&gt;10/27&lt;/td&gt;
+&lt;td&gt;Interactions&lt;/td&gt;
+&lt;td&gt;SR 8&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td&gt;8&lt;/td&gt;
+&lt;td&gt;11/3&lt;/td&gt;
+&lt;td&gt;NHST, regularization, model comparison, and Bayes Factors&lt;/td&gt;
+&lt;td&gt;SR 7; DBDA 11 &amp;amp; 12&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;9&lt;/td&gt;
+&lt;td&gt;11/10&lt;/td&gt;
+&lt;td&gt;Generalized Linear Models&lt;/td&gt;
+&lt;td&gt;SR 10 - 12; DBDA 21-25&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td&gt;10&lt;/td&gt;
+&lt;td&gt;11/17&lt;/td&gt;
+&lt;td&gt;Multilevel Models&lt;/td&gt;
+&lt;td&gt;SR 13 &amp;amp; 14&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;11&lt;/td&gt;
+&lt;td&gt;11/24&lt;/td&gt;
+&lt;td&gt;Multilevel Models&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td&gt;12&lt;/td&gt;
+&lt;td&gt;12/1&lt;/td&gt;
+&lt;td&gt;Distributional Models and IRT&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;13&lt;/td&gt;
+&lt;td&gt;12/8&lt;/td&gt;
+&lt;td&gt;Splines and GAMs&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td&gt;14&lt;/td&gt;
+&lt;td&gt;12/15&lt;/td&gt;
+&lt;td&gt;Grabbag: Mediation Models, missing Data, meta-analysis, power, Multivariate models&lt;/td&gt;
+&lt;td&gt;SR 15; DBDA 13&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
 </description>
     </item>
     

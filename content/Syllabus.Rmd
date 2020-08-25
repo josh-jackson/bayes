@@ -1,0 +1,92 @@
+---
+title: "Applied Bayesian Statistics, Psych 5167"
+author: 
+date: Fall 2020
+output:
+  html_document: default
+---
+<br>  
+
+
+
+**Instructor**: Joshua Jackson  
+**Office**: Spare Bedroom  
+**Office hours**: By appointment  
+
+
+<br>  
+
+#### Course Description#### 
+
+Bayesian parameter estimation and hypothesis testing offer a useful alternative to the classic frequentist paradigm within psychological science. This class will cover the foundations of Bayesian inference and hypothesis testing with the primary emphasis on fitting multiple regression and multi-level models common within psychology. A variety of response distributions will be discussed: Gaussian, binary and count, ordinal, survival, probability, and zero-inflated models, among others. Topics include: model calibration, regularization, prior and posterior predictions, Bayes factors, missing data, Bayesian power, cross-validation, Bayesian meta-analysis, distributional models, and multivariate response models.  
+
+<br>  
+
+#### Class textbook
+
+-McElreath, R. (2020). Statistical Rethinking: A Bayesian Course with Examples in R. SECOND EDITION CRC Press. 
+
+-Kruschke, J. (2015). Doing Bayesian Data Analysis. SECOND EDITION 
+
+*Recommended text (not required)*
+
+- Farrell, S., & Lewandowsky, S. (2018). Computational modeling of cognition and behavior. Cambridge University Press
+(Good for those who predominantly do cognitive models/behavioral tasks)
+
+- Gelman, A., Hill, J., & Vehtari, A. (2020). Regression and other stories. Cambridge University Press. (A practical compendium of how to approach GLMs)
+
+- Lee, M. D., & Wagenmakers, E. J. (2014). Bayesian cognitive modeling: A practical course. Cambridge university press (Terse but technically correct intro of Bayesian stats, best for completing your collection of Bayesian books by psychologists)
+
+<br>  
+
+#### Grading
+
+Grades consist of two components: weekly homework and a takehome project. Each will count for half of your grade. 
+
+Weekly homework consists of thought questions, as well as computations. Homework may be worked on together in groups. However, short answer portions should be in your own words. Each homework is graded on a scale of 1-10. 
+
+You will also have random "quizzes," which are not graded but are submitted. These serves as progress checks for both me and you. 
+
+The takehome project is a series of models and visualizations using your own data. We (you and Josh) will work together to go over what your data are, and what sort of analyses, checks and visualizations you should do. The sooner in the semester you have these conversations with me, the better. By week 6 you need to have a plan approved by me.  
+
+**Grades**:   
+100%   - A+  
+99-92 - A  
+90-91 - A-  
+89    - B+  
+88-81 - B  
+80    - B-  
+79-70 - C  
+69-60 - D  
+<60   - F  
+  
+  <br>  
+  
+#### Class procedure
+
+The class will be a mix of in person and recorded lectures. Synchronous and Asynchronous are the latest buzz words. The mix will hopefully be beneficial. On one hand, you can be more flexible with your schedule -- something that everyone needs during these times. On the other hand, having in person sessions facilitates discussion and QnA, an important component of learning the material. The exact breakdown will differ from week to week. However, after the first week, we will likely have Thursday's be the day that will minimize in-person contact. Thursday instead will be for viewing lectures and for doing the weekly homework. 
+  
+#### Schedule####  
+
+Note that dates and readings are tentative. Topics will likely shift; all changes will be updated on the homepage, not necessarily in the syllabus below. 
+
+| Week | Date  |  Topic                                 |Readings        |
+-------|-------|----------------------------------------|-----------------|
+| 1    | 9/15  | Overview 1: Probability, counting, and learning via Bayes  | SR 1 & 2; DBDA 2 & 5  |
+| 2    | 9/22  | Overview 2: Model building, sampling, evaluation with brms |SR 3; DBDA 4 for review|
+| 3    | 9/29  | Basic Linear Models (t-test, Regression)     |  SR 4; DBDA  16,17       |
+| 4    | 10/6  | Basic Linear Models (continued)     |                   |
+| 5    | 10/13  | Markov chain Monte Carlo Estimation (MCMC)    | SR 9              |
+| 6    | 10/20  | Linear Models with multiple predictors         | SR 5                   |
+| 7    | 10/27   | Interactions              |  SR 8      |
+| 8    | 11/3   | NHST, regularization, model comparison, and Bayes Factors | SR 7; DBDA 11 & 12 |
+| 9    | 11/10  | Generalized Linear Models   |  SR 10 - 12; DBDA 21-25                 |
+| 10   | 11/17  | Multilevel Models         |  SR 13 & 14                                |
+| 11   | 11/24  | Multilevel Models         |                                   |
+| 12   | 12/1  | Distributional Models and IRT    |                      |
+| 13   | 12/8  | Splines and GAMs            |                         |
+| 14   | 12/15  | Grabbag: Mediation Models, missing Data, meta-analysis, power, Multivariate models     |               SR 15; DBDA 13         |
+
+
+
+
