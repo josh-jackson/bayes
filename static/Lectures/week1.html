@@ -28,12 +28,12 @@
 &lt;/style&gt;
 
 
-## Goals for today
+## Goals for the week
 
 Probability, counting, and learning via Bayes
 
 ---
-## Goals of semester
+## Goals for the semester
 
 1. Take what you know (regression) and do it Bayesian (and more!)
 2. Know the advantages of Bayesian data analysis
@@ -42,15 +42,17 @@ Probability, counting, and learning via Bayes
 ---
 ## "Frequentist" analysis
 
-$$ Y_i = \beta_0 + \beta_1 + B_2 + \epsilon_i     $$
+$$ Y_i = \beta_0 + \beta_1 X + \epsilon_i     $$
+
+- OLS, sampling distributions around zero, p-values, large samples so as to invoke CLT
 
 ---
 ## Why not frequentist?
 
 1. Assumptions! (Bayesian has assumptions too, just different)
-2. Incoherent interpretations. While you can get around this, it appears embedded in the philosophy of frequentist analysis. In contrast, Bayesian approaches are just counting. 
+2. Incoherent interpretations. While you can avoid this, it appears embedded in the philosophy of frequentist analysis. In contrast, Bayesian approaches are just counting
 3. Estimation. ML is cool and all but have you heard of MCMC?
-4. Jumping through hoops to do tasks that are simple in Bayesian Frameworks. E.g., regularization, error-corrections, contrasts, robust, calculating error bars/bands, et cetera.  
+4. Jumping through hoops to do tasks that are simple in Bayesian Frameworks. E.g., regularization, error-corrections, contrasts, robust analysis, calculating error bars/bands, et cetera
 
 ---
 ## Why Bayes? 
@@ -59,17 +61,19 @@ $$ Y_i = \beta_0 + \beta_1 + B_2 + \epsilon_i     $$
 3. More explicit in terms of assumptions
 4. Generative model building ie represents a random process that could generate a new dataset
 5. Better for small samples/lots of parameters
+6. Better at making predictions for novel events (like prez)
+7. Better at "power" or apriori assessments of your model   
 ...
-6. Incorporate prior intuitions
-7. How we (humans) learn
+7. Incorporate prior intuitions
+8. How we (humans) learn
 
 ---
 ### History
-- Bayes (died 1761). Clergyman. Interested in `inverse probability` -- reasoning from data --&gt; probability distribution. Much easier to have a probability distribution and know what data is likely or unlikely under it.  
+- `Bayes` (died 1761). Clergyman. Interested in `inverse probability` -- reasoning from data --&gt; probability distribution. Much easier to have a known probability distribution to estimate what data is likely or unlikely.  
 
-- Laplace (died 1827). Polymath, identified central limit theorem. Did the heavy lifting moving Bayes forward.  
+- `Laplace` (died 1827). Polymath, identified central limit theorem. Did much of the heavy lifting moving Bayes forward.  
 
-- Fisher (died 1962). Developed F-distribution, ANOVA; anti-Bayesian. THought that maximum likelihood (which he partially developed) was enough. 
+- `Fisher` (died 1962). Developed F-distribution, ANOVA; anti-Bayesian. THought that maximum likelihood (which he partially developed) was enough. 
 
 - Computational limitations held back proliferation (for many statistical applications). Apprehensions of incorporating prior intuitions viewed as "unscientific" 
 
@@ -93,7 +97,7 @@ $$ Y_i = \beta_0 + \beta_1 + B_2 + \epsilon_i     $$
 
 - The proportion of blue marbles can be thought of as a parameter we want to estimate. 
 
-- If there is only four marbles in the bag there are 5 possible combinations of marbles. So my parameter can take 5 different values. We can collect some data and ask: How likely are each my possible parameters likely? 
+- If there is only four marbles in the bag there are 5 possible combinations of marbles. So my parameter can take 5 different values. We can collect some data and ask: How likely are each my possible parameters? 
 
 ---
 ## What are our possibilities?
@@ -227,13 +231,13 @@ Counts are difficult to work with because once you collect more data you get mor
 
 ```
 ## # A tibble: 5 x 7
-##   d_1   d_2   d_3   d_4       p `ways to produce data` credibility
-##   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;                  &lt;dbl&gt;       &lt;dbl&gt;
-## 1 w     w     w     w      0                         0        0   
-## 2 b     w     w     w      0.25                      3        0.15
-## 3 b     b     w     w      0.5                       8        0.4 
-## 4 b     b     b     w      0.75                      9        0.45
-## 5 b     b     b     b      1                         0        0
+##   d_1   d_2   d_3   d_4       p `ways to produce data` plausibility
+##   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;                  &lt;dbl&gt;        &lt;dbl&gt;
+## 1 w     w     w     w      0                         0       0     
+## 2 b     w     w     w      0.25                      3       0.0652
+## 3 b     b     w     w      0.5                      16       0.348 
+## 4 b     b     b     w      0.75                     27       0.587 
+## 5 b     b     b     b      1                         0       0
 ```
 
 
@@ -251,7 +255,6 @@ The `posterior probability` is the credibilities/plausibility
 ## Bayesian analysis is just counting
 
 - Probabilistic statements are used to describe *uncertainty*  
-
 - Bayesian analysis counts all ways that something can happen (according to assumptions/model). Assumptions with more ways that are consistent with data are more plausible. 
 
 - We can then use these probabilistic statements to guide our scientific questions e.g., this model is more likely than that model or the best estimate of this regression parameter is most likely to fall from here to there. 
@@ -262,7 +265,7 @@ The `posterior probability` is the credibilities/plausibility
 .small[
 Above we assumed all parameter values, p, were equally likely. But we have previous information all the time. 
 
-How to incorporate these ideas in our model? Through `distributions` Assume we are interested in a widget maker, one that produces 4 sizes. Each machine is going to produce slightly different sizes, widget to widget. 
+How to incorporate these ideas in our model? Through `distributions`. Assume we are interested in a widget maker, one that produces 4 sizes. Each machine is going to produce slightly different sizes, widget to widget. 
 ]]
 
 .pull-right[
@@ -295,7 +298,11 @@ Machine 4 seems about impossible, #1 has a 11% chance, #3 a 31% and #2 a 56%.
 ---
 ## Interim summary
 
-Currently I am just providing you intuition about how things will look. I want you to think back to these examples as we move through the semester. When everything gets complicated, just remember: it is only counting, asking what ways are more consistent with the data. When the procedures seem complicated, just remember: you are just reassigning previous parameter guesses to new guesses, based on the data. 
+Currently I am just providing you intuition about how things will look. I want you to think back to these examples as we move through the semester.
+
+When everything gets complicated, just remember: it is only counting, asking what ways are more consistent with the data. 
+
+When the procedures seem complicated, just remember: you are just reassigning previous parameter guesses to new guesses, based on the data. 
 
 ---
 ## Steps in Bayesian data analysis
@@ -314,7 +321,7 @@ Much of the class will be set up doing this design phase. It is similar to setti
 
 DV ~ Normal( `\(\mu_i\)` , `\(\sigma\)`)
 
-Here we say that our DGP is normal, with two parameters. The mean differs among i people. While this is a likelihood distribution it is not the likelihood that we will estimate. More on that later. 
+Here we say that our DGP is normal, with two parameters. The mean differs among i people. 
 
 ---
 ## Design the model
@@ -395,7 +402,7 @@ We often refer to the prior distribution as p( `\(\theta\)` )
 
 ---
 ## Likelihood
-Mathematical function (often) to identify the probability of different parameters. Technically it is the distribution of the likelihood of various hypothesis.  p(data | `\(\theta\)` )
+Mathematical function (often) to identify the probability of different parameters. Technically it is the distribution of the likelihood of various hypothesis. p(data | `\(\theta\)` )
 
 Seen these before with maximum likelihood estimation for frequentist SEM or MLM. 
 
@@ -439,7 +446,7 @@ pbinom(3, size = 10, prob = .5)
 ]
 
 .pull-right[
-. But what we typically want when figuring out a parameter is not one specific parameter (ie is the fair or not) but what is the MOST likely parameter -- AND what is the probability of each possibility parameter. That is what the likelyhood tells us. L( `\(\theta\)` ) = p(data| `\(\theta\)` ) The probability of the data that you actually got, assuming a particular theta is true.
+. But what we typically want when figuring out a parameter is not one specific parameter (ie is the fair or not) but what is the MOST likely parameter -- AND what is the probability of each possibility parameter. That is what the likelihood tells us. L( `\(\theta\)` ) = p(data| `\(\theta\)` ) The probability of the data that you actually got, assuming a particular theta is true.
 ]
 
 ---
@@ -463,10 +470,9 @@ For conditional probabilities, theta (your hypothesis) is treated as a given, an
 
 ---
 ### Maximum Likelihood estimation
-Maximum Likelihood for regression is equivalent to OLS estimation, but most problems do not have an analytic solution and need to be solved iteratively
+Maximum likelihood is similar to  the above binomial example where there is a p(data| `\(\theta\)` ). However, in frequentist theta does not vary, it is fixed. Thus ML is typically described as P(y;$\theta$).
 
-Maximum likelihood can be thought of as the same as the above binomial example where there is a p(data| `\(\theta\)` ). But what is typically reported?: A mean estimate and an estimate of standard error, not a distribution. Moreover, there is an assumed normal distribution of these likelihoods. 
-
+But what is typically reported with ML? A mean estimate and an estimate of standard error, not a distribution. Moreover, there is an assumed normal distribution of these likelihoods. 
 When the prior is flat, our likelihood ends up becoming the posterior distribution and thus is going to be equivalent to the ML estimate. 
 
 ---
@@ -755,7 +761,7 @@ peaked &lt;- tibble(p_grid = seq(from = 0, to = 1, length.out = 20),
 ![](week1_files/figure-html/unnamed-chunk-30-1.png)&lt;!-- --&gt;
 
 .pull-right[
-We will see other types of estimation in the next few weeks. We cannot rely on grid approximation because more complex models will require too large of grids to efficiently compute. For example, if we use 100 grid points for a regression with three predictors (not that large of a model) we would need to do 1,000,000 calculations. 
+We will see other types of estimation in the next few weeks. We cannot rely on grid approximation because more complex models will require too large of grids to efficiently compute. For example, if we use 100 grid points for a regression with three predictors (not that large of a model) we would need to do &gt; 1,000,000 calculations. 
 ]
 
 ---
@@ -839,7 +845,7 @@ This is the prediction if we include every value of θ to make the prediction, n
 ---
 ## Summary
 
-We went over the basics. Be sure you can descibe what is meant by: 
+We went over the basics. Be sure you can describe what is meant by: 
 
 Prior, Likelihood, Posterior. 
 Grid estimation, Credible Interval, Highest Posterior Density Interval, MAP, Posterior Predictive Distribution, 

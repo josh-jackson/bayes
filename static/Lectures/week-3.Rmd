@@ -1,0 +1,50 @@
+
+
+
+
+
+---
+## Bayesian R2
+
+
+
+---
+## Ordinal data
+
+
+
+---
+## No intercept model
+
+
+
+
+---
+## Factorial design
+
+
+
+
+---
+## Hypothesis function
+
+
+
+
+---
+## emmeans
+
+
+
+---
+## Robust
+
+
+---
+## Correlation preview
+
+Introduce multivariate models
+
+
+
+
