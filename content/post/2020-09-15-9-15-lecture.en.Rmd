@@ -1,0 +1,20 @@
+---
+title: 9-15 lecture recording
+author: ''
+date: '2020-09-15'
+slug: 9-15-lecture
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-09-15T14:54:10-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+https://wustl.zoom.us/rec/share/yQ1LTgazqBO13GtCXDgfFV-Ip-aomx92VMjWAavcubkM8vqTF4-Q0f9ca3wfK77y.aMlzujj1lm7ppF6b
