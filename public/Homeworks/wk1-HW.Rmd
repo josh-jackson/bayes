@@ -1,0 +1,33 @@
+
+---
+title: "HW-1"
+output: html_document
+---
+
+
+1. To get refreshed with thinking in terms of distributions (as well as ggplot), please plot 3 different versions of each of the following probability distributions. It is your choice on choosing the different parameters of each of the distributions. If you are unfamiliar with these distributions, wiki has a pretty good section for each. These are distributions we will use throughout the class
+
+a) t-distribution
+b) beta distribution
+c) Cauchy distribution
+d) gamma distribution
+e) exponential distribution
+f) uniform distribution
+
+
+2. Based on what you know about the normal distribution and your substantive area of research, please describe two types of priors you might put around one of your recent analyses or a future one First, briefly describe what your parameter you want to estimate is (eg comparison of two groups on some talk with a regression coefficient) and the corresponding effect size you found for that parameter (eg r =.3). Then describe:
+
+a) a prior distribution that represents your "best guess" for the parameter if you replicated this study. Bonus points for plotting the distribution. 
+
+b) a prior distribution that would serve to regularize the data. 
+
+For both, please describe your rationale in addition to the descriptions of the distribution ie what does this mean in terms of your potential parameter values. 
+
+
+3. Describe what maximum likelihood (ML) estimation is in your own words. 
+
+
+4. How do standard confidence intervals differ from Credible Intervals and High Posterior Density Intervals?
+
+
+

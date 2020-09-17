@@ -80,6 +80,7 @@ $$ Y_i = \beta_0 + \beta_1 X + \epsilon_i     $$
 7. Incorporate prior intuitions
 8. How we (humans) learn
 
+
 ---
 ### History
 - `Bayes` (died 1761). Clergyman. Interested in `inverse probability` -- reasoning from data --> probability distribution. Much easier to have a known probability distribution to estimate what data is likely or unlikely.  
@@ -482,9 +483,9 @@ t %>%
 ---
 ## Bayesian analysis is just counting
 
-The p here is a `parameter` that we want to estimate. Similar to regression equation bs
+The p here is a `parameter` that we want to estimate. Similar to regression equation bs. Note we are interested in plausibility of all parameters, not to estimate a single best one. 
 
-A `prior` can be thought of as previous counts -- which we can also make in the form of a parameter rather than a count 
+A `prior` can be thought of as previous counts -- which we can also make in the form of a parameter rather than a count. This is like collecting more data. 
 
 The `likelihood` is the relative number of ways to produce the data   
 The `posterior probability` is the credibilities/plausibility 
