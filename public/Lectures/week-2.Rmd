@@ -311,6 +311,7 @@ p_grid <-
   mutate(prior_mu  = dnorm(mu, mean = 68, sd  = 5, log = T), prior_sigma = dcauchy(sigma, 0, 10, log = T)) %>% mutate(product = log_likelihood + prior_mu + prior_sigma) %>% 
   mutate(probability = exp(product - max(product)))
   p_grid
+
 ```
 ]
 
@@ -801,12 +802,16 @@ $\hat{Y}_{prediction}$ ~ $b_o$ + $b_1$X, where we put in new values of X (often 
 
 ---
 ## posterior predictive distribution 
-Via ppcheck (via bayesplot). If a model is a good fit we should be able to use it to generate data that resemble the data we observed. We can simulate from the posterior predictive distribution
+.pull-left[If a model is a good fit we should be able to use it to generate data that resemble the data we observed. We can simulate from the posterior predictive distribution
 
-Replications of Y (Yrep) from the posterior predictive distribution 
+Replications of Y (Yrep) from the posterior predictive distribution
+]
+
+.pull-right[]
 ```{r}
 pp_check(m.2)
 ```
+]
 
 ---
 ## posterior predictive distribution 

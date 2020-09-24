@@ -378,20 +378,44 @@ summary {
 </div>
 
 
-<div id="bayesian-r2" class="section level2">
-<h2>Bayesian R2</h2>
+<div id="prior-predictive" class="section level2">
+<h2>Prior Predictive</h2>
 </div>
-<div id="ordinal-data" class="section level2">
-<h2>Ordinal data</h2>
+<div id="rhat-and-other-model-components" class="section level2">
+<h2>Rhat and other model components</h2>
+<div id="dummy-variables" class="section level3">
+<h3>dummy variables</h3>
 </div>
-<div id="factorial-design" class="section level2">
-<h2>Factorial design</h2>
 </div>
-<div id="update-function" class="section level2">
-<h2>update function</h2>
+<div id="hypothesis-function" class="section level2">
+<h2>Hypothesis function</h2>
 </div>
-<div id="pp-checks" class="section level2">
-<h2>pp checks</h2>
+<div id="emmeans" class="section level2">
+<h2>emmeans</h2>
+</div>
+<div id="robust-regression" class="section level2">
+<h2>Robust regression</h2>
+<p><a href="https://solomonkurz.netlify.app/post/robust-linear-regression-with-the-robust-student-s-t-distribution/" class="uri">https://solomonkurz.netlify.app/post/robust-linear-regression-with-the-robust-student-s-t-distribution/</a></p>
+<p>We are going to use a t-distribution as our likelihood.</p>
+<pre class="r"><code>b2 &lt;- 
+  brm(family = student,
+      y ~ 1 + x,
+      prior = c(prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(gamma(4, 1), class = nu),
+                prior(cauchy(0, 1),  class = sigma)),
+      data = data)</code></pre>
+<div id="fixing-nu" class="section level3">
+<h3>fixing nu</h3>
+<pre class="r"><code>b4 &lt;-
+  brm(family = student,
+      bf(y ~ 1 + x, nu = 4),
+      prior = c(prior(normal(0, 100), class =Intercept),
+                prior(normal(0, 10),  class = b),
+                prior(cauchy(0, 1),   class = sigma)),
+         data = o)</code></pre>
+<hr />
+</div>
 </div>
 <div id="correlation-preview" class="section level2">
 <h2>Correlation preview</h2>

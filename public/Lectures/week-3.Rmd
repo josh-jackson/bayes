@@ -1,9 +1,12 @@
 
 
+---
+## Goals for this week
+Go deeper into basic linear models to become comfortable with standard regressions
 
 
 ---
-## prior predictive
+## Prior Predictive
 
 
 ---
@@ -14,19 +17,25 @@
 ## Rhat and other model components
 
 
----
-## Ordinal data
-
 
 
 ---
-## No intercept model
+## Categorical data
 
+
+
+---
+### dummy variables
 
 
 
 ---
 ## Factorial design
+
+
+
+
+
 
 
 
@@ -48,8 +57,41 @@
 ---
 ## pp checks
 
+
+
 ---
-## Robust
+## Robust regression
+https://solomonkurz.netlify.app/post/robust-linear-regression-with-the-robust-student-s-t-distribution/
+
+We are going to use a t-distribution as our likelihood. 
+
+```{r, eval = FALSE}
+b2 <- 
+  brm(family = student,
+      y ~ 1 + x,
+      prior = c(prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(gamma(4, 1), class = nu),
+                prior(cauchy(0, 1),  class = sigma)),
+      data = data)
+```
+
+---
+### gamma plot
+
+
+---
+### fixing nu
+
+```{r, eval = FALSE}
+b4 <-
+  brm(family = student,
+      bf(y ~ 1 + x, nu = 4),
+      prior = c(prior(normal(0, 100), class =Intercept),
+                prior(normal(0, 10),  class = b),
+                prior(cauchy(0, 1),   class = sigma)),
+         data = o)
+```
 
 
 
