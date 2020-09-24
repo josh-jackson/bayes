@@ -1,0 +1,28 @@
+---
+title: new lectures
+author: ''
+date: '2020-09-23'
+slug: new-lectures
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-09-23T18:57:35-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+9/24 async lecture: 
+https://wustl.zoom.us/rec/share/V1Ejtn-M1kk5etbsc03lkiz4i0JsvXRUKuS2dwWSn8vrMEQQe_FmCtZ0sRl206SE.3KmzloEiVuhLjGSp  
+
+
+<br>    
+    
+ 9/22 lecture:  
+https://wustl.zoom.us/rec/share/Pu5bAV7v9ZTmSWQRo5U88kI0E0oEmC2TC1Xl5YLZdTW_ZAMcmSZPEEwDnRIoUZBS.fWmM4pW_YSShMrrE
+

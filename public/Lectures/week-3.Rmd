@@ -2,10 +2,16 @@
 
 
 
+---
+## prior predictive
+
 
 ---
 ## Bayesian R2
 
+
+---
+## Rhat and other model components
 
 
 ---
@@ -29,6 +35,8 @@
 ## Hypothesis function
 
 
+---
+## update function
 
 
 ---
@@ -36,8 +44,14 @@
 
 
 
+
+---
+## pp checks
+
 ---
 ## Robust
+
+
 
 
 ---
@@ -46,5 +60,14 @@
 Introduce multivariate models
 
 
+
+
+## For homework
+
+Give model definition, ask to define likelihood, priors, etc. Then Ask how many parameters are in posterior distribution. 
+
+Prior predictive simulations
+
+visualizing different model effects
 
 
