@@ -1,0 +1,20 @@
+---
+title: 'HW #2 is posted'
+author: ''
+date: '2020-09-24'
+slug: hw-2-is-posted
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-09-24T18:28:24-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+Same due date, in the same place. Email if you have questions. 
