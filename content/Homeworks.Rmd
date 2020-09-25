@@ -10,7 +10,7 @@ output: html_document
 
 Each will be turned in via email to josh at j.jackson@wustl.edu . For each homework will need to attach to the email 1) an rmd or a rnw file of your code and answers and 2) a pdf of said file. Use your last name to label the files (e.g,. “Jackson_HW1”) and include your name as part of the document front-/top-matter/YAML.
 
-You may work together on each of these homeworks as long as everyone turns in a seperate file and understand EACH LINE OF CODE. If you do not understand then ask during class. 
+You may work together on each of these homeworks as long as everyone turns in a separate file and understand EACH LINE OF CODE. If you do not understand then ask during class. 
 
 # Take home homeworks
 
