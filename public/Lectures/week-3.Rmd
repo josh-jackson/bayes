@@ -76,13 +76,14 @@ ggpairs(week3)
 
 ---
 ## Model
-Health ~ Normal( $\mu_i$ , $\sigma$ )  [Likelihood]  
 
-$\mu_i$ = $\beta_0$ + $\beta_1$ $H_i$ [linear model]    
+Health ~ Normal( $\mu_i$ , $\sigma$ )  
 
-$\beta_0$ ~ Normal(0, 5)  [prior for intercept]  
-$\beta_1$ ~ Normal(0, 5)  [prior for b1]  
-$\sigma$  ~ HalfCauchy(0,10) [prior for sigma]  
+$\mu_i$ = $\beta_0$ + $\beta_1$ $H_i$    
+
+$\beta_0$ ~ Normal(0, 5)   
+$\beta_1$ ~ Normal(0, 5) 
+$\sigma$  ~ HalfCauchy(0,10) 
 
 ---
 ## Prior Predictive Distribution
