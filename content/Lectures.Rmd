@@ -11,3 +11,8 @@ output: html_document
 
 ## INTRO Week 2
 [Intro redux](/Lectures/week-2.html)
+
+## Regression Week 3
+[Regression Slides](/Lectures/week-3.html)
+
+

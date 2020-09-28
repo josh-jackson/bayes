@@ -1,12 +1,186 @@
-
-
 ---
+title: "Week 3"
+author: Josh Jackson
+date: "10-29-20"
+output:
+  xaringan::moon_reader:
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    css: xaringan-themer.css
+    seal: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      ratio: "16:9"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "#23395b",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Droid Mono"),
+)
+
+library(tidyverse)
+library(broom)
+```
+
+<style type="text/css">
+.remark-slide-content {
+    font-size: 30px;
+    padding: 1em 4em 1em 4em;
+}
+
+.small .remark-code { 
+  font-size: 80% !important;
+}
+.tiny .remark-code {
+  font-size: 65% !important;
+}
+</style>
+
+
 ## Goals for this week
 Go deeper into basic linear models to become comfortable with standard regressions
 
+Again, we will walk through an example or two to help us along
 
 ---
-## Prior Predictive
+## Example data
+```{r, echo = FALSE}
+library(tidyverse)
+```
+
+
+```{r}
+
+data <- "https://raw.githubusercontent.com/josh-jackson/bayes/master/week3.csv"
+
+week3 <- read.csv(data) %>% 
+  select(-ID, -SES)
+
+week3
+```
+
+---
+
+```{r, echo = FALSE}
+library(GGally)
+ggpairs(week3)
+
+```
+
+---
+## Model
+Health ~ Normal( $\mu_i$ , $\sigma$ )  [Likelihood]  
+
+$\mu_i$ = $\beta_0$ + $\beta_1$ $H_i$ [linear model]    
+
+$\beta_0$ ~ Normal(0, 5)  [prior for intercept]  
+$\beta_1$ ~ Normal(0, 5)  [prior for b1]  
+$\sigma$  ~ HalfCauchy(0,10) [prior for sigma]  
+
+---
+## Prior Predictive Distribution
+
+```{r}
+
+prior.1 <- prior(normal(0, 5), class = Intercept) +
+                prior(normal(0, 5), class = b) +
+                prior(cauchy(0, 10), class = sigma)
+
+library(brms)
+h.1 <- 
+  brm(family = gaussian,
+      health ~ 1 + happy,
+      prior = prior.1,
+      data = week3,
+      sample_prior = "only",
+      fit = "h.1")
+```
+---
+
+```{r, eval = FALSE}
+library(tidybayes)
+prior.1 %>% 
+  parse_dist(prior) %>% 
+  ggplot(aes(y=class, dist =.dist, args=.args)) +
+  stat_dist_halfeye()+
+  scale_x_continuous( limits = c(-50, 50))
+```
+
+```{r, echo= FALSE, warning=FALSE}
+library(tidybayes)
+prior.1 %>% 
+  parse_dist(prior) %>% 
+  ggplot(aes(y=class, dist =.dist, args=.args)) +
+  stat_dist_halfeye()+
+  scale_x_continuous( limits = c(-50, 50))
+```
+
+---
+
+.pull-left[
+```{r}
+pp_check(h.1) + xlim(-100,100)
+```
+]
+
+.pull-right[
+This graphs 10 simulated datasets from posterior predictive distribution, compared to the our actual density distribution  
+
+How is this the posterior predictive distribution if we just sampled from the prior? Well, the 
+
+
+
+
+
+]
+
+---
+```{r}
+pp_check(h.1,
+         type = 'intervals')
+```
+
+---
+
+```{r}
+prior.2 <- prior(normal(0, 2), class = Intercept) +
+                prior(normal(0, 2), class = b) +
+                prior(cauchy(0, 5), class = sigma)
+```
+
+
+
+```{r}
+h.2 <- 
+  update(h.1, prior = prior.2, fit = "h.2")
+```
+
+
+---
+
+
+```{r, echo= FALSE, warning=FALSE}
+library(tidybayes)
+prior.2 %>% 
+  parse_dist(prior) %>% 
+  ggplot(aes(y=class, dist =.dist, args=.args)) +
+  stat_dist_halfeye()+
+  scale_x_continuous( limits = c(-50, 50))
+
+```
+
+
+---
+```{r}
+pp_check(h.2) + xlim(-50,50)
+```
 
 
 ---
