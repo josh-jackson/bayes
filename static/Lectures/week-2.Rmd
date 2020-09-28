@@ -595,7 +595,7 @@ Bayesian analysis also has fitted values, but now we have many samples of parame
 ```{r}
 mu_at_64 <- 
   post %>% 
-  mutate(mu_at_64 = b_Intercept + (b_parent_c *-4.3))
+  mutate(mu_at_64 = b_Intercept + (b_parent_c * -4.3))
  mu_at_64
 ```
 
