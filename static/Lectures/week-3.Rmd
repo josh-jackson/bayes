@@ -292,7 +292,7 @@ ggplot(aes(y = .variable, x = .value)) +
 ---
 ### samples imply multiple possible regression lines
 
-```{r, echo = false}
+```{r, echo = FALSE, eval = FALSE}
 library(tidybayes)
 library(modelr)
 library(gganimate)
@@ -310,6 +310,11 @@ library(gganimate)
     animate(nframes = 50, fps = 2.5, width = 432, height = 288, res = 96, dev = "png", type = "cairo")
 
 ```
+
+
+![test](../img/p-is-lines.gif)
+
+
 
 ---
 ## Bayesian R2
