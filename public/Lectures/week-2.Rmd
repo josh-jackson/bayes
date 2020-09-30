@@ -444,7 +444,7 @@ m.1 <-
                 prior(cauchy(0, 1), class = sigma)),
       data = galton.data, 
       iter = 1000, warmup = 500, chains = 2, cores = 2, 
-      fit = "m.1")
+      file = "m.1")
 ```
 
 ---
@@ -520,7 +520,7 @@ m.2 <-
                 prior(cauchy(0, 1), class = sigma)),
       data = galton.data, 
       iter = 1000, warmup = 500, chains = 2, cores = 2, 
-      fit = "m.2")
+      file = "m.2")
 ```
 
 ---

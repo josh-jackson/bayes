@@ -6,13 +6,13 @@ output: html_document
 ---
 
 
-## INTRO Week 1
+## 1. INTRO Part 1
 [Introduction Slides](/Lectures/week1.html)
 
-## INTRO Week 2
+## 2. INTRO Part 2
 [Intro redux](/Lectures/week-2.html)
 
-## Regression Week 3
+## 3. Regression Part 1
 [Regression Slides](/Lectures/week-3.html)
 
 

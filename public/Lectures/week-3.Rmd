@@ -16,6 +16,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 ```{r xaringan-themer, include = FALSE}
 library(xaringanthemer)
 mono_light(
@@ -28,6 +29,9 @@ mono_light(
 library(tidyverse)
 library(broom)
 ```
+
+
+
 
 <style type="text/css">
 .remark-slide-content {
@@ -44,7 +48,7 @@ library(broom)
 </style>
 
 
-## Goals for this week
+## Goals for this section
 Go deeper into basic linear models to become comfortable with standard regressions
 
 Again, we will walk through an example or two to help us along
@@ -68,7 +72,7 @@ week3
 
 ---
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, messages = FALSE, warning = FALSE}
 library(GGally)
 ggpairs(week3)
 
@@ -82,15 +86,18 @@ Health ~ Normal( $\mu_i$ , $\sigma$ )
 $\mu_i$ = $\beta_0$ + $\beta_1$ $H_i$    
 
 $\beta_0$ ~ Normal(0, 5)   
-$\beta_1$ ~ Normal(0, 5) 
+$\beta_1$ ~ Normal(0, 5)   
 $\sigma$  ~ HalfCauchy(0,10) 
 
 ---
 ## Prior Predictive Distribution
 
-```{r}
+```{r, warning=FALSE, message = FALSE}
 
 library(brms)
+
+week3 <- week3 %>% 
+  mutate(happy_c = happy - mean(happy))
 
 prior.1 <- prior(normal(0, 5), class = Intercept) +
                 prior(normal(0, 5), class = b) +
@@ -99,20 +106,21 @@ prior.1 <- prior(normal(0, 5), class = Intercept) +
 
 h.1p <- 
   brm(family = gaussian,
-      health ~ 1 + happy,
+      health ~ 1 + happy_c,
       prior = prior.1,
       data = week3,
       sample_prior = "only",
-      fit = "h.1p")
+      iter = 1000, warmup = 500, chains = 2, cores = 2, 
+      file = "h.1p")
 
-save(h.1p, file = "h.1p.rda")
+
 
 ```
 
 ---
 
 .pull-left[
-```{r, eval = FALSE}
+```{r, eval = FALSE, warning=FALSE, message = FALSE}
 library(tidybayes)
 prior.1 %>% 
   parse_dist(prior) %>% 
@@ -123,7 +131,7 @@ prior.1 %>%
 ]
 
 .pull-right[
-```{r, echo= FALSE, warning=FALSE}
+```{r, echo= FALSE, warning=FALSE, message = FALSE}
 library(tidybayes)
 prior.1 %>% 
   parse_dist(prior) %>% 
@@ -137,7 +145,7 @@ prior.1 %>%
 ---
 
 .pull-left[
-```{r, message = FALSE}
+```{r, message = FALSE, warning=FALSE}
 pp_check(h.1p) + xlim(-50,50)
 ```
 ]
@@ -150,7 +158,7 @@ How is this the posterior predictive distribution if we just sampled from the pr
 ]
 
 ---
-```{r}
+```{r, warning=FALSE, message = FALSE}
 pp_check(h.1p,
          type = 'intervals')
 ```
@@ -165,17 +173,17 @@ prior.2 <- prior(normal(0, 2), class = Intercept) +
 
 
 
-```{r}
+```{r, warning=FALSE, message = FALSE}
 h.2p <- 
-  update(h.1p, prior = prior.2)
-save(h.2p, file = "h.2p.rda")
+  update(h.1p, prior = prior.2, file = "h.2p")
+
 ```
 
 
 ---
 
 
-```{r, echo= FALSE, warning=FALSE}
+```{r, echo= FALSE, warning=FALSE, message=FALSE}
 library(tidybayes)
 prior.2 %>% 
   parse_dist(prior) %>% 
@@ -188,13 +196,13 @@ prior.2 %>%
 
 ---
 .pull-left[
-```{r, evho=FALSE}
+```{r, echo=FALSE, warning=FALSE, message = FALSE}
 pp_check(h.2p) + xlim(-25,25)
 ```
 ]
 
 .pull-right[
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning=FALSE, message = FALSE}
 pp_check(h.2p,
          type = 'intervals')
 ```
@@ -207,15 +215,25 @@ pp_check(h.2p,
 ```{r}
 h.1 <- 
   brm(family = gaussian,
-      health ~ 1 + happy,
+      health ~ 1 + happy_c,
       prior = c(prior(normal(0, 5), class = Intercept),
                 prior(normal(0, 5), class = b),
                 prior(cauchy(0, 10), class = sigma)),
-      data = week3)
+      data = week3,
+      iter = 1000, warmup = 500, chains = 2, cores = 2, 
+      file = "h.1")
+```
+
+
+---
+### view priors
+
+```{r}
+prior_summary(h.1)
 ```
 
 ---
-## Summary
+### Summary
 ```{r}
 summary(h.1, prob = .99)
 ```
@@ -223,11 +241,11 @@ summary(h.1, prob = .99)
 ---
 ```{r}
 library(broom)
-tidy(lm(health ~ happy, data = week3))
+tidy(lm(health ~ happy_c, data = week3))
 ```
 
 ```{r}
-glance(lm(health ~ happy, data = week3))
+glance(lm(health ~ happy_c, data = week3))
 ```
 
 ---
@@ -243,7 +261,7 @@ Chains are the different sampling processes occurring simultaneously. The defaul
 Each chain is independent of other chains so as to ensure that the procedure can replicate 
 
 ---
-## "The posterior is made of samples"
+## The posterior is made of samples
 
 ```{r}
 post.h1 <- posterior_samples(h.1)
@@ -255,14 +273,14 @@ post.h1
 tidybayes offers a similar function which will be helpful for more complex models
 ```{r}
 p.h1 <- h.1 %>% 
-spread_draws(b_Intercept, b_happy, sigma)
+spread_draws(b_Intercept, b_happy_c, sigma)
 p.h1
 ```
 
 ---
 ```{r}
 p.h1.long <- h.1 %>% 
-gather_draws(b_Intercept, b_happy, sigma)
+gather_draws(b_Intercept, b_happy_c, sigma)
 p.h1.long
 ```
 
@@ -326,36 +344,116 @@ Typically it is the variance of the predicted values divided by total variance.
 
 But for Bayes we have 1) many predicted values (1 for each sample) and 2) we want to incorporate uncertainty in the estimates
 
+A further issue is that you can get values over 1 with strong priors
 
 
 ---
-A further issue is that you can get values over 1
+## Bayesian R2
 
+(Predicted) explained variance over (predicted) explained variance + unexplained variance
 
----
-## Rhat and other model components
-
-
+We use: posterior predictive distribution & sigma
 
 
 ---
 ## Categorical data
 
+.pull-left[
+```{r}
+
+week3 <-week3 %>% 
+mutate(mood.group.d = recode(mood.group, 
+                             '0' = "control", 
+                             '1' = "tx", 
+                             '2' = "tx")) 
+       
+table(week3$mood.group.d)
+
+```
+]
+
+.pull-right[
+```{r}
+h.2 <- 
+  brm(family = gaussian,
+      health ~ 1 + mood.group.d,
+      prior = c(prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(cauchy(0, 10), class = sigma)),
+      data = week3,
+      iter = 1000, warmup = 500, chains = 2, cores = 2, 
+      file = "h.2")
+```
+
+]
+
+---
+```{r}
+summary(h.2)
+```
 
 
 ---
-### dummy variables
 
+```{r, message = FALSE}
+week3 %>% 
+  group_by(mood.group.d) %>% 
+  summarise(r = mean(health)) %>% 
+  mutate(r=round(r,2))
+
+```
+
+---
+
+```{r}
+
+posth.2 <- h.2 %>% 
+  spread_draws(b_Intercept, b_mood.group.dtx) %>% 
+  rename(control = b_Intercept) %>% 
+  mutate(tx = control + b_mood.group.dtx) %>% 
+  select(control, tx) %>% 
+  gather() %>% 
+  ggplot(aes(y = key, x = value)) +
+  stat_halfeye() 
+
+posth.2 
+
+```
+
+---
+## index variables
+
+```{r}
+h.3 <- 
+  brm(family = gaussian,
+      health ~ 0 + mood.group.d,
+      prior = c(prior(normal(0, 10), class = b),
+                prior(cauchy(0, 10), class = sigma)),
+      data = week3,
+      iter = 1000, warmup = 500, chains = 2, cores = 2, 
+      file = "h.3")
+
+```
 
 
 ---
-## Factorial design
+
+```{r}
+summary(h.3)
+```
 
 
+---
 
 
+```{r}
 
-
+h.3 %>%
+  gather_draws(b_mood.group.dcontrol, b_mood.group.dtx) %>%
+  ggplot(aes(x= .value, y = .variable)) +
+  stat_halfeye() 
+  
+```
 
 
 
@@ -363,8 +461,6 @@ A further issue is that you can get values over 1
 ## Hypothesis function
 
 
----
-## update function
 
 
 ---
