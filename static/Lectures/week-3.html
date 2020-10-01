@@ -259,13 +259,6 @@ week3
 
 ---
 
-
-```
-## Registered S3 method overwritten by 'GGally':
-##   method from   
-##   +.gg   ggplot2
-```
-
 ![](week-3_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
 
 ---
@@ -314,7 +307,8 @@ prior.1 %&gt;%
   parse_dist(prior) %&gt;% 
   ggplot(aes(y=class, dist =.dist, args=.args)) +
   stat_dist_halfeye()+
-  scale_x_continuous( limits = c(-50, 50))
+  scale_x_continuous( limits = c(-50, 50))+
+  labs(title="Priors")
 ```
 ]
 
@@ -370,17 +364,22 @@ h.2p &lt;-
 
 ---
 
-
+.pull-left[
 ![](week-3_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
 
-
----
-.pull-left[
-![](week-3_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
 ]
 
 .pull-right[
+![](week-3_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+]
+
+---
+.pull-left[
 ![](week-3_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+![](week-3_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
 ]
 
 
@@ -480,7 +479,7 @@ glance(lm(health ~ happy_c, data = week3))
 plot(h.1)
 ```
 
-![](week-3_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
 
 ---
 ### what are chains? 
@@ -1583,7 +1582,21 @@ ggplot(aes(y = .variable, x = .value)) +
 ```
 
 
-![](week-3_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+h.1 %&gt;% 
+gather_draws(b_happy_c) %&gt;% 
+ggplot(aes(y = .variable, x = .value)) +
+    stat_halfeye(aes(fill = stat(x) &lt; 0)) +
+  scale_fill_manual(values = c("gray85", "skyblue"))
+```
+
+![](week-3_files/figure-html/unnamed-chunk-27-1.png)&lt;!-- --&gt;
+
 
 ---
 ### samples imply multiple possible regression lines
@@ -1708,6 +1721,7 @@ week3 %&gt;%
 ```
 
 ---
+.pull-left[
 
 
 ```r
@@ -1719,11 +1733,85 @@ posth.2 &lt;- h.2 %&gt;%
   gather() %&gt;% 
   ggplot(aes(y = key, x = value)) +
   stat_halfeye() 
-
-posth.2 
 ```
 
-![](week-3_files/figure-html/unnamed-chunk-32-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-35-1.png)&lt;!-- --&gt;
+
+---
+
+![](week-3_files/figure-html/unnamed-chunk-36-1.png)&lt;!-- --&gt;
+
+---
+### Difference in means
+
+.pull-left[
+
+```r
+  ph2.1 &lt;- h.2 %&gt;% 
+  spread_draws(b_Intercept, b_mood.group.dtx, sigma) %&gt;% 
+  rename(control = b_Intercept) %&gt;% 
+  mutate(tx = control + b_mood.group.dtx) %&gt;% 
+  select(control, tx, sigma) %&gt;% 
+  mutate(`difference` = tx - control) %&gt;%  
+  mutate(`effect` =  difference / sigma) 
+  ph2.1
+```
+
+```
+## # A tibble: 1,000 x 5
+##    control    tx sigma difference effect
+##      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;  &lt;dbl&gt;
+##  1    8.20  9.27  2.85      1.07  0.376 
+##  2    7.72  8.33  2.81      0.607 0.216 
+##  3    8.26  8.96  2.85      0.704 0.247 
+##  4    7.30  8.69  2.80      1.39  0.496 
+##  5    8.66  8.99  2.89      0.329 0.114 
+##  6    8.62  8.96  2.88      0.345 0.120 
+##  7    8.38  8.50  2.63      0.117 0.0446
+##  8    7.79  8.56  2.80      0.769 0.275 
+##  9    8.08  8.52  2.71      0.442 0.163 
+## 10    8.21  9.41  2.87      1.20  0.419 
+## # … with 990 more rows
+```
+]
+
+.pull-right[
+
+
+```r
+ph2.1 %&gt;% 
+  select(effect, difference) %&gt;% 
+  gather() %&gt;% 
+  ggplot(aes(y = key, x = value)) +
+  stat_dotsinterval() 
+```
+
+![](week-3_files/figure-html/unnamed-chunk-38-1.png)&lt;!-- --&gt;
+
+]
+
+---
+
+
+
+```r
+ h.2 %&gt;% 
+  spread_draws(b_Intercept, b_mood.group.dtx, sigma) %&gt;% 
+  rename(control = b_Intercept) %&gt;% 
+  mutate(tx = control + b_mood.group.dtx) %&gt;% 
+  mutate(`difference` = tx - control) %&gt;%  
+  mutate(`effect` =  difference / sigma) %&gt;% 
+  gather_draws(difference, effect) %&gt;% 
+  median_qi()
+```
+
+```
+## # A tibble: 2 x 7
+##   .variable  .value  .lower .upper .width .point .interval
+##   &lt;chr&gt;       &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+## 1 difference  0.760 -0.107   1.61    0.95 median qi       
+## 2 effect      0.270 -0.0376  0.569   0.95 median qi
+```
 
 ---
 ## index variables
@@ -1773,7 +1861,7 @@ summary(h.3)
 
 ---
 
-
+.pull-left[
 
 ```r
 h.3 %&gt;%
@@ -1782,24 +1870,105 @@ h.3 %&gt;%
   stat_halfeye() 
 ```
 
-![](week-3_files/figure-html/unnamed-chunk-35-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-42-1.png)&lt;!-- --&gt;
+]
 
+
+.pull-right[
+
+![](week-3_files/figure-html/unnamed-chunk-43-1.png)&lt;!-- --&gt;
+]
 
 
 ---
 ## Hypothesis function
+a way to set up contrasts within brms
 
 
 
+```r
+hyp.1 &lt;- hypothesis(h.3, "mood.group.dtx = mood.group.dcontrol")
+hyp.1
+```
+
+```
+## Hypothesis Tests for class b:
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (mood.group.dtx)-... = 0     0.79      0.44    -0.04     1.65         NA
+##   Post.Prob Star
+## 1        NA     
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.
+```
+
+
+
+```r
+hyp.1 &lt;- hypothesis(h.3, "mood.group.dtx &gt; mood.group.dcontrol")
+hyp.1
+```
+
+```
+## Hypothesis Tests for class b:
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (mood.group.dtx)-... &gt; 0     0.79      0.44     0.07     1.52      34.71
+##   Post.Prob Star
+## 1      0.97    *
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.
+```
 
 ---
-## emmeans
+
+.pull-left[
+
+```r
+plot(hyp.1)
+```
+
+![](week-3_files/figure-html/unnamed-chunk-46-1.png)&lt;!-- --&gt;
+]
 
 
+.pull-right[
 
+![](week-3_files/figure-html/unnamed-chunk-47-1.png)&lt;!-- --&gt;
+
+
+]
+
+---
+
+
+```r
+hyp.1 &lt;- hypothesis(h.3, "mood.group.dtx &lt; 9")
+hyp.1
+```
+
+```
+## Hypothesis Tests for class b:
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (mood.group.dtx)-(9) &lt; 0    -0.22      0.24    -0.62     0.17       4.92
+##   Post.Prob Star
+## 1      0.83     
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.
+```
 
 ---
 ## pp checks
+
+
+---
 
 
 

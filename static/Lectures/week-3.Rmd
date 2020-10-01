@@ -72,7 +72,7 @@ week3
 
 ---
 
-```{r, echo = FALSE, messages = FALSE, warning = FALSE}
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 library(GGally)
 ggpairs(week3)
 
@@ -126,7 +126,8 @@ prior.1 %>%
   parse_dist(prior) %>% 
   ggplot(aes(y=class, dist =.dist, args=.args)) +
   stat_dist_halfeye()+
-  scale_x_continuous( limits = c(-50, 50))
+  scale_x_continuous( limits = c(-50, 50))+
+  labs(title="Priors")
 ```
 ]
 
@@ -137,7 +138,8 @@ prior.1 %>%
   parse_dist(prior) %>% 
   ggplot(aes(y=class, dist =.dist, args=.args)) +
   stat_dist_halfeye()+
-  scale_x_continuous( limits = c(-50, 50))
+  scale_x_continuous( limits = c(-50, 50)) +
+  labs(title="Priors")
 ```
 ]
 
@@ -182,17 +184,30 @@ h.2p <-
 
 ---
 
-
+.pull-left[
 ```{r, echo= FALSE, warning=FALSE, message=FALSE}
 library(tidybayes)
 prior.2 %>% 
   parse_dist(prior) %>% 
   ggplot(aes(y=class, dist =.dist, args=.args)) +
   stat_dist_halfeye()+
-  scale_x_continuous( limits = c(-25, 25))
-
+  scale_x_continuous( limits = c(-25, 25)) +
+  labs(title="skinnier priors")
 ```
 
+]
+
+.pull-right[
+```{r, echo= FALSE, warning=FALSE, message = FALSE}
+library(tidybayes)
+prior.1 %>% 
+  parse_dist(prior) %>% 
+  ggplot(aes(y=class, dist =.dist, args=.args)) +
+  stat_dist_halfeye()+
+  scale_x_continuous( limits = c(-50, 50)) +
+  labs(title="Priors")
+```
+]
 
 ---
 .pull-left[
@@ -308,6 +323,18 @@ ggplot(aes(y = .variable, x = .value)) +
 ```
 
 ---
+
+```{r}
+h.1 %>% 
+gather_draws(b_happy_c) %>% 
+ggplot(aes(y = .variable, x = .value)) +
+    stat_halfeye(aes(fill = stat(x) < 0)) +
+  scale_fill_manual(values = c("gray85", "skyblue"))
+
+```
+
+
+---
 ### samples imply multiple possible regression lines
 
 ```{r, echo = FALSE, eval = FALSE}
@@ -404,8 +431,22 @@ week3 %>%
 ```
 
 ---
+.pull-left[
 
-```{r}
+```{r, eval = FALSE}
+
+posth.2 <- h.2 %>% 
+  spread_draws(b_Intercept, b_mood.group.dtx) %>% 
+  rename(control = b_Intercept) %>% 
+  mutate(tx = control + b_mood.group.dtx) %>% 
+  select(control, tx) %>% 
+  gather() %>% 
+  ggplot(aes(y = key, x = value)) +
+  stat_halfeye() 
+
+```
+
+```{r, echo = FALSE}
 
 posth.2 <- h.2 %>% 
   spread_draws(b_Intercept, b_mood.group.dtx) %>% 
@@ -418,6 +459,63 @@ posth.2 <- h.2 %>%
 
 posth.2 
 
+```
+
+---
+
+```{r, echo = FALSE}
+h.2 %>% 
+  spread_draws(b_Intercept, b_mood.group.dtx) %>% 
+  rename(control = b_Intercept) %>% 
+  mutate(tx = control + b_mood.group.dtx) %>% 
+  select(control, tx) %>% 
+  gather() %>% 
+  ggplot(aes( x = value, group = key, fill = key)) +
+  stat_halfeye(alpha = .74)
+
+
+```
+
+---
+### Difference in means
+
+.pull-left[
+```{r}
+  ph2.1 <- h.2 %>% 
+  spread_draws(b_Intercept, b_mood.group.dtx, sigma) %>% 
+  rename(control = b_Intercept) %>% 
+  mutate(tx = control + b_mood.group.dtx) %>% 
+  select(control, tx, sigma) %>% 
+  mutate(`difference` = tx - control) %>%  
+  mutate(`effect` =  difference / sigma) 
+  ph2.1
+```
+]
+
+.pull-right[
+
+```{r}
+ph2.1 %>% 
+  select(effect, difference) %>% 
+  gather() %>% 
+  ggplot(aes(y = key, x = value)) +
+  stat_dotsinterval() 
+```
+
+]
+
+---
+
+
+```{r}
+ h.2 %>% 
+  spread_draws(b_Intercept, b_mood.group.dtx, sigma) %>% 
+  rename(control = b_Intercept) %>% 
+  mutate(tx = control + b_mood.group.dtx) %>% 
+  mutate(`difference` = tx - control) %>%  
+  mutate(`effect` =  difference / sigma) %>% 
+  gather_draws(difference, effect) %>% 
+  median_qi()
 ```
 
 ---
@@ -445,7 +543,7 @@ summary(h.3)
 
 ---
 
-
+.pull-left[
 ```{r}
 
 h.3 %>%
@@ -454,23 +552,67 @@ h.3 %>%
   stat_halfeye() 
   
 ```
+]
 
+
+.pull-right[
+
+```{r, echo = FALSE}
+posth.2 
+```
+]
 
 
 ---
 ## Hypothesis function
+a way to set up contrasts within brms
 
 
+```{r, message=FALSE}
+hyp.1 <- hypothesis(h.3, "mood.group.dtx = mood.group.dcontrol")
+hyp.1
+```
 
+
+```{r, message=FALSE}
+hyp.1 <- hypothesis(h.3, "mood.group.dtx > mood.group.dcontrol")
+hyp.1
+```
 
 ---
-## emmeans
+
+.pull-left[
+```{r}
+plot(hyp.1)
+```
+]
 
 
+.pull-right[
 
+```{r, echo = FALSE}
+ph2.1 %>% 
+  select(difference) %>% 
+  gather() %>% 
+  ggplot(aes(y = key, x = value)) +
+  stat_halfeye() 
+```
+
+
+]
+
+---
+
+```{r, message=FALSE}
+hyp.1 <- hypothesis(h.3, "mood.group.dtx < 9")
+hyp.1
+```
 
 ---
 ## pp checks
+
+
+---
 
 
 
