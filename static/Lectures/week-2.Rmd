@@ -252,7 +252,7 @@ We could do a few things:
 First, with grid approximation. We have 3 parameters to estimate. But with grid approximation, it is going to be computationally expensive to do so (~3 million calculations). Try a simple intercept only model instead (only 40k). 
 
 C.Height_i ~ Normal( $\mu$ , $\sigma$ )  
-$\mu_i$ ~ Normal(68, 5)   
+$\mu$ ~ Normal(68, 5)   
 $\sigma$ ~ HalfCauchy(0,10)  
 
 ]

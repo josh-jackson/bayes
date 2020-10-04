@@ -1634,6 +1634,17 @@ A further issue is that you can get values over 1 with strong priors
 
 We use: posterior predictive distribution &amp; sigma
 
+---
+
+
+
+```r
+pp_check(h.1)
+```
+
+![](week-3_files/figure-html/unnamed-chunk-30-1.png)&lt;!-- --&gt;
+
+
 
 ---
 ## Categorical data
@@ -1734,12 +1745,17 @@ posth.2 &lt;- h.2 %&gt;%
   ggplot(aes(y = key, x = value)) +
   stat_halfeye() 
 ```
+]
 
-![](week-3_files/figure-html/unnamed-chunk-35-1.png)&lt;!-- --&gt;
+.pull-right[
+
+![](week-3_files/figure-html/unnamed-chunk-36-1.png)&lt;!-- --&gt;
+]
+
 
 ---
 
-![](week-3_files/figure-html/unnamed-chunk-36-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-37-1.png)&lt;!-- --&gt;
 
 ---
 ### Difference in means
@@ -1786,7 +1802,7 @@ ph2.1 %&gt;%
   stat_dotsinterval() 
 ```
 
-![](week-3_files/figure-html/unnamed-chunk-38-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-39-1.png)&lt;!-- --&gt;
 
 ]
 
@@ -1814,7 +1830,7 @@ ph2.1 %&gt;%
 ```
 
 ---
-## index variables
+## Index variables
 
 
 ```r
@@ -1828,6 +1844,37 @@ h.3 &lt;-
       file = "h.3")
 ```
 
+
+We suppress the intercept by putting in a 0. This "no intercept" model is a general strategy for working with categorical data within Bayes. 
+
+---
+
+
+```r
+test2 &lt;- lm(health ~ 0 + mood.group.d, data = week3)
+summary(test2)
+```
+
+```
+## 
+## Call:
+## lm(formula = health ~ 0 + mood.group.d, data = week3)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -8.0622 -2.1352  0.1223  1.9220  7.7420 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(&gt;|t|)    
+## mood.group.dcontrol   7.9873     0.3465   23.05   &lt;2e-16 ***
+## mood.group.dtx        8.7689     0.2432   36.06   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 2.815 on 198 degrees of freedom
+## Multiple R-squared:  0.9024,	Adjusted R-squared:  0.9015 
+## F-statistic: 915.8 on 2 and 198 DF,  p-value: &lt; 2.2e-16
+```
 
 ---
 
@@ -1858,7 +1905,6 @@ summary(h.3)
 ## scale reduction factor on split chains (at convergence, Rhat = 1).
 ```
 
-
 ---
 
 .pull-left[
@@ -1870,16 +1916,24 @@ h.3 %&gt;%
   stat_halfeye() 
 ```
 
-![](week-3_files/figure-html/unnamed-chunk-42-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-44-1.png)&lt;!-- --&gt;
 
 ]
 
 
 .pull-right[
 
-![](week-3_files/figure-html/unnamed-chunk-43-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-45-1.png)&lt;!-- --&gt;
 ]
 
+---
+Index variables
+
+In addition to getting everything you want from a normal dummy treatment of variables, an additional benefit of index variables is that they are easier to put priors on.
+
+With dummy, you put a prior on one group and a prior on the difference. In effect, you are providing more information about one group and less about another. Why not be equal? 
+
+Moreover, dummies will result in more priors, especially with more than 2 groups. 
 
 ---
 ## Hypothesis function
@@ -1904,12 +1958,34 @@ hyp.1
 ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
 ## Posterior probabilities of point hypotheses assume equal prior probabilities.
 ```
-
+Equivalent* to our dummy coded regression coefficient (*within sampling error)
+---
 
 
 ```r
-hyp.1 &lt;- hypothesis(h.3, "mood.group.dtx &gt; mood.group.dcontrol")
-hyp.1
+hyp.2 &lt;- hypothesis(h.3, "mood.group.dtx - mood.group.dcontrol = 0")
+hyp.2
+```
+
+```
+## Hypothesis Tests for class b:
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (mood.group.dtx-m... = 0     0.79      0.44    -0.04     1.65         NA
+##   Post.Prob Star
+## 1        NA     
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.
+```
+
+---
+
+
+```r
+hyp.3 &lt;- hypothesis(h.3, "mood.group.dtx &gt; mood.group.dcontrol")
+hyp.3
 ```
 
 ```
@@ -1933,13 +2009,13 @@ hyp.1
 plot(hyp.1)
 ```
 
-![](week-3_files/figure-html/unnamed-chunk-46-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-49-1.png)&lt;!-- --&gt;
 ]
 
 
 .pull-right[
 
-![](week-3_files/figure-html/unnamed-chunk-47-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-50-1.png)&lt;!-- --&gt;
 
 
 ]
@@ -1966,33 +2042,99 @@ hyp.1
 ```
 
 ---
-## pp checks
+## posterior predictive checks
+
+*If a model is a good fit we should be able to use it to generate data that resemble the data we observed.*
+
+To evaluate our model we want to take our posteriors we estimated and plug them into our equation to simulate different Y values across our X variable(s). This is the posterior predictive distribution. It incorporates uncertainty about each of the parameters. 
 
 
 ---
 
+.pull-left[We can compare a distribution of simulated Ys to our actual Ys. Do they look similar? To the extent they don't this represents misfit in our model. ]
+
+.pull-right[
+
+```r
+pp_check(h.3)
+```
+
+```
+## Using 10 posterior samples for ppc type 'dens_overlay' by default.
+```
+
+![](week-3_files/figure-html/unnamed-chunk-52-1.png)&lt;!-- --&gt;
+
+]
+
+---
+
+
+```r
+pp_check(h.3,"violin_grouped", group = "mood.group.d")
+```
+
+```
+## Using all posterior samples for ppc type 'violin_grouped' by default.
+```
+
+![](week-3_files/figure-html/unnamed-chunk-53-1.png)&lt;!-- --&gt;
 
 
 ---
 ## Robust regression
-https://solomonkurz.netlify.app/post/robust-linear-regression-with-the-robust-student-s-t-distribution/
 
+The normal is great as a a distribution of "maximum entropy" but lets be honest, in psych we have a lot of error prone people/experiments/data-entry that leads to "outliers"
+
+Trimming them is one option. But why not incorporate our model to expect outliers, especially when working with low N situations. 
+
+Enter the t-distribution. Modeling with heavy tailed distributions like the t-distribution helps minimize the effect of outliers on central tendency. Other "robust" approaches outside of Bayes use medians instead of means. 
+
+(Note that a t-test does not assume a t DGP -- only that the sampling distribution is distributed as a t)
+
+---
+### Model
+
+Health ~ T($\nu$ , `\(\mu_i\)` , `\(\sigma\)` )  
+
+`\(\mu_i\)` = `\(\beta_0\)` + `\(\beta_1\)` `\(G_i\)`    
+
+`\(\nu\)` ~ Gamma(2,.1)
+`\(\beta_0\)` ~ Normal(0, 10)   
+`\(\beta_1\)` ~ Normal(0, 10)   
+`\(\sigma\)`  ~ HalfCauchy(0,10) 
+
+
+---
+
+### gamma prior
+
+
+```r
+prior(gamma(2,.1), class = nu) %&gt;% 
+  parse_dist(prior) %&gt;% 
+  ggplot(aes(y=class, dist =.dist, args=.args)) +
+  stat_dist_halfeye()+
+  labs(title="Priors")
+```
+
+![](week-3_files/figure-html/unnamed-chunk-54-1.png)&lt;!-- --&gt;
+
+---
 We are going to use a t-distribution as our likelihood. 
 
 
 ```r
-b2 &lt;- 
+h.4 &lt;- 
   brm(family = student,
-      y ~ 1 + x,
-      prior = c(prior(normal(0, 10), class = Intercept),
+      health ~ 1 + mood.group.d,
+      prior = c(prior(gamma(2, .1), class = nu),
+                prior(normal(0, 10), class = Intercept),
                 prior(normal(0, 10), class = b),
-                prior(gamma(4, 1), class = nu),
                 prior(cauchy(0, 1),  class = sigma)),
-      data = data)
+                file = "h.4.rds",
+                data = week3)
 ```
-
----
-### gamma plot
 
 
 ---
@@ -2000,15 +2142,214 @@ b2 &lt;-
 
 
 ```r
-b4 &lt;-
+h.5 &lt;- 
   brm(family = student,
-      bf(y ~ 1 + x, nu = 4),
-      prior = c(prior(normal(0, 100), class =Intercept),
-                prior(normal(0, 10),  class = b),
-                prior(cauchy(0, 1),   class = sigma)),
-         data = o)
+      bf(health ~ 1 + mood.group.d, nu = 4),
+      prior =   prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(cauchy(0, 1),  class = sigma)),
+                file = "h.5.rds",
+                data = week3)
 ```
 
+
+---
+## Welches t-test?
+
+.pull-left[
+Robust and unequal variances
+
+Health ~ T( `\(\nu\)` , `\(\mu_i\)` , `\(\sigma_i\)` )  
+
+`\(\mu_i\)` = `\(\beta_0\)` + `\(\beta_1\)` `\(Group_i\)`    
+`\(\sigma_i\)` = `\(\gamma_0\)` + `\(\gamma_1\)` `\(Group_i\)` 
+
+`\(\nu\)` ~     Gamma(2,.1)
+`\(\beta_0\)` ~ Normal(0, 10)   
+`\(\beta_1\)` ~ Normal(0, 10)   
+`\(\gamma_0\)` ~ Normal(0, 3)  
+`\(\gamma_1\)` ~ Normal(0, 3)  
+]
+
+.pull-right[
+Welches, but not robust
+
+Health ~ Normal($\mu_i$ , `\(\sigma_i\)` )  
+
+`\(\mu_i\)` = `\(\beta_0\)` + `\(\beta_1\)` `\(Group_i\)`    
+`\(\sigma_i\)` =$\gamma_0$ + `\(\gamma_1\)` `\(Group_i\)` 
+
+`\(\nu\)` ~     Gamma(2,.1)
+`\(\beta_0\)` ~ Normal(0, 10)   
+`\(\beta_1\)` ~ Normal(0, 10)   
+`\(\gamma_0\)` ~ Normal(0, 3)  
+`\(\gamma_1\)` ~ Normal(0, 3) 
+]
+
+
+---
+
+```r
+h.6 &lt;- 
+  brm(family = student,
+     bf( health ~ 1 + mood.group.d,
+         sigma ~ 1 + mood.group.d),
+      prior = c(prior(gamma(2, .1), class = nu),
+                prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 3), class = b),
+                prior(normal(0, 10), class = Intercept, dpar = sigma),
+                prior(normal(0, 3), class = b, dpar = sigma)),
+                file = "h.6.rds",
+                data = week3)
+```
+
+
+---
+
+
+```r
+summary(h.6)
+```
+
+```
+##  Family: student 
+##   Links: mu = identity; sigma = log; nu = identity 
+## Formula: health ~ 1 + mood.group.d 
+##          sigma ~ 1 + mood.group.d
+##    Data: week3 (Number of observations: 200) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+## Intercept                8.00      0.34     7.32     8.68 1.00     4199
+## sigma_Intercept          1.02      0.09     0.84     1.20 1.00     4808
+## mood.group.dtx           0.78      0.42    -0.06     1.61 1.00     4765
+## sigma_mood.group.dtx    -0.01      0.11    -0.24     0.20 1.00     5038
+##                      Tail_ESS
+## Intercept                2736
+## sigma_Intercept          3410
+## mood.group.dtx           3141
+## sigma_mood.group.dtx     3206
+## 
+## Family Specific Parameters: 
+##    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## nu    29.31     15.22     9.72    67.30 1.00     4789     3191
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+
+```r
+plot(h.6)
+```
+
+![](week-3_files/figure-html/unnamed-chunk-59-1.png)&lt;!-- --&gt;
+
+
+---
+
+
+```r
+h.7 &lt;- 
+  brm(family = student,
+     bf( health ~ 0 + mood.group.d,
+         sigma ~ 0 + mood.group.d),
+      prior = c(prior(gamma(2, .1), class = nu),
+                prior(normal(0, 3), class = b),
+                prior(normal(0, 3), class = b, dpar = sigma)),
+                file = "h.7.rds",
+                data = week3)
+```
+
+---
+
+
+```r
+summary(h.7)
+```
+
+```
+##  Family: student 
+##   Links: mu = identity; sigma = log; nu = identity 
+## Formula: health ~ 0 + mood.group.d 
+##          sigma ~ 0 + mood.group.d
+##    Data: week3 (Number of observations: 200) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##                           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+## mood.group.dcontrol           7.88      0.35     7.21     8.55 1.00     5383
+## mood.group.dtx                8.72      0.24     8.24     9.20 1.00     5330
+## sigma_mood.group.dcontrol     1.01      0.09     0.85     1.19 1.00     5081
+## sigma_mood.group.dtx          1.00      0.07     0.87     1.14 1.00     4727
+##                           Tail_ESS
+## mood.group.dcontrol           3402
+## mood.group.dtx                2912
+## sigma_mood.group.dcontrol     3499
+## sigma_mood.group.dtx          3114
+## 
+## Family Specific Parameters: 
+##    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## nu    29.21     14.52     9.69    65.02 1.00     4327     2959
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+
+---
+The sigmas are modeled through a log-link (to make them positive). Convert them back to the scale by exponential.
+
+
+```r
+post.h7 &lt;- h.7 %&gt;% 
+  spread_draws(b_mood.group.dcontrol,b_mood.group.dtx, b_sigma_mood.group.dcontrol,b_sigma_mood.group.dtx) %&gt;% 
+  transmute(`Control`     = b_mood.group.dcontrol,
+            `Tx`  = b_mood.group.dtx,
+            `Sigma Control`    = b_sigma_mood.group.dcontrol%&gt;% exp(),
+            `Sigma Tx` = b_sigma_mood.group.dtx %&gt;% exp()) %&gt;% 
+  mutate(`Differences`  = `Tx` - `Control`,
+         `Sigma Difference` = `Sigma Tx` - `Sigma Control`,
+         `Effect Size` = (`Differences`) / sqrt((`Sigma Control`^2 + `Sigma Tx`^2) / 2))
+
+
+post.h7 
+```
+
+```
+## # A tibble: 4,000 x 7
+##    Control    Tx `Sigma Control` `Sigma Tx` Differences `Sigma Differen…
+##      &lt;dbl&gt; &lt;dbl&gt;           &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;            &lt;dbl&gt;
+##  1    7.70  9.02            2.85       2.83       1.32           -0.0241
+##  2    8.09  8.96            2.72       2.82       0.870           0.0992
+##  3    7.57  8.54            2.79       2.72       0.969          -0.0712
+##  4    7.97  8.77            2.81       2.79       0.799          -0.0215
+##  5    7.89  8.91            2.45       2.65       1.02            0.194 
+##  6    7.91  8.93            2.54       2.74       1.02            0.194 
+##  7    8.19  9.04            2.59       2.78       0.851           0.191 
+##  8    7.59  8.36            2.92       2.91       0.773          -0.0106
+##  9    7.79  8.60            2.79       2.88       0.810           0.0842
+## 10    7.70  8.77            2.85       2.46       1.07           -0.397 
+## # … with 3,990 more rows, and 1 more variable: `Effect Size` &lt;dbl&gt;
+```
+
+---
+
+
+```r
+post.h7 %&gt;% 
+  gather() %&gt;% 
+  ggplot(aes(y = key, x = value)) +
+  stat_halfeye()
+```
+
+![](week-3_files/figure-html/unnamed-chunk-63-1.png)&lt;!-- --&gt;
 
 
 
@@ -2018,6 +2359,7 @@ b4 &lt;-
 Introduce multivariate models
 
 
+## Robust correlations
 
 
 ## For homework

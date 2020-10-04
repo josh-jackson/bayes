@@ -1,0 +1,63 @@
+---
+title: "HW-3"
+output: html_document
+---
+
+This week we are going to practice writing brms code. 
+
+1. Without running the code (as we don't have any real data. To do so without crashing knitr, put eval = FALSE in the R header ie {r, eval = FALSE} at the top of your R chunk within rmarkdown file) please translate the corresponding models into brms code. 
+
+a. Y ~ Normal( $\mu$ , $\sigma$ )  
+
+$\mu$ ~ Normal(16,25)   
+$\sigma$  ~ Exponential(0,1) 
+
+
+b. Y ~ Normal( $\mu_i$ , $\sigma$ )
+
+$\mu_i$ = $\beta_0$ + $\beta_1$ $H_i$    
+
+$\beta_0$ ~ Normal(0, 5)   
+$\beta_1$ ~ Normal(0, 5)   
+$\sigma$  ~ Uniform(0,20) 
+
+
+c. For each a and b model, how many parameters are we estimating? 
+
+
+
+
+For questions 2 - 5 use the following dataset: https://raw.githubusercontent.com/josh-jackson/bayes/master/hw3.csv
+
+
+2. Run two prior predictive simulations using brms for the regression of school success on friendship quality using the priors below. 
+
+a. School Success ~ Normal( $\mu_i$ , $\sigma$ )  
+
+$\mu_i$ = $\beta_0$ + $\beta_1$ ( $\text{C_Friend}_i$ - ${\overline{\mbox{Friend}_i}}$ ) 
+
+$\beta_0$ ~ Normal(10, 2)   
+$\beta_1$ ~ Normal(10, 2)   
+$\sigma$  ~ HalfCauchy(0,2) 
+
+
+b. Y ~ Normal( $\mu_i$ , $\sigma$ )
+
+$\mu_i$ = $\beta_0$ + $\beta_1$ ( $\text{C_Friend}_i$ - ${\overline{\mbox{Friend}_i}}$ )     
+
+$\beta_0$ ~ Normal(0, 5)   
+$\beta_1$ ~ Normal(0, 5)   
+$\sigma$  ~ HalfCauchy(0,5) 
+
+
+Investigate both of the fits with pp_check. Which set of priors do you prefer?   
+
+
+3. Run the same model as in #2, using the set of priors you prefer. Using the summary and plot function within brms interpret your findings.
+
+4. Using either posterior_samples or the spread_draws functions of brms and tidybayes, respectively, visualize the posterior distribution using ggplot2. The resulting visualization should be similar in shape to those produced by the brms plot function, but you are free to choose the type (e.g., halfeye vs dot) 
+
+
+5. Create fitted values of your posterior using the fitted or the fitted_draws function. Using the fitted values create a representation of the regression line, along with uncertainty of the line, using ggplot2. 
+
+

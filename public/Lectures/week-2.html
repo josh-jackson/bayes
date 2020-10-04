@@ -200,7 +200,7 @@ We could do a few things:
 First, with grid approximation. We have 3 parameters to estimate. But with grid approximation, it is going to be computationally expensive to do so (~3 million calculations). Try a simple intercept only model instead (only 40k). 
 
 C.Height_i ~ Normal( `\(\mu\)` , `\(\sigma\)` )  
-`\(\mu_i\)` ~ Normal(68, 5)   
+`\(\mu\)` ~ Normal(68, 5)   
 `\(\sigma\)` ~ HalfCauchy(0,10)  
 
 ]
@@ -313,7 +313,7 @@ With samples we can visualize, create credible intervals, HPDIs, etc.
 ## # A tibble: 2 x 7
 ##   name  value .lower .upper .width .point .interval
 ##   &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
-## 1 mu    68.1   67.9   68.2    0.95 mode   hdi      
+## 1 mu    68.1   67.9   68.3    0.95 mode   hdi      
 ## 2 sigma  2.51   2.40   2.63   0.95 mode   hdi
 ```
 
@@ -408,42 +408,6 @@ m.1 &lt;-
       data = galton.data, 
       iter = 1000, warmup = 500, chains = 2, cores = 2, 
       file = "m.1")
-```
-
-```
-## Compiling Stan program...
-```
-
-```
-## Trying to compile a simple C file
-```
-
-```
-## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
-## clang -mmacosx-version-min=10.13 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/Rcpp/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/unsupported"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/BH/include" -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/src/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppParallel/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include '/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include   -fPIC  -Wall -g -O2  -c foo.c -o foo.o
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:88:
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:1: error: unknown type name 'namespace'
-## namespace Eigen {
-## ^
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:16: error: expected ';' after top level declarator
-## namespace Eigen {
-##                ^
-##                ;
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: 'complex' file not found
-## #include &lt;complex&gt;
-##          ^~~~~~~~~
-## 3 errors generated.
-## make: *** [foo.o] Error 1
-```
-
-```
-## Start sampling
 ```
 
 ---
@@ -569,46 +533,6 @@ m.2 &lt;-
       data = galton.data, 
       iter = 1000, warmup = 500, chains = 2, cores = 2, 
       file = "m.2")
-```
-
-```
-## Compiling Stan program...
-```
-
-```
-## recompiling to avoid crashing R session
-```
-
-```
-## Trying to compile a simple C file
-```
-
-```
-## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
-## clang -mmacosx-version-min=10.13 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/Rcpp/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/unsupported"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/BH/include" -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/src/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppParallel/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include '/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include   -fPIC  -Wall -g -O2  -c foo.c -o foo.o
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:88:
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:1: error: unknown type name 'namespace'
-## namespace Eigen {
-## ^
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:16: error: expected ';' after top level declarator
-## namespace Eigen {
-##                ^
-##                ;
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: 'complex' file not found
-## #include &lt;complex&gt;
-##          ^~~~~~~~~
-## 3 errors generated.
-## make: *** [foo.o] Error 1
-```
-
-```
-## Start sampling
 ```
 
 ---

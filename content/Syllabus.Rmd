@@ -76,7 +76,7 @@ Note that dates and readings are tentative. Topics will likely shift; all change
 | 2    | 9/22  | Overview 2: Model building, sampling, evaluation with brms |SR 3; DBDA 4 for review|
 | 3    | 9/29  | Basic Linear Models (t-test, Regression)     |  SR 4; DBDA  16,17       |
 | 4    | 10/6  | Basic Linear Models (continued)     |                   |
-| 5    | 10/13  | Markov Chain Monte Carlo Estimation (MCMC)    | SR 9              |
+| 5    | 10/13  | Markov Chain Monte Carlo Estimation (MCMC)    | SR 9  DBDA 7            |
 | 6    | 10/20  | Linear Models with multiple predictors         | SR 5                   |
 | 7    | 10/27   | Interactions              |  SR 8      |
 | 8    | 11/3   | NHST, regularization, model comparison, and Bayes Factors | SR 7; DBDA 11 & 12 |

@@ -18,4 +18,6 @@ You may work together on each of these homeworks as long as everyone turns in a 
 
 [HW #2 Sampling! ](/Homeworks/wk2-HW.html)
 
+[HW #3 brms ](/Homeworks/HW-3.html)
+
 

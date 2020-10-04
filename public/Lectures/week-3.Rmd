@@ -381,6 +381,14 @@ A further issue is that you can get values over 1 with strong priors
 
 We use: posterior predictive distribution & sigma
 
+---
+
+
+```{r, message = FALSE}
+pp_check(h.1)
+```
+
+
 
 ---
 ## Categorical data
@@ -445,6 +453,9 @@ posth.2 <- h.2 %>%
   stat_halfeye() 
 
 ```
+]
+
+.pull-right[
 
 ```{r, echo = FALSE}
 
@@ -460,6 +471,8 @@ posth.2 <- h.2 %>%
 posth.2 
 
 ```
+]
+
 
 ---
 
@@ -519,7 +532,7 @@ ph2.1 %>%
 ```
 
 ---
-## index variables
+## Index variables
 
 ```{r}
 h.3 <- 
@@ -534,12 +547,20 @@ h.3 <-
 ```
 
 
+We suppress the intercept by putting in a 0. This "no intercept" model is a general strategy for working with categorical data within Bayes. 
+
+---
+
+```{r}
+test2 <- lm(health ~ 0 + mood.group.d, data = week3)
+summary(test2)
+```
+
 ---
 
 ```{r}
 summary(h.3)
 ```
-
 
 ---
 
@@ -563,6 +584,14 @@ posth.2
 ```
 ]
 
+---
+Index variables
+
+In addition to getting everything you want from a normal dummy treatment of variables, an additional benefit of index variables is that they are easier to put priors on.
+
+With dummy, you put a prior on one group and a prior on the difference. In effect, you are providing more information about one group and less about another. Why not be equal? 
+
+Moreover, dummies will result in more priors, especially with more than 2 groups. 
 
 ---
 ## Hypothesis function
@@ -573,11 +602,19 @@ a way to set up contrasts within brms
 hyp.1 <- hypothesis(h.3, "mood.group.dtx = mood.group.dcontrol")
 hyp.1
 ```
-
+Equivalent* to our dummy coded regression coefficient (*within sampling error)
+---
 
 ```{r, message=FALSE}
-hyp.1 <- hypothesis(h.3, "mood.group.dtx > mood.group.dcontrol")
-hyp.1
+hyp.2 <- hypothesis(h.3, "mood.group.dtx - mood.group.dcontrol = 0")
+hyp.2
+```
+
+---
+
+```{r, message=FALSE}
+hyp.3 <- hypothesis(h.3, "mood.group.dtx > mood.group.dcontrol")
+hyp.3
 ```
 
 ---
@@ -610,47 +647,215 @@ hyp.1
 ```
 
 ---
-## pp checks
+## posterior predictive checks
+
+*If a model is a good fit we should be able to use it to generate data that resemble the data we observed.*
+
+To evaluate our model we want to take our posteriors we estimated and plug them into our equation to simulate different Y values across our X variable(s). This is the posterior predictive distribution. It incorporates uncertainty about each of the parameters. 
 
 
 ---
 
+.pull-left[We can compare a distribution of simulated Ys to our actual Ys. Do they look similar? To the extent they don't this represents misfit in our model. ]
+
+.pull-right[
+```{r}
+pp_check(h.3)
+```
+
+]
+
+---
+
+```{r}
+pp_check(h.3,"violin_grouped", group = "mood.group.d")
+
+```
 
 
 ---
 ## Robust regression
-https://solomonkurz.netlify.app/post/robust-linear-regression-with-the-robust-student-s-t-distribution/
 
-We are going to use a t-distribution as our likelihood. 
+The normal is great as a a distribution of "maximum entropy" but lets be honest, in psych we have a lot of error prone people/experiments/data-entry that leads to "outliers"
 
-```{r, eval = FALSE}
-b2 <- 
-  brm(family = student,
-      y ~ 1 + x,
-      prior = c(prior(normal(0, 10), class = Intercept),
-                prior(normal(0, 10), class = b),
-                prior(gamma(4, 1), class = nu),
-                prior(cauchy(0, 1),  class = sigma)),
-      data = data)
+Trimming them is one option. But why not incorporate our model to expect outliers, especially when working with low N situations. 
+
+Enter the t-distribution. Modeling with heavy tailed distributions like the t-distribution helps minimize the effect of outliers on central tendency. Other "robust" approaches outside of Bayes use medians instead of means. 
+
+(Note that a t-test does not assume a t DGP -- only that the sampling distribution is distributed as a t)
+
+---
+### Model
+
+Health ~ T($\nu$ , $\mu_i$ , $\sigma$ )  
+
+$\mu_i$ = $\beta_0$ + $\beta_1$ $G_i$    
+
+$\nu$ ~ Gamma(2,.1)
+$\beta_0$ ~ Normal(0, 10)   
+$\beta_1$ ~ Normal(0, 10)   
+$\sigma$  ~ HalfCauchy(0,10) 
+
+
+---
+
+### gamma prior
+
+```{r}
+prior(gamma(2,.1), class = nu) %>% 
+  parse_dist(prior) %>% 
+  ggplot(aes(y=class, dist =.dist, args=.args)) +
+  stat_dist_halfeye()+
+  labs(title="Priors")
+
+
 ```
 
 ---
-### gamma plot
+We are going to use a t-distribution as our likelihood. 
+
+```{r}
+h.4 <- 
+  brm(family = student,
+      health ~ 1 + mood.group.d,
+      prior = c(prior(gamma(2, .1), class = nu),
+                prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(cauchy(0, 1),  class = sigma)),
+                file = "h.4.rds",
+                data = week3)
+```
 
 
 ---
 ### fixing nu
 
 ```{r, eval = FALSE}
-b4 <-
+
+h.5 <- 
   brm(family = student,
-      bf(y ~ 1 + x, nu = 4),
-      prior = c(prior(normal(0, 100), class =Intercept),
-                prior(normal(0, 10),  class = b),
-                prior(cauchy(0, 1),   class = sigma)),
-         data = o)
+      bf(health ~ 1 + mood.group.d, nu = 4),
+      prior =   prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 10), class = b),
+                prior(cauchy(0, 1),  class = sigma)),
+                file = "h.5.rds",
+                data = week3)
 ```
 
+
+---
+## Welches t-test?
+
+.pull-left[
+Robust and unequal variances
+
+Health ~ T( $\nu$ , $\mu_i$ , $\sigma_i$ )  
+
+$\mu_i$ = $\beta_0$ + $\beta_1$ $Group_i$    
+$\sigma_i$ = $\gamma_0$ + $\gamma_1$ $Group_i$ 
+
+$\nu$ ~     Gamma(2,.1)
+$\beta_0$ ~ Normal(0, 10)   
+$\beta_1$ ~ Normal(0, 10)   
+$\gamma_0$ ~ Normal(0, 3)  
+$\gamma_1$ ~ Normal(0, 3)  
+]
+
+.pull-right[
+Welches, but not robust
+
+Health ~ Normal($\mu_i$ , $\sigma_i$ )  
+
+$\mu_i$ = $\beta_0$ + $\beta_1$ $Group_i$    
+$\sigma_i$ =$\gamma_0$ + $\gamma_1$ $Group_i$ 
+
+$\nu$ ~     Gamma(2,.1)
+$\beta_0$ ~ Normal(0, 10)   
+$\beta_1$ ~ Normal(0, 10)   
+$\gamma_0$ ~ Normal(0, 3)  
+$\gamma_1$ ~ Normal(0, 3) 
+]
+
+
+---
+```{r}
+h.6 <- 
+  brm(family = student,
+     bf( health ~ 1 + mood.group.d,
+         sigma ~ 1 + mood.group.d),
+      prior = c(prior(gamma(2, .1), class = nu),
+                prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 3), class = b),
+                prior(normal(0, 10), class = Intercept, dpar = sigma),
+                prior(normal(0, 3), class = b, dpar = sigma)),
+                file = "h.6.rds",
+                data = week3)
+
+```
+
+
+---
+
+```{r}
+summary(h.6)
+```
+
+---
+```{r}
+plot(h.6)
+```
+
+
+---
+
+```{r}
+h.7 <- 
+  brm(family = student,
+     bf( health ~ 0 + mood.group.d,
+         sigma ~ 0 + mood.group.d),
+      prior = c(prior(gamma(2, .1), class = nu),
+                prior(normal(0, 3), class = b),
+                prior(normal(0, 3), class = b, dpar = sigma)),
+                file = "h.7.rds",
+                data = week3)
+```
+
+---
+
+```{r}
+summary(h.7)
+```
+
+
+---
+The sigmas are modeled through a log-link (to make them positive). Convert them back to the scale by exponential.
+
+```{r}
+post.h7 <- h.7 %>% 
+  spread_draws(b_mood.group.dcontrol,b_mood.group.dtx, b_sigma_mood.group.dcontrol,b_sigma_mood.group.dtx) %>% 
+  transmute(`Control`     = b_mood.group.dcontrol,
+            `Tx`  = b_mood.group.dtx,
+            `Sigma Control`    = b_sigma_mood.group.dcontrol%>% exp(),
+            `Sigma Tx` = b_sigma_mood.group.dtx %>% exp()) %>% 
+  mutate(`Differences`  = `Tx` - `Control`,
+         `Sigma Difference` = `Sigma Tx` - `Sigma Control`,
+         `Effect Size` = (`Differences`) / sqrt((`Sigma Control`^2 + `Sigma Tx`^2) / 2))
+
+
+post.h7 
+
+```
+
+---
+
+```{r}
+post.h7 %>% 
+  gather() %>% 
+  ggplot(aes(y = key, x = value)) +
+  stat_halfeye()
+  
+
+```
 
 
 
@@ -660,6 +865,7 @@ b4 <-
 Introduce multivariate models
 
 
+## Robust correlations
 
 
 ## For homework
