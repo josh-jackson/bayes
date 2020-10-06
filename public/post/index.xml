@@ -5,12 +5,51 @@
     <link>/post/</link>
       <atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     <description>Posts</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Mon, 28 Sep 2020 00:00:00 +0000</lastBuildDate>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Mon, 05 Oct 2020 00:00:00 +0000</lastBuildDate>
     <image>
       <url>/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
       <title>Posts</title>
       <link>/post/</link>
     </image>
+    
+    <item>
+      <title>10-1 Recording</title>
+      <link>/post/10-1-recording/</link>
+      <pubDate>Mon, 05 Oct 2020 00:00:00 +0000</pubDate>
+      <guid>/post/10-1-recording/</guid>
+      <description>
+&lt;script src=&#34;//rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+
+&lt;p&gt;&lt;a href=&#34;https://wustl.zoom.us/rec/play/nOWyx1FiKZE3qNOP89d0ckW1spHI3uVQmBs9I_FTCRxYdp7BLSESZSYFEoOsu7zCsXVf_L4lcXkqzDX1.fLR6IbdjXv3bKWPx?continueMode=true&#34; class=&#34;uri&#34;&gt;https://wustl.zoom.us/rec/play/nOWyx1FiKZE3qNOP89d0ckW1spHI3uVQmBs9I_FTCRxYdp7BLSESZSYFEoOsu7zCsXVf_L4lcXkqzDX1.fLR6IbdjXv3bKWPx?continueMode=true&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Async lecture 10/6</title>
+      <link>/post/async-lecture-10-6/</link>
+      <pubDate>Mon, 05 Oct 2020 00:00:00 +0000</pubDate>
+      <guid>/post/async-lecture-10-6/</guid>
+      <description>
+&lt;script src=&#34;//rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+
+&lt;p&gt;&lt;a href=&#34;https://wustl.zoom.us/rec/share/hslemv5iiOHQ4pBS4O7TrnzawhbulzwLJDs-5D2ZArVMs6XwHgZ23ZST_ilc9yEb.AzaIswHvY9SuFJ7K&#34; class=&#34;uri&#34;&gt;https://wustl.zoom.us/rec/share/hslemv5iiOHQ4pBS4O7TrnzawhbulzwLJDs-5D2ZArVMs6XwHgZ23ZST_ilc9yEb.AzaIswHvY9SuFJ7K&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>HW3 is posted!</title>
+      <link>/post/hw3-is-posted/</link>
+      <pubDate>Sun, 04 Oct 2020 00:00:00 +0000</pubDate>
+      <guid>/post/hw3-is-posted/</guid>
+      <description>
+&lt;script src=&#34;//rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+
+&lt;p&gt;Same due date, same due time.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>9/29 lecture</title>

@@ -1,0 +1,22 @@
+---
+title: 10-1 Recording
+author: ''
+date: '2020-10-05'
+slug: 10-1-recording
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-10-05T17:53:33-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+https://wustl.zoom.us/rec/play/nOWyx1FiKZE3qNOP89d0ckW1spHI3uVQmBs9I_FTCRxYdp7BLSESZSYFEoOsu7zCsXVf_L4lcXkqzDX1.fLR6IbdjXv3bKWPx?continueMode=true
+

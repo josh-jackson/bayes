@@ -1,0 +1,21 @@
+---
+title: Async lecture 10/6
+author: ''
+date: '2020-10-05'
+slug: async-lecture-10-6
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-10-05T20:55:02-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+https://wustl.zoom.us/rec/share/hslemv5iiOHQ4pBS4O7TrnzawhbulzwLJDs-5D2ZArVMs6XwHgZ23ZST_ilc9yEb.AzaIswHvY9SuFJ7K

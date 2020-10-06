@@ -853,27 +853,44 @@ post.h7 %>%
   gather() %>% 
   ggplot(aes(y = key, x = value)) +
   stat_halfeye()
-  
-
 ```
 
+---
+## Robust metric variables
+
+```{r}
+h.8 <- 
+  brm(family = student,
+      health ~ 1 + happy_c,
+      prior = c(prior(normal(0, 5), class = Intercept),
+                prior(normal(0, 5), class = b),
+                prior(cauchy(0, 10), class = sigma)),
+      data = week3,
+      iter = 1000, warmup = 500, chains = 2, cores = 2, 
+      file = "h.8")
+```
+
+
+---
+
+```{r}
+summary(h.8)
+```
+
+---
+
+```{r}
+summary(h.1)
+```
 
 
 ---
 ## Correlation preview
 
-Introduce multivariate models
 
 
 ## Robust correlations
 
 
-## For homework
-
-Give model definition, ask to define likelihood, priors, etc. Then Ask how many parameters are in posterior distribution. 
-
-Prior predictive simulations
-
-visualizing different model effects
 
 
