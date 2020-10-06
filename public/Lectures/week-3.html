@@ -2351,24 +2351,91 @@ post.h7 %&gt;%
 
 ![](week-3_files/figure-html/unnamed-chunk-63-1.png)&lt;!-- --&gt;
 
+---
+## Robust metric variables
+
+
+```r
+h.8 &lt;- 
+  brm(family = student,
+      health ~ 1 + happy_c,
+      prior = c(prior(normal(0, 5), class = Intercept),
+                prior(normal(0, 5), class = b),
+                prior(cauchy(0, 10), class = sigma)),
+      data = week3,
+      iter = 1000, warmup = 500, chains = 2, cores = 2, 
+      file = "h.8")
+```
+
+
+---
+
+
+```r
+summary(h.8)
+```
+
+```
+##  Family: student 
+##   Links: mu = identity; sigma = identity; nu = identity 
+## Formula: health ~ 1 + happy_c 
+##    Data: week3 (Number of observations: 200) 
+## Samples: 2 chains, each with iter = 1000; warmup = 500; thin = 1;
+##          total post-warmup samples = 1000
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept     8.51      0.20     8.11     8.91 1.00     1149      774
+## happy_c       0.33      0.13     0.07     0.60 1.00     1082      912
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     2.71      0.15     2.44     3.01 1.01      860      563
+## nu       29.07     14.94     9.82    66.37 1.00     1279      905
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+
+
+```r
+summary(h.1)
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: health ~ 1 + happy_c 
+##    Data: week3 (Number of observations: 200) 
+## Samples: 2 chains, each with iter = 1000; warmup = 500; thin = 1;
+##          total post-warmup samples = 1000
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept     8.50      0.20     8.10     8.89 1.00      971      811
+## happy_c       0.34      0.14     0.07     0.60 1.00      952      814
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     2.81      0.14     2.55     3.10 1.00     1146      764
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
 
 
 ---
 ## Correlation preview
 
-Introduce multivariate models
 
 
 ## Robust correlations
 
 
-## For homework
-
-Give model definition, ask to define likelihood, priors, etc. Then Ask how many parameters are in posterior distribution. 
-
-Prior predictive simulations
-
-visualizing different model effects
 
 
     </textarea>
