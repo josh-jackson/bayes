@@ -862,7 +862,8 @@ post.h7 %>%
 h.8 <- 
   brm(family = student,
       health ~ 1 + happy_c,
-      prior = c(prior(normal(0, 5), class = Intercept),
+      prior = c(prior(gamma(2, .1), class = nu),
+                prior(normal(0, 5), class = Intercept),
                 prior(normal(0, 5), class = b),
                 prior(cauchy(0, 10), class = sigma)),
       data = week3,
@@ -878,6 +879,12 @@ summary(h.8)
 ```
 
 ---
+```{r}
+pp_check(h.8)
+```
+
+
+---
 
 ```{r}
 summary(h.1)
@@ -885,12 +892,106 @@ summary(h.1)
 
 
 ---
-## Correlation preview
+## Correlation 
+multivariate model preview
+
+```{r}
+h.9 <- 
+  brm(family = gaussian,
+      mvbind(health, happy) ~ 1 ,
+      prior = c(prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 10), class = sigma, resp = health),
+                prior(normal(0, 10), class = sigma, resp = happy),
+                prior(lkj(1), class = rescor)),
+      data = week3,
+      iter = 1000, warmup = 500, chains = 2, cores = 2, 
+      file = "h.9")
+
+```
+
+---
+```{r}
+summary(h.9)
+```
+
+---
+.pull-left[
+```{r, message = FALSE}
+library(psych)
+week3 %>% 
+  select(health,happy) %>% 
+  describe()
+```
+]
+
+.pull-right[
+```{r}
+week3 %>% 
+  select(health,happy) %>% 
+  cor()
+```
 
 
+---
+```{r}
+plot(h.9)
+```
 
+
+---
 ## Robust correlations
+```{r}
+h.9a <- 
+  brm(family = student,
+      mvbind(health, happy) ~ 1 ,
+      prior = c(prior(gamma(2, .1), class = nu),
+                prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 10), class = sigma, resp = health),
+                prior(normal(0, 10), class = sigma, resp = happy),
+                prior(lkj(1), class = rescor)),
+      data = week3,
+      iter = 1000, warmup = 500, chains = 2, cores = 2, 
+      file = "h.9a")
 
+```
+
+
+---
+
+```{r}
+summary(h.9a)
+```
+
+
+---
+
+```{r}
+
+bf_health <- bf(health ~ 1)
+bf_happy <- bf(happy ~ 1)
+
+
+h.9b <- 
+  brm(family = student,
+      bf_health + bf_happy,
+      prior = c(prior(gamma(2, .1), class = nu),
+                prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 10), class = sigma, resp = health),
+                prior(normal(0, 10), class = sigma, resp = happy),
+                prior(lkj(1), class = rescor)),
+      data = week3,
+      iter = 1000, warmup = 500, chains = 2, cores = 2, 
+      file = "h.9b")
+```
+
+
+---
+
+```{r}
+summary(h.9b)
+```
+
+---
 
 
 

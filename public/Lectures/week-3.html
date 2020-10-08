@@ -2359,7 +2359,8 @@ post.h7 %&gt;%
 h.8 &lt;- 
   brm(family = student,
       health ~ 1 + happy_c,
-      prior = c(prior(normal(0, 5), class = Intercept),
+      prior = c(prior(gamma(2, .1), class = nu),
+                prior(normal(0, 5), class = Intercept),
                 prior(normal(0, 5), class = b),
                 prior(cauchy(0, 10), class = sigma)),
       data = week3,
@@ -2385,18 +2386,31 @@ summary(h.8)
 ## 
 ## Population-Level Effects: 
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept     8.51      0.20     8.11     8.91 1.00     1149      774
-## happy_c       0.33      0.13     0.07     0.60 1.00     1082      912
+## Intercept     8.52      0.20     8.15     8.93 1.01     1208      611
+## happy_c       0.34      0.13     0.10     0.61 1.01     1034      761
 ## 
 ## Family Specific Parameters: 
 ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma     2.71      0.15     2.44     3.01 1.01      860      563
-## nu       29.07     14.94     9.82    66.37 1.00     1279      905
+## sigma     2.71      0.15     2.42     3.01 1.00     1063      748
+## nu       29.02     14.09     9.86    63.40 1.00      949      643
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
 ## scale reduction factor on split chains (at convergence, Rhat = 1).
 ```
+
+---
+
+```r
+pp_check(h.8)
+```
+
+```
+## Using 10 posterior samples for ppc type 'dens_overlay' by default.
+```
+
+![](week-3_files/figure-html/unnamed-chunk-66-1.png)&lt;!-- --&gt;
+
 
 ---
 
@@ -2429,12 +2443,228 @@ summary(h.1)
 
 
 ---
-## Correlation preview
+## Correlation 
+multivariate model preview
 
 
+```r
+h.9 &lt;- 
+  brm(family = gaussian,
+      mvbind(health, happy) ~ 1 ,
+      prior = c(prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 10), class = sigma, resp = health),
+                prior(normal(0, 10), class = sigma, resp = happy),
+                prior(lkj(1), class = rescor)),
+      data = week3,
+      iter = 1000, warmup = 500, chains = 2, cores = 2, 
+      file = "h.9")
+```
 
+---
+
+```r
+summary(h.9)
+```
+
+```
+##  Family: MV(gaussian, gaussian) 
+##   Links: mu = identity; sigma = identity
+##          mu = identity; sigma = identity 
+## Formula: health ~ 1 
+##          happy ~ 1 
+##    Data: week3 (Number of observations: 200) 
+## Samples: 2 chains, each with iter = 1000; warmup = 500; thin = 1;
+##          total post-warmup samples = 1000
+## 
+## Population-Level Effects: 
+##                  Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## health_Intercept     8.50      0.19     8.12     8.89 1.00     1186      726
+## happy_Intercept      2.62      0.11     2.40     2.83 1.00     1052      874
+## 
+## Family Specific Parameters: 
+##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma_health     2.86      0.15     2.58     3.17 1.00      983      818
+## sigma_happy      1.51      0.08     1.37     1.68 1.00      941      582
+## 
+## Residual Correlations: 
+##                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+## rescor(health,happy)     0.18      0.07     0.05     0.32 1.01      950
+##                      Tail_ESS
+## rescor(health,happy)      526
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+.pull-left[
+
+```r
+library(psych)
+week3 %&gt;% 
+  select(health,happy) %&gt;% 
+  describe()
+```
+
+```
+##        vars   n mean   sd median trimmed  mad  min   max range  skew kurtosis
+## health    1 200 8.51 2.83   8.72    8.54 2.88 0.71 16.51 15.80 -0.08    -0.32
+## happy     2 200 2.62 1.50   2.73    2.65 1.96 0.04  5.00  4.95 -0.11    -1.25
+##          se
+## health 0.20
+## happy  0.11
+```
+]
+
+.pull-right[
+
+```r
+week3 %&gt;% 
+  select(health,happy) %&gt;% 
+  cor()
+```
+
+```
+##           health     happy
+## health 1.0000000 0.1787622
+## happy  0.1787622 1.0000000
+```
+
+
+---
+
+```r
+plot(h.9)
+```
+
+![](week-3_files/figure-html/unnamed-chunk-72-1.png)&lt;!-- --&gt;
+
+
+---
 ## Robust correlations
 
+```r
+h.9a &lt;- 
+  brm(family = student,
+      mvbind(health, happy) ~ 1 ,
+      prior = c(prior(gamma(2, .1), class = nu),
+                prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 10), class = sigma, resp = health),
+                prior(normal(0, 10), class = sigma, resp = happy),
+                prior(lkj(1), class = rescor)),
+      data = week3,
+      iter = 1000, warmup = 500, chains = 2, cores = 2, 
+      file = "h.9a")
+```
+
+
+---
+
+
+```r
+summary(h.9a)
+```
+
+```
+##  Family: MV(student, student) 
+##   Links: mu = identity; sigma = identity; nu = identity
+##          mu = identity; sigma = identity; nu = identity 
+## Formula: health ~ 1 
+##          happy ~ 1 
+##    Data: week3 (Number of observations: 200) 
+## Samples: 2 chains, each with iter = 1000; warmup = 500; thin = 1;
+##          total post-warmup samples = 1000
+## 
+## Population-Level Effects: 
+##                  Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## health_Intercept     8.53      0.20     8.14     8.93 1.00     1444      812
+## happy_Intercept      2.62      0.11     2.40     2.83 1.00     1444      689
+## 
+## Family Specific Parameters: 
+##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma_health     2.80      0.15     2.54     3.10 1.00     1274      702
+## sigma_happy      1.50      0.08     1.35     1.66 1.00     1384      739
+## nu              43.12     16.98    18.35    83.05 1.00     1129      677
+## nu_health        1.00      0.00     1.00     1.00 1.00     1000     1000
+## nu_happy         1.00      0.00     1.00     1.00 1.00     1000     1000
+## 
+## Residual Correlations: 
+##                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+## rescor(health,happy)     0.18      0.07     0.04     0.32 1.00     1326
+##                      Tail_ESS
+## rescor(health,happy)      701
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+
+---
+
+
+```r
+bf_health &lt;- bf(health ~ 1)
+bf_happy &lt;- bf(happy ~ 1)
+
+
+h.9b &lt;- 
+  brm(family = student,
+      bf_health + bf_happy,
+      prior = c(prior(gamma(2, .1), class = nu),
+                prior(normal(0, 10), class = Intercept),
+                prior(normal(0, 10), class = sigma, resp = health),
+                prior(normal(0, 10), class = sigma, resp = happy),
+                prior(lkj(1), class = rescor)),
+      data = week3,
+      iter = 1000, warmup = 500, chains = 2, cores = 2, 
+      file = "h.9b")
+```
+
+
+---
+
+
+```r
+summary(h.9b)
+```
+
+```
+##  Family: MV(student, student) 
+##   Links: mu = identity; sigma = identity; nu = identity
+##          mu = identity; sigma = identity; nu = identity 
+## Formula: health ~ 1 
+##          happy ~ 1 
+##    Data: week3 (Number of observations: 200) 
+## Samples: 2 chains, each with iter = 1000; warmup = 500; thin = 1;
+##          total post-warmup samples = 1000
+## 
+## Population-Level Effects: 
+##                  Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## health_Intercept     8.53      0.22     8.12     8.96 1.00     1063      763
+## happy_Intercept      2.62      0.11     2.40     2.83 1.00     1192      772
+## 
+## Family Specific Parameters: 
+##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma_health     2.79      0.14     2.52     3.08 1.00     1106      799
+## sigma_happy      1.50      0.08     1.35     1.65 1.00     1289      664
+## nu              43.91     18.08    18.47    84.20 1.00     1402      872
+## nu_health        1.00      0.00     1.00     1.00 1.00     1000     1000
+## nu_happy         1.00      0.00     1.00     1.00 1.00     1000     1000
+## 
+## Residual Correlations: 
+##                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+## rescor(health,happy)     0.18      0.07     0.04     0.31 1.00     1218
+##                      Tail_ESS
+## rescor(health,happy)      825
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
 
 
 
