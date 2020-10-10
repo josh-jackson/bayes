@@ -34,7 +34,7 @@ For questions 2 - 5 use the following dataset: https://raw.githubusercontent.com
 
 a. School Success ~ Normal( $\mu_i$ , $\sigma$ )  
 
-$\mu_i$ = $\beta_0$ + $\beta_1$ ( $\text{C_Friend}_i$ - ${\overline{\mbox{Friend}_i}}$ ) 
+$\mu_i$ = $\beta_0$ + $\beta_1$ ( $\text{Friend}_i$ - ${\overline{\mbox{Friend}_i}}$ ) 
 
 $\beta_0$ ~ Normal(10, 2)   
 $\beta_1$ ~ Normal(10, 2)   
@@ -43,7 +43,7 @@ $\sigma$  ~ HalfCauchy(0,2)
 
 b. Y ~ Normal( $\mu_i$ , $\sigma$ )
 
-$\mu_i$ = $\beta_0$ + $\beta_1$ ( $\text{C_Friend}_i$ - ${\overline{\mbox{Friend}_i}}$ )     
+$\mu_i$ = $\beta_0$ + $\beta_1$ ( $\text{Friend}_i$ - ${\overline{\mbox{Friend}_i}}$ )     
 
 $\beta_0$ ~ Normal(0, 5)   
 $\beta_1$ ~ Normal(0, 5)   

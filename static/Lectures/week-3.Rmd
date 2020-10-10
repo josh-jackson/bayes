@@ -687,7 +687,7 @@ Enter the t-distribution. Modeling with heavy tailed distributions like the t-di
 ---
 ### Model
 
-Health ~ T($\nu$ , $\mu_i$ , $\sigma$ )  
+Health ~ T( $\nu$ , $\mu_i$ , $\sigma$ )  
 
 $\mu_i$ = $\beta_0$ + $\beta_1$ $G_i$    
 
@@ -700,16 +700,29 @@ $\sigma$  ~ HalfCauchy(0,10)
 ---
 
 ### gamma prior
-
-```{r}
+.pull-left[
+```{r, eval = FALSE}
 prior(gamma(2,.1), class = nu) %>% 
   parse_dist(prior) %>% 
   ggplot(aes(y=class, dist =.dist, args=.args)) +
   stat_dist_halfeye()+
   labs(title="Priors")
 
+```
+]
+
+
+.pull-rihght[
+```{r, echo = FALSE}
+prior(gamma(2,.1), class = nu) %>% 
+  parse_dist(prior) %>% 
+  ggplot(aes(y=class, dist =.dist, args=.args)) +
+  stat_dist_halfeye()+
+  labs(title="Priors")
 
 ```
+]
+
 
 ---
 We are going to use a t-distribution as our likelihood. 
@@ -754,7 +767,7 @@ Health ~ T( $\nu$ , $\mu_i$ , $\sigma_i$ )
 $\mu_i$ = $\beta_0$ + $\beta_1$ $Group_i$    
 $\sigma_i$ = $\gamma_0$ + $\gamma_1$ $Group_i$ 
 
-$\nu$ ~     Gamma(2,.1)
+$\nu$ ~     Gamma(2,.1)  
 $\beta_0$ ~ Normal(0, 10)   
 $\beta_1$ ~ Normal(0, 10)   
 $\gamma_0$ ~ Normal(0, 3)  
@@ -764,12 +777,12 @@ $\gamma_1$ ~ Normal(0, 3)
 .pull-right[
 Welches, but not robust
 
-Health ~ Normal($\mu_i$ , $\sigma_i$ )  
+Health ~ Normal( $\mu_i$ , $\sigma_i$ )  
 
 $\mu_i$ = $\beta_0$ + $\beta_1$ $Group_i$    
-$\sigma_i$ =$\gamma_0$ + $\gamma_1$ $Group_i$ 
+$\sigma_i$ = $\gamma_0$ + $\gamma_1$ $Group_i$ 
 
-$\nu$ ~     Gamma(2,.1)
+$\nu$ ~     Gamma(2,.1)  
 $\beta_0$ ~ Normal(0, 10)   
 $\beta_1$ ~ Normal(0, 10)   
 $\gamma_0$ ~ Normal(0, 3)  
@@ -879,7 +892,7 @@ summary(h.8)
 ```
 
 ---
-```{r}
+```{r, messages = FALSE}
 pp_check(h.8)
 ```
 
@@ -930,7 +943,7 @@ week3 %>%
   select(health,happy) %>% 
   cor()
 ```
-
+]
 
 ---
 ```{r}
@@ -958,7 +971,7 @@ h.9a <-
 
 ---
 
-```{r}
+```{r, echo=FALSE}
 summary(h.9a)
 ```
 
@@ -987,11 +1000,14 @@ h.9b <-
 
 ---
 
-```{r}
+```{r, echo=FALSE}
 summary(h.9b)
 ```
 
 ---
 
+```{r, echo=FALSE}
+plot(h.9b)
+```
 
 

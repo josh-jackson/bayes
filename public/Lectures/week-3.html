@@ -2095,7 +2095,7 @@ Enter the t-distribution. Modeling with heavy tailed distributions like the t-di
 ---
 ### Model
 
-Health ~ T($\nu$ , `\(\mu_i\)` , `\(\sigma\)` )  
+Health ~ T( `\(\nu\)` , `\(\mu_i\)` , `\(\sigma\)` )  
 
 `\(\mu_i\)` = `\(\beta_0\)` + `\(\beta_1\)` `\(G_i\)`    
 
@@ -2108,7 +2108,7 @@ Health ~ T($\nu$ , `\(\mu_i\)` , `\(\sigma\)` )
 ---
 
 ### gamma prior
-
+.pull-left[
 
 ```r
 prior(gamma(2,.1), class = nu) %&gt;% 
@@ -2117,8 +2117,13 @@ prior(gamma(2,.1), class = nu) %&gt;%
   stat_dist_halfeye()+
   labs(title="Priors")
 ```
+]
 
-![](week-3_files/figure-html/unnamed-chunk-54-1.png)&lt;!-- --&gt;
+
+.pull-rihght[
+![](week-3_files/figure-html/unnamed-chunk-55-1.png)&lt;!-- --&gt;
+]
+
 
 ---
 We are going to use a t-distribution as our likelihood. 
@@ -2164,7 +2169,7 @@ Health ~ T( `\(\nu\)` , `\(\mu_i\)` , `\(\sigma_i\)` )
 `\(\mu_i\)` = `\(\beta_0\)` + `\(\beta_1\)` `\(Group_i\)`    
 `\(\sigma_i\)` = `\(\gamma_0\)` + `\(\gamma_1\)` `\(Group_i\)` 
 
-`\(\nu\)` ~     Gamma(2,.1)
+`\(\nu\)` ~     Gamma(2,.1)  
 `\(\beta_0\)` ~ Normal(0, 10)   
 `\(\beta_1\)` ~ Normal(0, 10)   
 `\(\gamma_0\)` ~ Normal(0, 3)  
@@ -2174,12 +2179,12 @@ Health ~ T( `\(\nu\)` , `\(\mu_i\)` , `\(\sigma_i\)` )
 .pull-right[
 Welches, but not robust
 
-Health ~ Normal($\mu_i$ , `\(\sigma_i\)` )  
+Health ~ Normal( `\(\mu_i\)` , `\(\sigma_i\)` )  
 
 `\(\mu_i\)` = `\(\beta_0\)` + `\(\beta_1\)` `\(Group_i\)`    
-`\(\sigma_i\)` =$\gamma_0$ + `\(\gamma_1\)` `\(Group_i\)` 
+`\(\sigma_i\)` = `\(\gamma_0\)` + `\(\gamma_1\)` `\(Group_i\)` 
 
-`\(\nu\)` ~     Gamma(2,.1)
+`\(\nu\)` ~     Gamma(2,.1)  
 `\(\beta_0\)` ~ Normal(0, 10)   
 `\(\beta_1\)` ~ Normal(0, 10)   
 `\(\gamma_0\)` ~ Normal(0, 3)  
@@ -2247,7 +2252,7 @@ summary(h.6)
 plot(h.6)
 ```
 
-![](week-3_files/figure-html/unnamed-chunk-59-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-60-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -2349,7 +2354,7 @@ post.h7 %&gt;%
   stat_halfeye()
 ```
 
-![](week-3_files/figure-html/unnamed-chunk-63-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-64-1.png)&lt;!-- --&gt;
 
 ---
 ## Robust metric variables
@@ -2409,7 +2414,7 @@ pp_check(h.8)
 ## Using 10 posterior samples for ppc type 'dens_overlay' by default.
 ```
 
-![](week-3_files/figure-html/unnamed-chunk-66-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-67-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -2530,7 +2535,7 @@ week3 %&gt;%
 ## health 1.0000000 0.1787622
 ## happy  0.1787622 1.0000000
 ```
-
+]
 
 ---
 
@@ -2538,7 +2543,7 @@ week3 %&gt;%
 plot(h.9)
 ```
 
-![](week-3_files/figure-html/unnamed-chunk-72-1.png)&lt;!-- --&gt;
+![](week-3_files/figure-html/unnamed-chunk-73-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -2561,10 +2566,6 @@ h.9a &lt;-
 
 ---
 
-
-```r
-summary(h.9a)
-```
 
 ```
 ##  Family: MV(student, student) 
@@ -2626,10 +2627,6 @@ h.9b &lt;-
 ---
 
 
-```r
-summary(h.9b)
-```
-
 ```
 ##  Family: MV(student, student) 
 ##   Links: mu = identity; sigma = identity; nu = identity
@@ -2666,6 +2663,7 @@ summary(h.9b)
 
 ---
 
+![](week-3_files/figure-html/unnamed-chunk-78-1.png)&lt;!-- --&gt;![](week-3_files/figure-html/unnamed-chunk-78-2.png)&lt;!-- --&gt;
 
 
     </textarea>
