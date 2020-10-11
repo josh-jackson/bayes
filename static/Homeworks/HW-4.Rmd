@@ -1,0 +1,31 @@
+---
+title: "HW-4"
+output: html_document
+---
+
+https://raw.githubusercontent.com/josh-jackson/bayes/master/hw4a.csv
+
+
+1. Perform a prior predictive check for the below model. Change the priors if you think they are inappropriate. 
+
+Y ~ Normal($\mu_i$ , $\sigma$ )  
+
+$\mu_i$ = $\beta_1$ $X_i$    
+
+$\beta_1$ ~ Normal(.5, 5)   
+$\sigma$  ~ HalfCauchy(0,10) 
+
+2. Fit the above model in `brms` and briefly describe the results. 
+
+3. Graph the posterior distribution of each of the groups, the difference between the groups and the effect size. 
+
+4. Graph the distribution of R2. What is the upper and lower 95% credible interval values? 
+
+5. Graph the findings of this t-test equivalent model as if you were preparing a figure for publication or a presentation. 
+
+6. Test the hypothesis that the two groups differ by at least .5 units. 
+7. Run posterior predictive check. Is the model appropriate? 
+
+8. Fit a Robust version of the above model, using the T distribution as your likelihood distribution. Do your conclusions change?
+
+

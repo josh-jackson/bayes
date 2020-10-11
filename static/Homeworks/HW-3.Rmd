@@ -25,8 +25,6 @@ $\sigma$  ~ Uniform(0,20)
 c. For each a and b model, how many parameters are we estimating? 
 
 
-
-
 For questions 2 - 5 use the following dataset: https://raw.githubusercontent.com/josh-jackson/bayes/master/hw3.csv
 
 
