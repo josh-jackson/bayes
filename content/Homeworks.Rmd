@@ -20,4 +20,7 @@ You may work together on each of these homeworks as long as everyone turns in a 
 
 [HW #3 brms ](/Homeworks/HW-3.html)
 
+[HW #4 t-test ](/Homeworks/HW-4.html)
+
+
 
