@@ -928,22 +928,24 @@ summary(h.9)
 ```
 
 ---
-.pull-left[
+
+
 ```{r, message = FALSE}
 library(psych)
 week3 %>% 
   select(health,happy) %>% 
   describe()
 ```
-]
 
-.pull-right[
+
+
+
 ```{r}
 week3 %>% 
   select(health,happy) %>% 
   cor()
 ```
-]
+
 
 ---
 ```{r}
