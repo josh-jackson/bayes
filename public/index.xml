@@ -5,12 +5,25 @@
     <link>/</link>
       <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <description>Bayesian Statistics</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Mon, 12 Oct 2020 00:00:00 +0000</lastBuildDate>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Tue, 13 Oct 2020 00:00:00 +0000</lastBuildDate>
     <image>
       <url>/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
       <title>Bayesian Statistics</title>
       <link>/</link>
     </image>
+    
+    <item>
+      <title>9-13 part 2</title>
+      <link>/post/9-13-part-2/</link>
+      <pubDate>Tue, 13 Oct 2020 00:00:00 +0000</pubDate>
+      <guid>/post/9-13-part-2/</guid>
+      <description>
+&lt;script src=&#34;//rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+
+&lt;p&gt;&lt;a href=&#34;https://wustl.zoom.us/rec/play/nayRkEc6x1cNaKmq920e-EKi3W-m6H5Lh5N1JZWu0HI_90-w_ISRZ9VBi6ab4jSVGfq2dJCY5sSRa9f6.HAolhadbukLbvoRG?continueMode=true&#34; class=&#34;uri&#34;&gt;https://wustl.zoom.us/rec/play/nayRkEc6x1cNaKmq920e-EKi3W-m6H5Lh5N1JZWu0HI_90-w_ISRZ9VBi6ab4jSVGfq2dJCY5sSRa9f6.HAolhadbukLbvoRG?continueMode=true&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>10-13 Part 1</title>
