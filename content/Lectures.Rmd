@@ -6,13 +6,22 @@ output: html_document
 ---
 
 
-## 1. INTRO Part 1
-[Introduction Slides](/Lectures/week1.html)
+
+## 4. MCMC
+[MCMC](/Lectures/MCMC-4.html)
+
+## 3. Regression Part 1
+[Regression Slides](/Lectures/week-3.html)
 
 ## 2. INTRO Part 2
 [Intro redux](/Lectures/week-2.html)
 
-## 3. Regression Part 1
-[Regression Slides](/Lectures/week-3.html)
+## 1. INTRO Part 1
+[Introduction Slides](/Lectures/week1.html)
+
+
+
+
+
 
 

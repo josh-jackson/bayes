@@ -1,15 +1,56 @@
 ---
-title: "MCMC"
-author: "Josh Jackson"
-date: "10/7/2020"
-output: html_document
+title: "Week 4"
+author: Josh Jackson
+date: "10-13-20"
+output:
+  xaringan::moon_reader:
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    css: xaringan-themer.css
+    seal: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      ratio: "16:9"
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
----
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "#23395b",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Droid Mono"),
+)
+
+library(tidyverse)
+library(broom)
+```
+
+
+
+
+<style type="text/css">
+.remark-slide-content {
+    font-size: 30px;
+    padding: 1em 4em 1em 4em;
+}
+
+.small .remark-code { 
+  font-size: 80% !important;
+}
+.tiny .remark-code {
+  font-size: 65% !important;
+}
+</style>
+
+
 ## How do we estimate the posterior? 
 
-Grid, normal (and other) approximations, analytic/conjugate, MCMC, ABC
+Grid, normal (quadratic) approximations, analytic/conjugate, MCMC, ABC
 
 MCMC refers to a set of algorithms that sample from a probability distribution
 
@@ -23,22 +64,24 @@ Short answer: computation is difficult.
 
 Computation of the posterior requires three terms: a prior, a likelihood and the evidence. The evidence (aka probability of the data; marginal likelihood) normalizes the posterior so it integrates (adds up) to 1. 
 
-We assume a prior distribution and we can compute a likelihood based on what we know about the distribution we assumed for the DGP (most of the time). The tricky part is the evidence.  
+We assume a prior distribution and we can compute a likelihood based on what we know about the distribution we assumed for the DGP (most of the time). The tricky part is the evidence. This makes computation analytically intractable.  
 
 $$ p(x) = \int_\theta p(x|\theta)p(\theta)d(\theta) $$
-With many parameters this is basically impossible to compute analytically. "Bayesian analysis is hard because integrals are hard". Maximization (derivatives) is easier than integrals, which is why frequentist is so popular. 
+
 
 ---
 ### Conjugate priors
 
-You may hear this term. It is a less computational heavy approach to solving this problem. If posterior is from the same family as prior then it is easier to the evidence. Eg. prior is normal, posterior is normal. For something like sigma, people use gamma and gamma. As a result the posterior, p( $\theta$ | data), becomes analytically tractable. 
+With many parameters it is basically impossible to compute analytically. "Bayesian analysis is hard because integrals are hard". Maximization (derivatives) is easier than integrals, which is why frequentist is so popular. 
+
+Conjugate priors are a less computational heavy approach to solving the integral problem. If posterior is from the same family as prior then it is easier to compute the evidence. Eg. prior is normal, posterior is normal. For something like sigma, people use gamma and gamma. As a result the posterior, p( $\theta$ | data), becomes analytically tractable. 
 
 
 ---
 
 $$p(\theta | data) \propto \frac{p(data | \theta) \times p(\theta )}{p(data)}$$
 
-The evidence is a constant with respect to $ \theta $ so the equation is often presented as: 
+The evidence is a constant with respect to $\theta$ so the equation is often presented as: 
 
 $$ p(\theta | data) \propto p(data | \theta) \times p(\theta ) $$
 As Long as we can calculate the right side of the equation we can then sample from the posterior distribution
@@ -75,7 +118,7 @@ Steps of algorithm:
 2. Propose a new value centered on old + noise N(0, $\sigma$ )
 3. Calculate likelihood*prior of proposal
 4. Divide proposal value by current value
-5. Sample from runiform(1)
+5. Sample from runif(1)
 6. If proposal is greater, move. If not, stay. 
 
 ]
@@ -83,32 +126,89 @@ Steps of algorithm:
 
 ---
 
-![met1](../static/img/met1.png)
-
----
-
-![met2](../static/img/met2.png)
-
----
-![met3](../static/img/met3.png)
-
-
----
-![met4](../static/img/met4.png)
+![met1](../img/met1.png)
 
 
 ---
 
-![met4](../static/img/met5.png)
+![met2](../img/met2.png)
 
+---
+![met3](../img/met3.png)
 
 
 ---
-## multivariate posterior distributions
+![met4](../img/met4.png)
 
--.pull-right[Posteriors are not simple hill climbing exercises, instead they represent high dimensional spaces. These high dimensional spaces make it such that there is a lots of space to explore. 
+
+---
+
+![met4](../img/met5.png)
+
+
+---
+## samples in the long run...
+
+.pull-left[
+...will approximate the posterior distribution. The resulting chain will have the correct density in proportion to the posterior distribution. ]
+
+.pull-right[
+
+```{r, echo = FALSE}
+num <- 1000
+positions <- rep(0, num) 
+current   <- 10
+
+for (i in 1:num) {
+  
+  # record current position 
+  positions[i] <- current
+  # flip coin to generate proposal
+  proposal <- current + sample(c(-1, 1), size = 1)
+  # now make sure he loops around the archipelago 
+  if (proposal < 1) proposal <- 10
+  if (proposal > 10) proposal <- 1
+  # move?
+  prob_move <- proposal/current
+  current <- ifelse(runif(1) < prob_move, proposal, current)
+  
+}  
+
+library(tidyverse)
+
+tibble(week   = 1:1000,
+       iteration = positions) %>%
+  ggplot(aes(x = week, y = iteration)) +
+  geom_point(shape = 1) +
+  scale_x_continuous(breaks = seq(from = 0, to = 1000, by = 100)) +
+  scale_y_continuous(limits = c(-2, 13), breaks = seq(from = -2, to = 15, by = 2)) +
+  coord_cartesian(xlim = c(0, 1000)) +
+  labs(title = "Metropolis algorithm")+
+  xlab("iteration") + ylab("value")
+
+
+```
+]
+
+---
+
+```{r, echo = FALSE}
+tibble(week   = 1:1000,
+       iteration = positions) %>%
+  ggplot(aes(x= iteration)) +
+  geom_density() +
+  scale_x_continuous(breaks = seq(from = -0, to = 10, by = 1)) 
+
+
+```
+
+---
+## Multivariate posterior distributions
+
+.pull-left[Posteriors are not simple hill climbing exercises, instead they represent high dimensional spaces. These high dimensional spaces make it such that there is a lot of space to explore. 
 
 To visualize posteriors we usually "marginalize" them, that is, visualize them averaged across other posteriors. ]
+
 
 .pull-right[
 ```{r, echo = FALSE}
@@ -130,7 +230,6 @@ p2
 ]
 
 
-
 ---
 ## Gibbs
 
@@ -143,7 +242,7 @@ p2
 ---
 - But, but this efficient sampling can go awry and result in slow sampling, regardless of step size. If step size is too low, it takes a lot of samples to explore the space. If too large, there are too many rejections. 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message = FALSE}
 samples = 200
 r = 0.93
 
