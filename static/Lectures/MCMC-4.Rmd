@@ -233,11 +233,11 @@ p2
 ---
 ## Gibbs
 
-- Drawing samples for each parameter from the distribution of a parameter given a specific value of another parameter
+To explore a high dimensional space we need to be savvy about our proposals. Especially, when we are drawing samples for each parameter given a specific value of another parameter
 
-- Implements adaptive proposals so as to not explore so much space, leading to more efficient sampling. 
+Like metropolis, Gibbs "guesses and checks," but has more adaptive proposals so as to not explore so much space, leading to more efficient sampling because of conjugate priors.
 
-- Adaptive because of the way priors are set up with posteriors (conjugate). 
+Faster than Metropolis (and really probably good enough for most linear regressions) 
 
 ---
 - But, but this efficient sampling can go awry and result in slow sampling, regardless of step size. If step size is too low, it takes a lot of samples to explore the space. If too large, there are too many rejections. 
@@ -264,10 +264,31 @@ cor %>%
 ```
 
 ---
+## A website to visualize the sampling process
+
+https://chi-feng.github.io/mcmc-demo/app.html
+
+
+---
 ## Concentration of measure
-We need to be optimal with our samples. But, we cannot just focus on the mode, we need to focus on the volume. The volume is an important part of the integral we are trying to solve with MCMC. Most of the volume in away from the mode. 
+.pull-left[We need to be optimal with our samples. Will need a different approach than guess and check. 
+
+Cannot just focus on the mode, we need to focus on the volume. The volume is an important part of the integral we are trying to solve with MCMC. Most of the volume in away from the mode. 
+]
+
+.pull-right[
+![met1](../img/met6.png)
+]
+
+---
+.pull-left[
+![met1](../img/met7.png)
+]
 
 
+.pull-right[
+![met1](../img/met8.png)
+]
 
 ---
 ## Hamiltonian
