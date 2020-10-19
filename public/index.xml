@@ -5,12 +5,38 @@
     <link>/</link>
       <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <description>Bayesian Statistics</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Tue, 13 Oct 2020 00:00:00 +0000</lastBuildDate>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Mon, 19 Oct 2020 00:00:00 +0000</lastBuildDate>
     <image>
       <url>/images/icon_hu0b7a4cb9992c9ac0e91bd28ffd38dd00_9727_512x512_fill_lanczos_center_2.png</url>
       <title>Bayesian Statistics</title>
       <link>/</link>
     </image>
+    
+    <item>
+      <title>10-20 async part 1</title>
+      <link>/post/10-20-async-part-1/</link>
+      <pubDate>Mon, 19 Oct 2020 00:00:00 +0000</pubDate>
+      <guid>/post/10-20-async-part-1/</guid>
+      <description>
+&lt;script src=&#34;//rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+
+&lt;p&gt;&lt;a href=&#34;https://wustl.zoom.us/rec/play/8eOIArgt8jMZSXsv0w7HA4UwbPWruLaXH71qX7FNocUJVTNU4nOy3JFcWoNWV1y_thrVJFMsoBCS8AFE.E5A1ukxPjNA9qDnI?continueMode=true&#34; class=&#34;uri&#34;&gt;https://wustl.zoom.us/rec/play/8eOIArgt8jMZSXsv0w7HA4UwbPWruLaXH71qX7FNocUJVTNU4nOy3JFcWoNWV1y_thrVJFMsoBCS8AFE.E5A1ukxPjNA9qDnI?continueMode=true&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>10/15 lecture</title>
+      <link>/post/10-15-lecture/</link>
+      <pubDate>Mon, 19 Oct 2020 00:00:00 +0000</pubDate>
+      <guid>/post/10-15-lecture/</guid>
+      <description>
+&lt;script src=&#34;//rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+
+&lt;p&gt;&lt;a href=&#34;https://wustl.zoom.us/rec/play/yQjDa3Zh-UQ52fdIJDDFSNJM_HcXEy1p8Rp_t_CETPlv7SPi8sPFAttQixTMO8Du8g5urnyxX24s3tko.jroDYJeXeE71iHyL?continueMode=true&#34; class=&#34;uri&#34;&gt;https://wustl.zoom.us/rec/play/yQjDa3Zh-UQ52fdIJDDFSNJM_HcXEy1p8Rp_t_CETPlv7SPi8sPFAttQixTMO8Du8g5urnyxX24s3tko.jroDYJeXeE71iHyL?continueMode=true&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>10-13 part 2</title>
