@@ -1,0 +1,20 @@
+---
+title: 10/15 lecture
+author: ''
+date: '2020-10-19'
+slug: 10-15-lecture
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-10-19T13:16:05-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+https://wustl.zoom.us/rec/play/yQjDa3Zh-UQ52fdIJDDFSNJM_HcXEy1p8Rp_t_CETPlv7SPi8sPFAttQixTMO8Du8g5urnyxX24s3tko.jroDYJeXeE71iHyL?continueMode=true

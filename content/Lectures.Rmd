@@ -6,6 +6,8 @@ output: html_document
 ---
 
 
+## 5. Multiple Regression
+[Multiple Regression](/Lectures/MR-5.html)
 
 ## 4. MCMC
 [MCMC](/Lectures/MCMC-4.html)

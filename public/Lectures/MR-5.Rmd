@@ -1,0 +1,835 @@
+---
+title: "Multiple Regression"
+author: Josh Jackson
+date: "10-20-20"
+output:
+  xaringan::moon_reader:
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    css: xaringan-themer.css
+    seal: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      ratio: "16:9"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "#23395b",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Droid Mono"),
+)
+
+library(tidyverse)
+library(broom)
+```
+
+
+
+
+<style type="text/css">
+.remark-slide-content {
+    font-size: 30px;
+    padding: 1em 4em 1em 4em;
+}
+
+.small .remark-code { 
+  font-size: 80% !important;
+}
+.tiny .remark-code {
+  font-size: 65% !important;
+}
+</style>
+
+
+## This time
+Incorporate more than 1 predictor  
+Visualize marginal effects  
+Categorical predictors with >2 levels
+
+
+---
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+library(patchwork)
+library(tidyverse)
+
+# normal density
+p1 <-
+  tibble(x = seq(from = -3, to = 3, by = .1)) %>% 
+  ggplot(aes(x = x, ymin = 0, ymax = (dnorm(x)) / max(dnorm(x)))) +
+  geom_ribbon(fill = "steelblue4", color = "steelblue4", alpha = .6) +
+  annotate(geom = "text",
+           x = 0, y = .2,
+           label = "normal",
+           size = 7) +
+  annotate(geom = "text",
+           x = c(0, 1.5), y = .6,
+           label = c("italic(M)[0]", "italic(S)[0]"), 
+           size = 7, family = "Times", parse = T) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_void() +
+  theme(axis.line.x = element_line(size = 0.5))
+
+# a second normal density
+p2 <-
+  tibble(x = seq(from = -3, to = 3, by = .1)) %>% 
+  ggplot(aes(x = x, ymin = 0, ymax = (dnorm(x)) / max(dnorm(x)))) +
+  geom_ribbon(fill = "steelblue4", color = "steelblue4", alpha = .6) +
+  annotate(geom = "text",
+           x = 0, y = .2,
+           label = "normal",
+           size = 7) +
+  annotate(geom = "text",
+           x = c(0, 1.5), y = .6,
+           label = c("italic(M)[italic(j)]", "italic(S)[italic(j)]"), 
+           size = 7, family = "Times", parse = T) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_void() +
+  theme(axis.line.x = element_line(size = 0.5))
+
+## two annotated arrows
+# save our custom arrow settings
+my_arrow <- arrow(angle = 20, length = unit(0.35, "cm"), type = "closed")
+p3 <-
+  tibble(x    = c(.33, 1.67),
+         y    = c(1, 1),
+         xend = c(.67, 1.2),
+         yend = c(0, 0)) %>%
+  
+  ggplot(aes(x = x, xend = xend,
+             y = y, yend = yend)) +
+  geom_segment(arrow = my_arrow) +
+  annotate(geom = "text",
+  x = c(.35, 1.3), y = .5,
+  label = "'~'",
+  size = 10, family = "Times", parse = T) +
+  xlim(0, 2) +
+  theme_void()
+
+# exponential density
+p4 <-
+  tibble(x = seq(from = 0, to = 1, by = .01)) %>% 
+  ggplot(aes(x = x, ymin = 0, ymax = (dexp(x, 2) / max(dexp(x, 2))))) +
+  geom_ribbon(fill = "steelblue4", color = "steelblue4", alpha = .6) +
+  annotate(geom = "text",
+           x = .5, y = .2,
+           label = "exp",
+           size = 7) +
+  annotate(geom = "text",
+           x = .5, y = .6,
+           label = "italic(K)",
+           size = 7, family = "Times", parse = T) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_void() +
+  theme(axis.line.x = element_line(size = 0.5))
+
+# likelihood formula
+p5 <-
+  tibble(x = .5,
+         y = .25,
+         label = "beta[0]+sum()[italic(j)]*beta[italic(j)]*italic(x)[italic(ji)]") %>% 
+  
+  ggplot(aes(x = x, y = y, label = label)) +
+  geom_text(size = 7, parse = T, family = "Times") +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
+  ylim(0, 1) +
+  theme_void()
+  
+  # half-normal density
+p6 <-
+  tibble(x = seq(from = 0, to = 3, by = .01)) %>% 
+  ggplot(aes(x = x, ymin = 0, ymax = (dnorm(x)) / max(dnorm(x)))) +
+  geom_ribbon(fill = "steelblue4", color = "steelblue4", alpha = .6) +
+  annotate(geom = "text",
+           x = 1.5, y = .2,
+           label = "half-normal",
+           size = 7) +
+  annotate(geom = "text",
+           x = 1.5, y = .6,
+           label = "0*','*~italic(S)[sigma]", 
+           size = 7, family = "Times", parse = T) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_void() +
+  theme(axis.line.x = element_line(size = 0.5))
+
+# three annotated arrows
+p7 <-
+  tibble(x    = c( .43, 1.5, 2.5),
+         y    = c( 1, 1, 1),
+         xend = c( 1.225, 1.5, 1.75),
+         yend = c( .15, .2, .2)) %>%
+  
+  ggplot(aes(x = x, xend = xend,
+             y = y, yend = yend)) +
+  geom_segment(arrow = my_arrow) +
+  annotate(geom = "text",
+           x = c( .7, 1.38, 2), y = c( .22, .65, .6),
+           label = c( "'~'", "'='", "'~'"),
+           size = 10, family = "Times", parse = T) +
+  #annotate(geom = "text",
+          # x = .43, y = .7,
+           #label = "nu*minute+1",
+           #size = 7, family = "Times", parse = T) +
+  xlim(0, 3) +
+  theme_void()
+
+# student-t density
+p8 <-
+  tibble(x = seq(from = -3, to = 3, by = .1)) %>% 
+  ggplot(aes(x = x, ymin = 0, ymax = (dt(x, 3) / max(dt(x, 3))))) +
+  geom_ribbon(fill = "steelblue4", color = "steelblue4", alpha = .6) +
+  annotate(geom = "text",
+           x = 0, y = .2,
+           label = "student t",
+           size = 7) +
+  annotate(geom = "text",
+           x = 0, y = .6,
+           label = "nu~~~mu[italic(i)]~~~sigma",
+           size = 7, family = "Times", parse = T) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_void() +
+  theme(axis.line.x = element_line(size = 0.5))
+
+# the final annotated arrow
+p9 <-
+  tibble(x     = c(.375, .625),
+         y     = c(1/3, 1/3),
+         label = c("'~'", "italic(i)")) %>%
+
+  ggplot(aes(x = x, y = y, label = label)) +
+  geom_text(size = c(10, 7), parse = T, family = "Times") +
+  geom_segment(x = .5, xend = .5,
+               y = 1, yend = 0,
+               arrow = my_arrow) +
+  xlim(0, 1) +
+  theme_void()
+
+# some text
+p10 <-
+  tibble(x     = .5,
+         y     = .5,
+         label = "italic(y[i])") %>% 
+  
+  ggplot(aes(x = x, y = y, label = label)) +
+  geom_text(size = 7, parse = T, family = "Times") +
+  xlim(0, 1) +
+  theme_void()
+
+# define the layout
+layout <- c(
+  area(t = 1, b = 2, l = 3, r = 5),
+  area(t = 1, b = 2, l = 7, r = 9),
+  area(t = 4, b = 5, l = 1, r = 3),
+  area(t = 4, b = 5, l = 5, r = 7),
+  area(t = 4, b = 5, l = 9, r = 11),
+  area(t = 3, b = 4, l = 3, r = 9),
+  area(t = 7, b = 8, l = 5, r = 7),
+  area(t = 6, b = 7, l = 1, r = 11),
+  area(t = 9, b = 9, l = 5, r = 7),
+  area(t = 10, b = 10, l = 5, r = 7)
+)
+
+# combine and plot!
+(p1 + p2 + p4 + p5 + p6 + p3 + p8 + p7 + p9 + p10) + 
+  plot_layout(design = layout) &
+  ylim(0, 1) &
+  theme(plot.margin = margin(0, 5.5, 0, 5.5))
+```
+
+
+---
+## data 
+
+
+```{r, message = FALSE}
+MR <-read_csv("https://raw.githubusercontent.com/josh-jackson/bayes/master/hw3.csv")
+MR <- MR %>% 
+  mutate(SS_c = `schoool success` - mean(`schoool success`),
+         FQ_c = `friendship quality` - mean(`friendship quality`),
+         iv = `intervention group`)
+MR
+```
+
+---
+
+```{r, message=FALSE}
+library(psych)
+describe(MR)
+```
+
+
+
+
+---
+## model 
+
+happiness ~ Normal( $\mu_i$ , $\sigma$ )  
+
+$\mu_i$ = $\beta_0$ + $\beta_1$ $SS\_c$ + $\beta_2$ $FQ\_c$     
+
+$\beta_0$ ~ Normal(0, 5)   
+$\beta_1$ ~ Normal(0, 5)   
+$\beta_2$ ~ Normal(0, 5)   
+$\sigma$  ~ HalfCauchy(0,10) 
+
+---
+
+```{r, message=FALSE}
+library(brms)
+mr.1 <- 
+  brm(family = gaussian,
+      happiness ~ 1 + SS_c + FQ_c,
+      prior = c(prior(normal(5, 2), class = Intercept),
+                prior(normal(0, 2), class = b, coef = SS_c),
+                prior(normal(0, 2), class = b, coef = FQ_c),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = MR,
+      sample_prior = T,
+      file = "mr.1")
+```
+
+---
+
+equivalent notation
+```{r, eval=FALSE}
+
+library(brms)
+mr.1 <- 
+  brm(family = gaussian,
+      happiness ~ 1 + SS_c + FQ_c,
+      prior = c(prior(normal(5, 2), class = Intercept),
+                prior(normal(0, 2), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = MR,
+      sample_prior = T,
+      file = "mr.1")
+
+```
+
+
+
+---
+
+```{r}
+prior.mr1<- prior_samples(mr.1)
+prior.mr1
+```
+
+---
+## Prior predictive checks
+
+.pull-left[
+```{r, eval = FALSE}
+prior.mr1 %>% 
+  sample_n(size = 100) %>% 
+  rownames_to_column("draw") %>% 
+  expand(nesting(draw, Intercept, b_SS_c),
+         a = c(-10, 10)) %>% 
+  mutate(d = Intercept + b_SS_c * a) %>% 
+  
+  ggplot(aes(x = a, y = d)) +
+  geom_line(aes(group = draw), alpha = .4) +
+  labs(x = "Centered School Success",
+       y = "happiness") +
+  coord_cartesian(ylim = c(0, 10)) +
+  theme_bw() +
+  theme(panel.grid = element_blank()) 
+```
+]
+
+.pull-right[
+
+```{r, echo = FALSE}
+prior.mr1 %>% 
+  sample_n(size = 100) %>% 
+  rownames_to_column("draw") %>% 
+  expand(nesting(draw, Intercept, b_SS_c),
+         a = c(-10, 10)) %>% 
+  mutate(d = Intercept + b_SS_c * a) %>% 
+  
+  ggplot(aes(x = a, y = d)) +
+  geom_line(aes(group = draw), alpha = .4) +
+  labs(x = "Centered School Success",
+       y = "happiness") +
+  coord_cartesian(ylim = c(0, 10)) +
+  theme_bw() +
+  theme(panel.grid = element_blank()) 
+```
+
+
+
+]
+
+---
+### tighter priors? 
+
+```{r}
+mr.2 <- 
+  brm(family = gaussian,
+      happiness ~ 1 + SS_c + FQ_c,
+      prior = c(prior(normal(5, 2), class = Intercept),
+                prior(normal(0, .2), class = b, coef = SS_c),
+                prior(normal(0, .2), class = b, coef = FQ_c),
+                prior(exponential(.5), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = MR,
+      sample_prior = T,
+      file = "mr.2")
+```
+
+
+---
+
+```{r, echo = FALSE}
+prior.mr2<- prior_samples(mr.2)
+prior.mr2 %>% 
+  sample_n(size = 100) %>% 
+  rownames_to_column("draw") %>% 
+  expand(nesting(draw, Intercept, b_SS_c),
+         a = c(-10, 10)) %>% 
+  mutate(d = Intercept + b_SS_c * a) %>% 
+  
+  ggplot(aes(x = a, y = d)) +
+  geom_line(aes(group = draw), alpha = .4) +
+  labs(x = "Centered School Success",
+       y = "happiness") +
+  coord_cartesian(ylim = c(0, 10)) +
+  theme_bw() +
+  theme(panel.grid = element_blank()) 
+```
+
+
+---
+
+```{r}
+summary(mr.1)
+## weak/non-informative prior model
+```
+
+
+---
+
+```{r}
+summary(mr.2)
+## modestly informative prior model
+```
+
+
+---
+
+```{r}
+plot(mr.1)
+```
+
+---
+
+```{r}
+conditional_effects(mr.1)
+```
+
+---
+## Conditional plots 
+.pull-left[
+SS_c first
+
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
+library(tidybayes)
+library(modelr)
+
+MR %>% 
+  data_grid(SS_c = seq_range(SS_c, n = 101), .model=MR) %>%
+ add_fitted_draws(mr.1) %>% 
+  ggplot(aes(x = SS_c, y = happiness)) +
+  stat_lineribbon(aes(y = .value), .width = c(.95), color = "grey") + geom_point(data = MR, size = 2)  
+  
+```
+]
+
+.pull-right[
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+library(tidybayes)
+library(modelr)
+MR %>% 
+  data_grid(SS_c = seq_range(SS_c, n = 101), .model=MR) %>%
+ add_fitted_draws(mr.1) %>% 
+  ggplot(aes(x = SS_c, y = happiness)) +
+  stat_lineribbon(aes(y = .value), .width = c(.95), color = "grey") + geom_point(data = MR, size = 2)  
+  
+```
+
+]
+
+---
+FQ_c
+```{r, echo = FALSE}
+MR %>% 
+  data_grid(FQ_c = seq_range(FQ_c, n = 101), .model=MR) %>%
+ add_fitted_draws(mr.1) %>% 
+  ggplot(aes(x = FQ_c, y = happiness)) +
+  stat_lineribbon(aes(y = .value), .width = c(.95), color = "grey") + geom_point(data = MR, size = 2)  
+  
+```
+
+
+---
+
+```{r}
+get_variables(mr.1)
+```
+
+
+
+```{r}
+mr.1 %>% 
+spread_draws(b_Intercept, b_SS_c, b_FQ_c, sigma)
+```
+
+
+---
+```{r}
+MR %>% 
+ add_fitted_draws(mr.1)
+```
+236,000 rows comes from (N = 118 * 2000 post warmup samples). Different .value (y-hat, fitted value) for each person for each sample. 
+
+---
+.pull-left[
+```{r}
+MR %>% 
+  data_grid(FQ_c = seq_range(FQ_c, n = 101), .model=MR)
+```
+
+FQ_c has 101 different values, ranging from min to max. Everything else is set at "typical" values. ]
+
+---
+
+
+```{r}
+MR %>% 
+  data_grid(FQ_c = seq_range(FQ_c, n = 101), .model=MR) %>%
+ add_fitted_draws(mr.1)
+```
+We feed the 101 FQ_c values (and the constant other values) into our posterior, whcih has different intercept and regression values for each of the 2000 samples. 202,000 = 101 * 2000 
+
+
+---
+## Fitted values at different levels of the other variable
+
+.pull-left[
+```{r, eval = FALSE}
+MR %>% 
+  data_grid(SS_c = seq_range(SS_c, n = 101), FQ_c = -7, .model=MR) %>%
+ add_fitted_draws(mr.1) %>% 
+  ggplot(aes(x = SS_c, y = happiness)) +
+  stat_lineribbon(aes(y = .value), .width = c(.95), color = "grey") + geom_point(data = MR, size = 2)  
+```
+]
+
+.pull-right[
+```{r, echo = FALSE}
+MR %>% 
+  data_grid(SS_c = seq_range(SS_c, n = 101), FQ_c = -7, .model=MR) %>%
+ add_fitted_draws(mr.1) %>% 
+  ggplot(aes(x = SS_c, y = happiness)) +
+  stat_lineribbon(aes(y = .value), .width = c(.95), color = "grey") + geom_point(data = MR, size = 2)  
+```
+]
+
+---
+
+```{r}
+pp_check(mr.1)
+```
+
+---
+## Create our own Posterior Predictive Distribution
+50*118 = 5900
+```{r}
+MR %>% 
+  select(-SES, -'intervention group') %>% 
+ add_predicted_draws(mr.1) %>% 
+    sample_draws(50) 
+```
+
+
+---
+
+.pull-left[
+```{r, eval = FALSE}
+MR %>% 
+  select(-SES, -'intervention group') %>% 
+ add_predicted_draws(mr.1) %>% 
+    sample_draws(50) %>% 
+    ggplot(aes(.prediction, group = .draw)) +
+   geom_line(stat = "density", alpha = .1) +
+  geom_density(aes(happiness, group = .draw))+
+  theme_classic()
+```
+]
+
+.pull-right[
+```{r, echo=FALSE}
+MR %>% 
+  select(-SES, -'intervention group') %>% 
+ add_predicted_draws(mr.1) %>% 
+    sample_draws(50) %>% 
+    ggplot(aes(.prediction, group = .draw)) +
+   geom_line(stat = "density", alpha = .1) +
+  geom_density(aes(happiness, group = .draw))+
+  theme_classic()
+```
+]
+
+---
+## Posterior predictive plot
+
+The model’s implied predictions against the observed data
+
+.pull-left[
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+MR %>% 
+ add_fitted_draws(mr.1) %>% 
+  ggplot(aes(x = happiness , y = .value)) +
+  geom_abline(linetype = 2, color = "grey50", size = .5) +
+  stat_interval(.width = c(.50, .8, .95, .99)) +
+  labs(y = "Predicted happiness")+
+  xlim(0, 10) + ylim(0,10)
+```
+]
+
+.pull-right[
+```{r, message = FALSE, warning = FALSE, echo = FALSE}
+MR %>% 
+ add_fitted_draws(mr.1) %>% 
+  ggplot(aes(x = happiness , y = .value)) +
+  geom_abline(linetype = 2, color = "grey50", size = .5) +
+  stat_interval(.width = c(.50, .8, .95, .99)) +
+  labs(y = "Predicted happiness")+
+  xlim(0, 10) + ylim(0,10)
+```
+]
+
+---
+## More than 2 groups
+
+happiness ~ Normal( $\mu_i$ , $\sigma$ )  
+
+$\mu_i$ = $\alpha_{\text{IV}[i]}$    
+
+$\alpha_j$  ~ Normal(0, 5) , for j = 1,2,3   
+$\sigma$  ~ Exponential(1) 
+
+
+---
+
+```{r}
+mr.3 <- 
+  brm(family = gaussian,
+      happiness ~ 0 + iv,
+      prior = c(prior(normal(5, 2), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = MR,
+      sample_prior = T,
+      file = "mr.3")
+
+```
+
+---
+
+```{r}
+prior.mr3<- prior_samples(mr.3)
+prior.mr3
+```
+
+
+
+---
+## prior predictive visualization
+
+.pull-left[
+```{r, eval = FALSE}
+prior.mr3 %>% 
+  ggplot(aes(x = b)) +
+  geom_density() +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        legend.position = c(.84, .84))
+```
+]
+
+.pull-right[
+
+```{r, echo = FALSE}
+prior.mr3 %>% 
+  ggplot(aes(x = b)) +
+  geom_density() +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        legend.position = c(.84, .84))
+```
+]
+
+---
+```{r}
+summary(mr.3)
+```
+
+
+---
+
+```{r}
+MR <- MR %>% 
+  mutate(iv = factor(iv))
+```
+
+```{r}
+mr.4 <- 
+  brm(family = gaussian,
+      happiness ~ 0 + iv,
+      prior = c(prior(normal(5, 2), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = MR,
+      sample_prior = T,
+      file = "mr.4")
+
+```
+
+---
+
+
+```{r}
+summary(mr.4)
+```
+
+
+---
+
+```{r}
+mcmc_plot(mr.4)
+```
+
+
+---
+
+```{r}
+get_variables(mr.4)
+```
+```{r}
+mr.4 %>% 
+ gather_draws(b_iv1, b_iv2,b_iv3) %>% 
+    ggplot(aes(y = .variable, x = .value)) +
+  stat_halfeye()
+```
+
+
+---
+## 2+ categorical variables
+
+```{r}
+iv2 <- c("drug.a", "drug.b")
+
+MR <- MR %>% 
+  mutate(iv2 = sample(rep(iv2,  each = 59, size = n())))
+         
+ MR <- MR %>%         
+         mutate(iv2 = factor(iv2))
+```
+
+
+---
+## metric and categorical IVs
+
+```{r}
+mr.5 <- 
+  brm(family = gaussian,
+      happiness ~ 0 + iv + iv2,
+      prior = c(prior(normal(5, 2), class = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = MR,
+      file = "mr.5")
+```
+
+---
+
+```{r}
+summary(mr.5)
+```
+
+---
+## brms non-linear syntax
+{brms} does not automatically create index variables for more than 1 categorical variable. The `0 + ` treats the first variable as an index but not the second, such that the second has a standard dummy interpretation.
+
+Also, these tend to work better when the DV is centered or standardized. SR does this but does not say why. 
+
+---
+```{r}
+MR <- MR %>% 
+  mutate(happy_c = `happiness` - mean(`happiness`))
+
+mr.6 <- 
+  brm(family = gaussian,
+      bf(happy_c ~  a + b, # define 2 predictors
+         a ~ 0 + iv, # specify the predictors
+         b ~ 0 + iv2,
+         nl = TRUE), # use non-linear syntax
+      prior = c(prior(normal(0, 2), nlpar = a),
+                prior(normal(0, 2), nlpar = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = MR,
+      file = "mr.6")
+
+```
+
+
+---
+```{r}
+summary(mr.6)
+```
+
+
+---
+```{r, message = FALSE}
+MR %>%
+  group_by(iv) %>%
+  summarise(mean = mean(happy_c), n = n())
+```
+
+
+```{r, message = FALSE}
+MR %>%
+  group_by(iv2) %>%
+  summarise(mean = mean(happy_c), n = n())
+```
+
+---
+
+
+
+
+
+---
+## Interactions
+
+
+---
+## Factorial designs
+Note that there are no SS derivations -- bc we don't use that type of estimation! 
+
+
+---
+## emmeans
+
