@@ -1,0 +1,22 @@
+---
+title: 10-20 async part 2
+author: ''
+date: '2020-10-20'
+slug: 10-20-async-part-2
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-10-20T09:47:06-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+https://wustl.zoom.us/rec/share/gPyzDdaW_oLUr9JtIg9cyTiM5OloYy49wzn0-drE_CTBlEC0k62o6FN5xbzz0kzI.kPi1OK76Dz3SW0QX
+
+
