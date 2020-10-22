@@ -545,8 +545,9 @@ MR %>%
 ```
 ]
 
----
 
+
+---
 ```{r}
 pp_check(mr.1)
 ```
@@ -749,7 +750,6 @@ MR <- MR %>%
 
 
 ---
-## metric and categorical IVs
 
 ```{r}
 mr.5 <- 
@@ -816,6 +816,332 @@ MR %>%
 ```
 
 ---
+
+```{r}
+get_variables(mr.6)
+```
+
+---
+
+```{r}
+mr.6 %>%
+  gather_draws(b_a_iv1, b_a_iv2, b_a_iv3) %>%
+  ggplot(aes(y = .variable, x = .value)) +
+  stat_dotsinterval()
+
+```
+
+---
+
+
+```{r}
+mr.6 %>%
+  gather_draws(b_a_iv1, b_a_iv2, b_a_iv3) %>%
+  ggplot(aes(y = .variable, x = .value)) +
+  stat_dotsinterval(quantiles = 100)
+
+```
+
+
+
+
+---
+
+```{r}
+MR %>%
+  data_grid(iv, .model = MR) %>%
+  add_fitted_draws(mr.6, dpar = c("mu", "sigma")) %>%
+  sample_draws(50) %>%
+  ggplot(aes(y = iv)) +
+  stat_dist_slab(aes(dist = "norm", arg1 = mu, arg2 = sigma),
+    slab_color = "gray65", alpha = 1/10, fill = NA) +
+  geom_point(aes(x = happy_c), data = MR, shape = 21, fill = "#9ECAE1", size = 2)
+```
+
+
+---
+## redundent predictors?
+
+```{r}
+pairs(mr.1)
+```
+
+
+---
+## comparing levels ie contrasts
+
+We could do this "by hand" or... 
+```{r}
+mr.6 %>%
+  gather_draws(b_a_iv1, b_a_iv2, b_a_iv3) %>%
+  compare_levels(.value, by = .variable) %>%
+  ggplot(aes(y = .variable, x = .value)) +
+  stat_halfeye()
+```
+
+
+---
+
+
+```{r}
+mr.6 %>%
+  gather_draws(b_a_iv1, b_a_iv2, b_a_iv3) %>%
+  compare_levels(.value, by = .variable) %>%
+  group_by(.variable) %>%  
+  mode_qi(.value)
+```
+
+
+---
+## More complex contrasts? 
+```{r}
+mr.6 %>%
+  spread_draws(b_a_iv1, b_a_iv2, b_a_iv3) %>%
+  mutate(`12vs3` = (`b_a_iv1` + `b_a_iv2`)/2 - (`b_a_iv3`)) %>% 
+  mean_qi(`12vs3`)
+```
+
+---
+
+```{r}
+hypothesis(mr.6, "(`a_iv1` + `a_iv2`)/2 - (`a_iv3`) > 0")
+```
+
+
+
+---
+## introducing metric plus categorical
+```{r}
+mr.7 <- 
+  brm(family = gaussian,
+      bf(happy_c ~  a + b, 
+         a ~ 0 + iv + SS_c, 
+         b ~ 0 + iv2 + SS_c,
+         nl = TRUE), # use non-linear syntax
+      prior = c(prior(normal(0, 2), nlpar = a),
+                prior(normal(0, 2), nlpar = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = MR,
+      file = "mr.7")
+```
+
+
+---
+
+```{r}
+summary(mr.7)
+```
+
+---
+```{r}
+mr.8 <- 
+  brm(family = gaussian,
+      bf(happy_c ~  a + b + c, 
+         a ~ 0 + iv , 
+         b ~ 0 + iv2,
+         c ~ 1 +  SS_c,
+         nl = TRUE), # use non-linear syntax
+      prior = c(prior(normal(0, 2), nlpar = a),
+                prior(normal(0, 2), nlpar = b),
+                prior(normal(0, 2), nlpar = c),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = MR,
+      file = "mr.8")
+```
+
+---
+```{r}
+summary(mr.8)
+```
+
+
+
+---
+
+```{r}
+mr.9 <- 
+  brm(family = gaussian,
+      happy_c ~ 1 + iv + iv2 + SS_c, 
+      prior = c(prior(normal(0, 5), class = Intercept),
+                prior(normal(0, 2), class = b, coef = iv2),
+                prior(normal(0, 2), class = b, coef = iv3),
+                prior(normal(0, 2), class = b, coef = iv2drug.b),
+                prior(normal(0, 2), class = b, coef = SS_c),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = MR,
+      file = "mr.9")
+
+
+```
+
+---
+
+```{r}
+summary(mr.9)
+```
+
+---
+
+```{r}
+library(emmeans)
+emmeans(mr.9, specs = pairwise ~ iv:iv2)
+
+```
+
+
+---
+
+```{r}
+mr.9 %>%
+  emmeans( ~ iv | iv2) %>%
+  gather_emmeans_draws() %>%
+  ggplot(aes(x = iv, y = .value)) +
+  stat_eye() +
+  facet_grid(~ iv2) 
+```
+
+---
+## MLM preview
+.pull-left[We can think of ANOVA models as MLM models with category as a random factor. {brms} default is deviance scores, with a mean of zero. The model presumes the group-based deviations are normally distributed with a mean of zero and a standard deviation, hence our new sd prior.  
+]
+
+.pull-right[
+
+Level 1
+$${Happy}_{ij} = \beta_{0j}  + \varepsilon_{ij}$$
+
+Level 2
+$${\beta}_{0j} = \gamma_{00} + U_{0j}$$
+
+
+
+]
+
+
+
+---
+```{r}
+
+mr.10 <- 
+  brm(family = gaussian,
+      bf(happy_c ~  1 + (1|iv)),
+          prior = c(prior(normal(0, 5), class = Intercept),
+                prior(cauchy(0, 5), class = sd),
+                prior(cauchy(0, 5), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = MR,
+      file = "mr.10")
+
+```
+
+---
+## MLM priors
+This new parameter represents the possible range of values that
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+prior.mr10 <- c(prior(normal(0, 5), class = Intercept),
+                prior(cauchy(0, 1), class = sd),
+                prior(cauchy(0, 3), class = sigma))
+prior.mr10 %>% 
+  parse_dist(prior) %>% 
+  ggplot(aes(y=class, dist =.dist, args=.args)) +
+  stat_dist_halfeye()+
+  scale_x_continuous( limits = c(-50, 50)) +
+  labs(title="Priors")+ xlim(-20, 20)
+```
+
+---
+
+
+```{r}
+summary(mr.10)
+```
+
+
+---
+## Population intercept
+.pull-left[
+```{r, echo= FALSE, warning=FALSE, message=FALSE}
+library(ggridges)
+MR %>% 
+  group_by(iv) %>% 
+  mutate(group_mean = mean(happy_c)) %>% 
+  ungroup() %>% 
+  mutate(iv = fct_reorder(iv, group_mean)) %>% 
+  ggplot(aes(x = happy_c, y = iv, fill = group_mean)) +
+  geom_density_ridges(scale = 3/2, size = .2) 
+```
+]
+
+.pull-right[
+
+```{r, echo = FALSE}
+
+MR %>%
+  group_by(iv) %>%
+  summarise(mean = mean(happy_c)) %>% 
+  summarise(mean = mean(mean))
+```
+
+]
+
+---
+## SD
+
+```{r}
+get_variables(mr.10)
+```
+
+```{r}
+mr.10 %>%
+  spread_draws(sd_iv__Intercept) %>% 
+    mean_qi()
+```
+
+---
+
+
+```{r}
+mr.10 %>%
+  spread_draws(r_iv[group,])
+```
+4000 samples * 3 groups
+
+---
+
+Same info as before in the ANOVA framnework (we just got fewer samples in mr.4)
+```{r}
+mr.4 %>% 
+ gather_draws(b_iv1, b_iv2,b_iv3)
+```
+
+---
+.pull-left[
+```{r}
+mr.10 %>%
+  spread_draws(r_iv[group,]) %>% 
+    mean_qi()
+```
+]
+
+.pull-right[
+```{r}
+  MR %>%
+  group_by(iv) %>%
+  summarise(mean = mean(happy_c), n = n())
+
+```
+]
+
+
+
+---
+## shrinkage and partial pooling
+
+
+
 
 
 

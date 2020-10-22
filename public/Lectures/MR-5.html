@@ -2489,8 +2489,9 @@ MR %&gt;%
 ![](MR-5_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
 ]
 
----
 
+
+---
 
 ```r
 pp_check(mr.1)
@@ -4767,7 +4768,6 @@ MR &lt;- MR %&gt;%
 
 
 ---
-## metric and categorical IVs
 
 
 ```r
@@ -4900,13 +4900,613 @@ MR %&gt;%
 
 ```
 ## # A tibble: 2 x 3
-##   iv2      mean     n
-##   &lt;fct&gt;   &lt;dbl&gt; &lt;int&gt;
-## 1 drug.a  0.466    59
-## 2 drug.b -0.466    59
+##   iv2         mean     n
+##   &lt;fct&gt;      &lt;dbl&gt; &lt;int&gt;
+## 1 drug.a  0.000907    59
+## 2 drug.b -0.000907    59
 ```
 
 ---
+
+
+```r
+get_variables(mr.6)
+```
+
+```
+##  [1] "b_a_iv1"       "b_a_iv2"       "b_a_iv3"       "b_b_iv2drug.a"
+##  [5] "b_b_iv2drug.b" "sigma"         "lp__"          "accept_stat__"
+##  [9] "stepsize__"    "treedepth__"   "n_leapfrog__"  "divergent__"  
+## [13] "energy__"
+```
+
+---
+
+
+```r
+mr.6 %&gt;%
+  gather_draws(b_a_iv1, b_a_iv2, b_a_iv3) %&gt;%
+  ggplot(aes(y = .variable, x = .value)) +
+  stat_dotsinterval()
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-50-1.png)&lt;!-- --&gt;
+
+---
+
+
+
+```r
+mr.6 %&gt;%
+  gather_draws(b_a_iv1, b_a_iv2, b_a_iv3) %&gt;%
+  ggplot(aes(y = .variable, x = .value)) +
+  stat_dotsinterval(quantiles = 100)
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-51-1.png)&lt;!-- --&gt;
+
+
+
+
+---
+
+
+```r
+MR %&gt;%
+  data_grid(iv, .model = MR) %&gt;%
+  add_fitted_draws(mr.6, dpar = c("mu", "sigma")) %&gt;%
+  sample_draws(50) %&gt;%
+  ggplot(aes(y = iv)) +
+  stat_dist_slab(aes(dist = "norm", arg1 = mu, arg2 = sigma),
+    slab_color = "gray65", alpha = 1/10, fill = NA) +
+  geom_point(aes(x = happy_c), data = MR, shape = 21, fill = "#9ECAE1", size = 2)
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-52-1.png)&lt;!-- --&gt;
+
+
+---
+## redundent predictors?
+
+
+```r
+pairs(mr.1)
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-53-1.png)&lt;!-- --&gt;
+
+
+---
+## comparing levels ie contrasts
+
+We could do this "by hand" or... 
+
+```r
+mr.6 %&gt;%
+  gather_draws(b_a_iv1, b_a_iv2, b_a_iv3) %&gt;%
+  compare_levels(.value, by = .variable) %&gt;%
+  ggplot(aes(y = .variable, x = .value)) +
+  stat_halfeye()
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-54-1.png)&lt;!-- --&gt;
+
+
+---
+
+
+
+```r
+mr.6 %&gt;%
+  gather_draws(b_a_iv1, b_a_iv2, b_a_iv3) %&gt;%
+  compare_levels(.value, by = .variable) %&gt;%
+  group_by(.variable) %&gt;%  
+  mode_qi(.value)
+```
+
+```
+## # A tibble: 3 x 7
+##   .variable         .value .lower .upper .width .point .interval
+##   &lt;chr&gt;              &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+## 1 b_a_iv2 - b_a_iv1  0.275 -0.576  1.12    0.95 mode   qi       
+## 2 b_a_iv3 - b_a_iv1  0.428 -0.433  1.19    0.95 mode   qi       
+## 3 b_a_iv3 - b_a_iv2  0.153 -0.749  0.920   0.95 mode   qi
+```
+
+
+---
+## More complex contrasts? 
+
+```r
+mr.6 %&gt;%
+  spread_draws(b_a_iv1, b_a_iv2, b_a_iv3) %&gt;%
+  mutate(`12vs3` = (`b_a_iv1` + `b_a_iv2`)/2 - (`b_a_iv3`)) %&gt;% 
+  mean_qi(`12vs3`)
+```
+
+```
+## # A tibble: 1 x 6
+##   `12vs3` .lower .upper .width .point .interval
+##     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+## 1  -0.233 -0.937  0.484   0.95 mean   qi
+```
+
+---
+
+
+```r
+hypothesis(mr.6, "(`a_iv1` + `a_iv2`)/2 - (`a_iv3`) &gt; 0")
+```
+
+```
+## Hypothesis Tests for class b:
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 ((`a_iv1`+`a_iv2`... &gt; 0    -0.23      0.37    -0.83     0.37       0.35
+##   Post.Prob Star
+## 1      0.26     
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.
+```
+
+
+
+---
+## introducing metric plus categorical
+
+```r
+mr.7 &lt;- 
+  brm(family = gaussian,
+      bf(happy_c ~  a + b, 
+         a ~ 0 + iv + SS_c, 
+         b ~ 0 + iv2 + SS_c,
+         nl = TRUE), # use non-linear syntax
+      prior = c(prior(normal(0, 2), nlpar = a),
+                prior(normal(0, 2), nlpar = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = MR,
+      file = "mr.7")
+```
+
+
+---
+
+
+```r
+summary(mr.7)
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: happy_c ~ a + b 
+##          a ~ 0 + iv + SS_c
+##          b ~ 0 + iv2 + SS_c
+##    Data: MR (Number of observations: 118) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## a_iv1          -0.23      0.90    -2.02     1.47 1.01      984     1261
+## a_iv2           0.05      0.90    -1.74     1.80 1.01      980     1195
+## a_iv3           0.23      0.91    -1.54     1.97 1.01     1010     1410
+## a_SS_c          0.17      1.43    -2.77     2.92 1.00     1224     1229
+## b_iv2drug.a     0.09      0.89    -1.64     1.85 1.01      947     1232
+## b_iv2drug.b    -0.09      0.89    -1.85     1.62 1.01      981     1315
+## b_SS_c          0.12      1.43    -2.66     3.07 1.00     1225     1207
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     1.65      0.11     1.46     1.88 1.00     1640     1574
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+
+```r
+mr.8 &lt;- 
+  brm(family = gaussian,
+      bf(happy_c ~  a + b + c, 
+         a ~ 0 + iv , 
+         b ~ 0 + iv2,
+         c ~ 1 +  SS_c,
+         nl = TRUE), # use non-linear syntax
+      prior = c(prior(normal(0, 2), nlpar = a),
+                prior(normal(0, 2), nlpar = b),
+                prior(normal(0, 2), nlpar = c),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = MR,
+      file = "mr.8")
+```
+
+---
+
+```r
+summary(mr.8)
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: happy_c ~ a + b + c 
+##          a ~ 0 + iv
+##          b ~ 0 + iv2
+##          c ~ 1 + SS_c
+##    Data: MR (Number of observations: 118) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## a_iv1          -0.26      1.09    -2.39     1.99 1.00     1552     1799
+## a_iv2           0.02      1.09    -2.08     2.20 1.00     1571     1850
+## a_iv3           0.18      1.08    -1.93     2.38 1.00     1494     1803
+## b_iv2drug.a     0.12      1.22    -2.17     2.52 1.00     1732     2118
+## b_iv2drug.b    -0.07      1.22    -2.33     2.32 1.00     1648     2113
+## c_Intercept     0.01      1.35    -2.68     2.63 1.00     1949     2005
+## c_SS_c          0.29      0.05     0.20     0.38 1.00     3068     2636
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     1.65      0.11     1.46     1.88 1.00     2745     2177
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+
+
+---
+
+
+```r
+mr.9 &lt;- 
+  brm(family = gaussian,
+      happy_c ~ 1 + iv + iv2 + SS_c, 
+      prior = c(prior(normal(0, 5), class = Intercept),
+                prior(normal(0, 2), class = b, coef = iv2),
+                prior(normal(0, 2), class = b, coef = iv3),
+                prior(normal(0, 2), class = b, coef = iv2drug.b),
+                prior(normal(0, 2), class = b, coef = SS_c),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = MR,
+      file = "mr.9")
+```
+
+---
+
+
+```r
+summary(mr.9)
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: happy_c ~ 1 + iv + iv2 + SS_c 
+##    Data: MR (Number of observations: 118) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept    -0.13      0.30    -0.71     0.47 1.00     5002     2731
+## iv2           0.27      0.37    -0.47     0.99 1.00     4614     3101
+## iv3           0.44      0.35    -0.26     1.12 1.00     5101     2729
+## iv2drug.b    -0.18      0.31    -0.80     0.45 1.00     5520     3150
+## SS_c          0.29      0.05     0.20     0.39 1.00     6097     2593
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     1.65      0.11     1.46     1.88 1.00     4919     3107
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+
+
+```r
+library(emmeans)
+emmeans(mr.9, specs = pairwise ~ iv:iv2)
+```
+
+```
+## $emmeans
+##  iv iv2    emmean lower.HPD upper.HPD
+##  1  drug.a -0.129    -0.706     0.466
+##  2  drug.a  0.138    -0.447     0.717
+##  3  drug.a  0.316    -0.380     0.880
+##  1  drug.b -0.309    -0.835     0.243
+##  2  drug.b -0.048    -0.705     0.602
+##  3  drug.b  0.130    -0.464     0.677
+## 
+## Point estimate displayed: median 
+## HPD interval probability: 0.95 
+## 
+## $contrasts
+##  contrast            estimate lower.HPD upper.HPD
+##  1 drug.a - 2 drug.a  -0.2630    -1.022     0.426
+##  1 drug.a - 3 drug.a  -0.4420    -1.132     0.239
+##  1 drug.a - 1 drug.b   0.1841    -0.432     0.811
+##  1 drug.a - 2 drug.b  -0.0824    -1.063     0.939
+##  1 drug.a - 3 drug.b  -0.2625    -1.090     0.733
+##  2 drug.a - 3 drug.a  -0.1713    -0.965     0.588
+##  2 drug.a - 1 drug.b   0.4492    -0.387     1.311
+##  2 drug.a - 2 drug.b   0.1841    -0.432     0.811
+##  2 drug.a - 3 drug.b   0.0125    -0.860     0.923
+##  3 drug.a - 1 drug.b   0.6244    -0.322     1.523
+##  3 drug.a - 2 drug.b   0.3634    -0.775     1.345
+##  3 drug.a - 3 drug.b   0.1841    -0.432     0.811
+##  1 drug.b - 2 drug.b  -0.2630    -1.022     0.426
+##  1 drug.b - 3 drug.b  -0.4420    -1.132     0.239
+##  2 drug.b - 3 drug.b  -0.1713    -0.965     0.588
+## 
+## Point estimate displayed: median 
+## HPD interval probability: 0.95
+```
+
+
+---
+
+
+```r
+mr.9 %&gt;%
+  emmeans( ~ iv | iv2) %&gt;%
+  gather_emmeans_draws() %&gt;%
+  ggplot(aes(x = iv, y = .value)) +
+  stat_eye() +
+  facet_grid(~ iv2) 
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-65-1.png)&lt;!-- --&gt;
+
+---
+## MLM preview
+.pull-left[We can think of ANOVA models as MLM models with category as a random factor. {brms} default is deviance scores, with a mean of zero. The model presumes the group-based deviations are normally distributed with a mean of zero and a standard deviation, hence our new sd prior.  
+]
+
+.pull-right[
+
+Level 1
+`$${Happy}_{ij} = \beta_{0j}  + \varepsilon_{ij}$$`
+
+Level 2
+`$${\beta}_{0j} = \gamma_{00} + U_{0j}$$`
+
+
+
+]
+
+
+
+---
+
+```r
+mr.10 &lt;- 
+  brm(family = gaussian,
+      bf(happy_c ~  1 + (1|iv)),
+          prior = c(prior(normal(0, 5), class = Intercept),
+                prior(cauchy(0, 5), class = sd),
+                prior(cauchy(0, 5), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = MR,
+      file = "mr.10")
+```
+
+---
+## MLM priors
+This new parameter represents the possible range of values that
+![](MR-5_files/figure-html/unnamed-chunk-67-1.png)&lt;!-- --&gt;
+
+---
+
+
+
+```r
+summary(mr.10)
+```
+
+```
+## Warning: There were 29 divergent transitions after warmup. Increasing
+## adapt_delta above 0.8 may help. See http://mc-stan.org/misc/
+## warnings.html#divergent-transitions-after-warmup
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: happy_c ~ 1 + (1 | iv) 
+##    Data: MR (Number of observations: 118) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Group-Level Effects: 
+## ~iv (Number of levels: 3) 
+##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sd(Intercept)     0.52      0.55     0.02     2.07 1.00      660      870
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept     0.01      0.40    -0.90     0.99 1.01      314      171
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     1.92      0.13     1.68     2.18 1.00     2098     2126
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+
+---
+## Population intercept
+.pull-left[
+![](MR-5_files/figure-html/unnamed-chunk-69-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+
+
+```
+## `summarise()` ungrouping output (override with `.groups` argument)
+```
+
+```
+## # A tibble: 1 x 1
+##     mean
+##    &lt;dbl&gt;
+## 1 0.0119
+```
+
+]
+
+---
+## SD
+
+
+```r
+get_variables(mr.10)
+```
+
+```
+##  [1] "b_Intercept"       "sd_iv__Intercept"  "sigma"            
+##  [4] "r_iv[1,Intercept]" "r_iv[2,Intercept]" "r_iv[3,Intercept]"
+##  [7] "lp__"              "accept_stat__"     "stepsize__"       
+## [10] "treedepth__"       "n_leapfrog__"      "divergent__"      
+## [13] "energy__"
+```
+
+
+```r
+mr.10 %&gt;%
+  spread_draws(sd_iv__Intercept) %&gt;% 
+    mean_qi()
+```
+
+```
+## # A tibble: 1 x 6
+##   sd_iv__Intercept .lower .upper .width .point .interval
+##              &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+## 1            0.523 0.0156   2.07   0.95 mean   qi
+```
+
+---
+
+
+
+```r
+mr.10 %&gt;%
+  spread_draws(r_iv[group,])
+```
+
+```
+## # A tibble: 12,000 x 5
+## # Groups:   group [3]
+##    group     r_iv .chain .iteration .draw
+##    &lt;int&gt;    &lt;dbl&gt;  &lt;int&gt;      &lt;int&gt; &lt;int&gt;
+##  1     1 -0.316        1          1     1
+##  2     1  0.0528       1          2     2
+##  3     1 -0.0430       1          3     3
+##  4     1 -0.353        1          4     4
+##  5     1 -0.0285       1          5     5
+##  6     1 -0.0780       1          6     6
+##  7     1 -0.140        1          7     7
+##  8     1 -0.0455       1          8     8
+##  9     1 -0.0155       1          9     9
+## 10     1 -0.00788      1         10    10
+## # … with 11,990 more rows
+```
+4000 samples * 3 groups
+
+---
+
+Same info as before in the ANOVA framnework (we just got fewer samples in mr.4)
+
+```r
+mr.4 %&gt;% 
+ gather_draws(b_iv1, b_iv2,b_iv3)
+```
+
+```
+## # A tibble: 6,000 x 5
+## # Groups:   .variable [3]
+##    .chain .iteration .draw .variable .value
+##     &lt;int&gt;      &lt;int&gt; &lt;int&gt; &lt;chr&gt;      &lt;dbl&gt;
+##  1      1          1     1 b_iv1       4.74
+##  2      1          2     2 b_iv1       5.14
+##  3      1          3     3 b_iv1       5.25
+##  4      1          4     4 b_iv1       5.29
+##  5      1          5     5 b_iv1       4.78
+##  6      1          6     6 b_iv1       5.30
+##  7      1          7     7 b_iv1       5.07
+##  8      1          8     8 b_iv1       4.86
+##  9      1          9     9 b_iv1       5.07
+## 10      1         10    10 b_iv1       4.86
+## # … with 5,990 more rows
+```
+
+---
+.pull-left[
+
+```r
+mr.10 %&gt;%
+  spread_draws(r_iv[group,]) %&gt;% 
+    mean_qi()
+```
+
+```
+## # A tibble: 3 x 7
+##   group    r_iv .lower .upper .width .point .interval
+##   &lt;int&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+## 1     1 -0.112  -1.11   0.745   0.95 mean   qi       
+## 2     2  0.0324 -0.956  1.01    0.95 mean   qi       
+## 3     3  0.0738 -0.866  1.02    0.95 mean   qi
+```
+]
+
+.pull-right[
+
+```r
+  MR %&gt;%
+  group_by(iv) %&gt;%
+  summarise(mean = mean(happy_c), n = n())
+```
+
+```
+## `summarise()` ungrouping output (override with `.groups` argument)
+```
+
+```
+## # A tibble: 3 x 3
+##   iv       mean     n
+##   &lt;fct&gt;   &lt;dbl&gt; &lt;int&gt;
+## 1 1     -0.215     44
+## 2 2      0.0807    35
+## 3 3      0.170     39
+```
+]
+
+
+
+---
+## shrinkage and partial pooling
+
+
+
 
 
 
