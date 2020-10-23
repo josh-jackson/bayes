@@ -1,0 +1,49 @@
+---
+title: "HW-5"
+output: html_document
+---
+
+We will continue to use the dataset from homework three that was presented in class:
+
+https://raw.githubusercontent.com/josh-jackson/bayes/master/hw3.csv
+
+
+1. Run a multiple regression where School Success is regressed on SES and friendship quality. Use this regression to address the Qs 2-4 below. 
+
+2. When using the modelr::data_grid function, describe what is happening with the following code (ie what values are being returned, why is there a certain number of rows?):
+
+```{r, echo = FALSE}
+library(tidyverse)
+```
+
+
+a. 
+```{r, eval = FALSE}
+MR %>% 
+  data_grid(SES)
+```
+
+b.
+```{r, eval = FALSE}
+MR %>% 
+  data_grid(SES, `friendship quality`)
+```
+
+c. 
+```{r, eval = FALSE}
+MR %>% 
+  data_grid(SES, .model = MR)
+```
+
+
+3. What happens to each of these data grids when you try to pipe the grid into the `add_predicted_draws` function? Why do some fail? Why do some work? For those that work, what is produced? 
+
+
+4. Plot the predicted values for the association between SS and school success with ggplot, highlighting the .95 and .99 credible regions. Also include raw data points. Interpret this figure. 
+
+5. Run a regression where school success is regressed on happiness and intervention group. 
+
+a. Focusing on the group variable, create a plot that shows differences between the groups, controlling for v It is up to you if you want to plot the differences per se or the groups seperately. The latter is more traditionally done but it is up to you to decide which is more helpful.   
+
+b. Focusing on the metric variable, create a plot that shows the association between school success and happiness for each of the different groups (ie a different regression line for each group). Include raw data points in the plot.  
+

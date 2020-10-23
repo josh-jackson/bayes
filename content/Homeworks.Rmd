@@ -22,5 +22,5 @@ You may work together on each of these homeworks as long as everyone turns in a 
 
 [HW #4 t-test ](/Homeworks/HW-4.html)
 
-
+[HW #5 Multiple Regression ](/Homeworks/HW-5.html)
 
