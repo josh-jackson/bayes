@@ -1,0 +1,20 @@
+---
+title: 10-27 async recording
+author: ''
+date: '2020-10-27'
+slug: 10-27-async-recording
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-10-27T15:00:26-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+https://wustl.zoom.us/rec/play/8hC-ltV-cXW_UFBmF3I4XJ7dyXFujyqrJXb15tLfCZhU46tgJeoxMfANf9CblKysql-8GUC2FjMFK3ni.X2W2ii-A2aETXnid?continueMode=true
