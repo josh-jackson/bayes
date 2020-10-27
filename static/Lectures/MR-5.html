@@ -54,12 +54,18 @@ MR &lt;-read_csv("https://raw.githubusercontent.com/josh-jackson/bayes/master/hw
 MR &lt;- MR %&gt;% 
   mutate(SS_c = `schoool success` - mean(`schoool success`),
          FQ_c = `friendship quality` - mean(`friendship quality`),
-         iv = `intervention group`)
+         iv = `intervention group`,
+         iv.d = recode(`iv`, 
+                             `1` = "control", 
+                             `2` = "tx", 
+                             `3` = "tx"),
+         iv.d = factor(iv.d))
+
 MR
 ```
 
 ```
-## # A tibble: 118 x 9
+## # A tibble: 118 x 10
 ##       ID `friendship qua… happiness `schoool succes…   SES `intervention g…
 ##    &lt;dbl&gt;            &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt; &lt;dbl&gt;            &lt;dbl&gt;
 ##  1     1            10.2       3.20             6.16 2.23                 1
@@ -72,7 +78,8 @@ MR
 ##  8     8             3.41      1.77             4.1  2.11                 1
 ##  9     9             8.66      3.75             5.39 2.19                 1
 ## 10    10             4.85      5.45            13.9  1.24                 1
-## # … with 108 more rows, and 3 more variables: SS_c &lt;dbl&gt;, FQ_c &lt;dbl&gt;, iv &lt;dbl&gt;
+## # … with 108 more rows, and 4 more variables: SS_c &lt;dbl&gt;, FQ_c &lt;dbl&gt;, iv &lt;dbl&gt;,
+## #   iv.d &lt;fct&gt;
 ```
 
 ---
@@ -94,6 +101,7 @@ describe(MR)
 ## SS_c                  7 118  0.00  3.28  -0.21   -0.07  3.16 -8.71   8.61
 ## FQ_c                  8 118  0.00  2.49   0.14    0.05  2.26 -6.92   7.03
 ## iv                    9 118  1.96  0.84   2.00    1.95  1.48  1.00   3.00
+## iv.d*                10 118  1.63  0.49   2.00    1.66  0.00  1.00   2.00
 ##                     range  skew kurtosis   se
 ## ID                 117.00  0.00    -1.23 3.15
 ## friendship quality  13.94 -0.18     0.28 0.23
@@ -104,6 +112,7 @@ describe(MR)
 ## SS_c                17.32  0.18     0.19 0.30
 ## FQ_c                13.94 -0.18     0.28 0.23
 ## iv                   2.00  0.08    -1.59 0.08
+## iv.d*                1.00 -0.52    -1.75 0.04
 ```
 
 
@@ -2391,9 +2400,9 @@ MR %&gt;%
 ```
 
 ```
-## # A tibble: 236,000 x 14
+## # A tibble: 236,000 x 15
 ## # Groups:   ID, friendship quality, happiness, schoool success, SES,
-## #   intervention group, SS_c, FQ_c, iv, .row [118]
+## #   intervention group, SS_c, FQ_c, iv, iv.d, .row [118]
 ##       ID `friendship qua… happiness `schoool succes…   SES `intervention g…
 ##    &lt;dbl&gt;            &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt; &lt;dbl&gt;            &lt;dbl&gt;
 ##  1     1             10.2      3.20             6.16  2.23                1
@@ -2406,9 +2415,9 @@ MR %&gt;%
 ##  8     1             10.2      3.20             6.16  2.23                1
 ##  9     1             10.2      3.20             6.16  2.23                1
 ## 10     1             10.2      3.20             6.16  2.23                1
-## # … with 235,990 more rows, and 8 more variables: SS_c &lt;dbl&gt;, FQ_c &lt;dbl&gt;,
-## #   iv &lt;dbl&gt;, .row &lt;int&gt;, .chain &lt;int&gt;, .iteration &lt;int&gt;, .draw &lt;int&gt;,
-## #   .value &lt;dbl&gt;
+## # … with 235,990 more rows, and 9 more variables: SS_c &lt;dbl&gt;, FQ_c &lt;dbl&gt;,
+## #   iv &lt;dbl&gt;, iv.d &lt;fct&gt;, .row &lt;int&gt;, .chain &lt;int&gt;, .iteration &lt;int&gt;,
+## #   .draw &lt;int&gt;, .value &lt;dbl&gt;
 ```
 236,000 rows comes from (N = 118 * 2000 post warmup samples). Different .value (y-hat, fitted value) for each person for each sample. 
 
@@ -2421,7 +2430,7 @@ MR %&gt;%
 ```
 
 ```
-## # A tibble: 101 x 8
+## # A tibble: 101 x 9
 ##     FQ_c `friendship qua… happiness `schoool succes…   SES `intervention g…
 ##    &lt;dbl&gt;            &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt; &lt;dbl&gt;            &lt;dbl&gt;
 ##  1 -6.92             7.75      5.34             8.52  2.31                2
@@ -2434,13 +2443,26 @@ MR %&gt;%
 ##  8 -5.94             7.75      5.34             8.52  2.31                2
 ##  9 -5.80             7.75      5.34             8.52  2.31                2
 ## 10 -5.66             7.75      5.34             8.52  2.31                2
-## # … with 91 more rows, and 2 more variables: SS_c &lt;dbl&gt;, iv &lt;dbl&gt;
+## # … with 91 more rows, and 3 more variables: SS_c &lt;dbl&gt;, iv &lt;dbl&gt;, iv.d &lt;chr&gt;
 ```
+
+
+---
+
+
+```r
+MR %&gt;% 
+  data_grid(FQ_c, .model = MR) %&gt;% 
+  add_predicted_draws(mr.1) %&gt;% 
+    ggplot(aes(x = FQ_c, y = happiness)) +
+  stat_lineribbon(aes(y = .prediction), .width = c(.95), color = "grey") + geom_point(data = MR, size = 2) 
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-22-1.png)&lt;!-- --&gt;
 
 FQ_c has 101 different values, ranging from min to max. Everything else is set at "typical" values. ]
 
 ---
-
 
 
 ```r
@@ -2450,9 +2472,9 @@ MR %&gt;%
 ```
 
 ```
-## # A tibble: 202,000 x 13
+## # A tibble: 202,000 x 14
 ## # Groups:   FQ_c, friendship quality, happiness, schoool success, SES,
-## #   intervention group, SS_c, iv, .row [101]
+## #   intervention group, SS_c, iv, iv.d, .row [101]
 ##     FQ_c `friendship qua… happiness `schoool succes…   SES `intervention g…
 ##    &lt;dbl&gt;            &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt; &lt;dbl&gt;            &lt;dbl&gt;
 ##  1 -6.92             7.75      5.34             8.52  2.31                2
@@ -2465,8 +2487,9 @@ MR %&gt;%
 ##  8 -6.92             7.75      5.34             8.52  2.31                2
 ##  9 -6.92             7.75      5.34             8.52  2.31                2
 ## 10 -6.92             7.75      5.34             8.52  2.31                2
-## # … with 201,990 more rows, and 7 more variables: SS_c &lt;dbl&gt;, iv &lt;dbl&gt;,
-## #   .row &lt;int&gt;, .chain &lt;int&gt;, .iteration &lt;int&gt;, .draw &lt;int&gt;, .value &lt;dbl&gt;
+## # … with 201,990 more rows, and 8 more variables: SS_c &lt;dbl&gt;, iv &lt;dbl&gt;,
+## #   iv.d &lt;chr&gt;, .row &lt;int&gt;, .chain &lt;int&gt;, .iteration &lt;int&gt;, .draw &lt;int&gt;,
+## #   .value &lt;dbl&gt;
 ```
 We feed the 101 FQ_c values (and the constant other values) into our posterior, whcih has different intercept and regression values for each of the 2000 samples. 202,000 = 101 * 2000 
 
@@ -2483,10 +2506,11 @@ MR %&gt;%
   ggplot(aes(x = SS_c, y = happiness)) +
   stat_lineribbon(aes(y = .value), .width = c(.95), color = "grey") + geom_point(data = MR, size = 2)  
 ```
+
 ]
 
 .pull-right[
-![](MR-5_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
 ]
 
 
@@ -2501,7 +2525,7 @@ pp_check(mr.1)
 ## Using 10 posterior samples for ppc type 'dens_overlay' by default.
 ```
 
-![](MR-5_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
 
 ---
 ## Create our own Posterior Predictive Distribution
@@ -2515,23 +2539,23 @@ MR %&gt;%
 ```
 
 ```
-## # A tibble: 5,900 x 12
+## # A tibble: 5,900 x 13
 ## # Groups:   ID, friendship quality, happiness, schoool success, SS_c, FQ_c, iv,
-## #   .row [118]
-##       ID `friendship qua… happiness `schoool succes…  SS_c  FQ_c    iv  .row
-##    &lt;dbl&gt;            &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;
-##  1     1             10.2      3.20             6.16 -2.57  2.57     1     1
-##  2     1             10.2      3.20             6.16 -2.57  2.57     1     1
-##  3     1             10.2      3.20             6.16 -2.57  2.57     1     1
-##  4     1             10.2      3.20             6.16 -2.57  2.57     1     1
-##  5     1             10.2      3.20             6.16 -2.57  2.57     1     1
-##  6     1             10.2      3.20             6.16 -2.57  2.57     1     1
-##  7     1             10.2      3.20             6.16 -2.57  2.57     1     1
-##  8     1             10.2      3.20             6.16 -2.57  2.57     1     1
-##  9     1             10.2      3.20             6.16 -2.57  2.57     1     1
-## 10     1             10.2      3.20             6.16 -2.57  2.57     1     1
-## # … with 5,890 more rows, and 4 more variables: .chain &lt;int&gt;, .iteration &lt;int&gt;,
-## #   .draw &lt;int&gt;, .prediction &lt;dbl&gt;
+## #   iv.d, .row [118]
+##       ID `friendship qua… happiness `schoool succes…  SS_c  FQ_c    iv iv.d 
+##    &lt;dbl&gt;            &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;
+##  1     1             10.2      3.20             6.16 -2.57  2.57     1 cont…
+##  2     1             10.2      3.20             6.16 -2.57  2.57     1 cont…
+##  3     1             10.2      3.20             6.16 -2.57  2.57     1 cont…
+##  4     1             10.2      3.20             6.16 -2.57  2.57     1 cont…
+##  5     1             10.2      3.20             6.16 -2.57  2.57     1 cont…
+##  6     1             10.2      3.20             6.16 -2.57  2.57     1 cont…
+##  7     1             10.2      3.20             6.16 -2.57  2.57     1 cont…
+##  8     1             10.2      3.20             6.16 -2.57  2.57     1 cont…
+##  9     1             10.2      3.20             6.16 -2.57  2.57     1 cont…
+## 10     1             10.2      3.20             6.16 -2.57  2.57     1 cont…
+## # … with 5,890 more rows, and 5 more variables: .row &lt;int&gt;, .chain &lt;int&gt;,
+## #   .iteration &lt;int&gt;, .draw &lt;int&gt;, .prediction &lt;dbl&gt;
 ```
 
 
@@ -2552,7 +2576,7 @@ MR %&gt;%
 ]
 
 .pull-right[
-![](MR-5_files/figure-html/unnamed-chunk-28-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-29-1.png)&lt;!-- --&gt;
 ]
 
 ---
@@ -2574,7 +2598,7 @@ MR %&gt;%
 ]
 
 .pull-right[
-![](MR-5_files/figure-html/unnamed-chunk-30-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-31-1.png)&lt;!-- --&gt;
 ]
 
 ---
@@ -4634,7 +4658,7 @@ prior.mr3 %&gt;%
 
 .pull-right[
 
-![](MR-5_files/figure-html/unnamed-chunk-34-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-35-1.png)&lt;!-- --&gt;
 ]
 
 ---
@@ -4725,7 +4749,7 @@ summary(mr.4)
 mcmc_plot(mr.4)
 ```
 
-![](MR-5_files/figure-html/unnamed-chunk-39-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-40-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -4749,7 +4773,7 @@ mr.4 %&gt;%
   stat_halfeye()
 ```
 
-![](MR-5_files/figure-html/unnamed-chunk-41-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-42-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -4900,10 +4924,10 @@ MR %&gt;%
 
 ```
 ## # A tibble: 2 x 3
-##   iv2         mean     n
-##   &lt;fct&gt;      &lt;dbl&gt; &lt;int&gt;
-## 1 drug.a  0.000907    59
-## 2 drug.b -0.000907    59
+##   iv2       mean     n
+##   &lt;fct&gt;    &lt;dbl&gt; &lt;int&gt;
+## 1 drug.a -0.0629    59
+## 2 drug.b  0.0629    59
 ```
 
 ---
@@ -4930,7 +4954,7 @@ mr.6 %&gt;%
   stat_dotsinterval()
 ```
 
-![](MR-5_files/figure-html/unnamed-chunk-50-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-51-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -4943,7 +4967,7 @@ mr.6 %&gt;%
   stat_dotsinterval(quantiles = 100)
 ```
 
-![](MR-5_files/figure-html/unnamed-chunk-51-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-52-1.png)&lt;!-- --&gt;
 
 
 
@@ -4962,7 +4986,7 @@ MR %&gt;%
   geom_point(aes(x = happy_c), data = MR, shape = 21, fill = "#9ECAE1", size = 2)
 ```
 
-![](MR-5_files/figure-html/unnamed-chunk-52-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-53-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -4973,7 +4997,7 @@ MR %&gt;%
 pairs(mr.1)
 ```
 
-![](MR-5_files/figure-html/unnamed-chunk-53-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-54-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -4989,7 +5013,7 @@ mr.6 %&gt;%
   stat_halfeye()
 ```
 
-![](MR-5_files/figure-html/unnamed-chunk-54-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-55-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -5271,12 +5295,13 @@ mr.9 %&gt;%
   facet_grid(~ iv2) 
 ```
 
-![](MR-5_files/figure-html/unnamed-chunk-65-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-66-1.png)&lt;!-- --&gt;
 
 ---
 ## MLM preview
-.pull-left[We can think of ANOVA models as MLM models with category as a random factor. {brms} default is deviance scores, with a mean of zero. The model presumes the group-based deviations are normally distributed with a mean of zero and a standard deviation, hence our new sd prior.  
-]
+.pull-left[We can think of ANOVA models as MLM models with category as a random factor. Group-based deviations are reflected in the random effect of group `\(U_{0j}\)`. Our other two parameters are `\(\varepsilon_{ij}\)` and `\(\gamma_{00}\)` reflecting sigma and the mean of the group means, respectfully. 
+
+Same for Bayes as for frequentest, nothing new]
 
 .pull-right[
 
@@ -5287,9 +5312,15 @@ Level 2
 `$${\beta}_{0j} = \gamma_{00} + U_{0j}$$`
 
 
-
 ]
 
+---
+
+The unique part for Bayes is the introduction of a prior on the sd/random effect. The prior describes the distribution from which our groups arise and are centered around zero, meaning we need to think about the SD of the random effect. Random effects are not often thought of during normal experimental design considerations. Ie is the stimulus fixed vs random? See Judd, Westfall &amp; Kenny 2012).
+
+At this juncture we won't go into choosing values for the SD of the random effects. We have a few options such as creating "hyper" priors which learn from your data. 
+
+If the SD is low, then deviations are thought to be zero, which will lead to large shrinkage. If high, deviations are not uncommon, and thus this more closely resembles ANOVA (with no shrinkage/learning from other groups)
 
 
 ---
@@ -5298,9 +5329,9 @@ Level 2
 mr.10 &lt;- 
   brm(family = gaussian,
       bf(happy_c ~  1 + (1|iv)),
-          prior = c(prior(normal(0, 5), class = Intercept),
-                prior(cauchy(0, 5), class = sd),
-                prior(cauchy(0, 5), class = sigma)),
+          prior = c(prior(normal(0, 2), class = Intercept),
+                prior(normal(0, 2), class = sd),
+               prior(exponential(1), class = sigma)),
       iter = 2000, warmup = 1000, chains = 4, cores = 4,
       data = MR,
       file = "mr.10")
@@ -5309,7 +5340,7 @@ mr.10 &lt;-
 ---
 ## MLM priors
 This new parameter represents the possible range of values that
-![](MR-5_files/figure-html/unnamed-chunk-67-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-68-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -5320,7 +5351,7 @@ summary(mr.10)
 ```
 
 ```
-## Warning: There were 29 divergent transitions after warmup. Increasing
+## Warning: There were 32 divergent transitions after warmup. Increasing
 ## adapt_delta above 0.8 may help. See http://mc-stan.org/misc/
 ## warnings.html#divergent-transitions-after-warmup
 ```
@@ -5336,15 +5367,15 @@ summary(mr.10)
 ## Group-Level Effects: 
 ## ~iv (Number of levels: 3) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     0.52      0.55     0.02     2.07 1.00      660      870
+## sd(Intercept)     0.45      0.47     0.01     1.70 1.01      590      576
 ## 
 ## Population-Level Effects: 
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept     0.01      0.40    -0.90     0.99 1.01      314      171
+## Intercept    -0.01      0.32    -0.71     0.63 1.00      842      491
 ## 
 ## Family Specific Parameters: 
 ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma     1.92      0.13     1.68     2.18 1.00     2098     2126
+## sigma     1.90      0.13     1.67     2.18 1.00     1765     1288
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -5355,15 +5386,11 @@ summary(mr.10)
 ---
 ## Population intercept
 .pull-left[
-![](MR-5_files/figure-html/unnamed-chunk-69-1.png)&lt;!-- --&gt;
+![](MR-5_files/figure-html/unnamed-chunk-70-1.png)&lt;!-- --&gt;
 ]
 
 .pull-right[
 
-
-```
-## `summarise()` ungrouping output (override with `.groups` argument)
-```
 
 ```
 ## # A tibble: 1 x 1
@@ -5401,11 +5428,10 @@ mr.10 %&gt;%
 ## # A tibble: 1 x 6
 ##   sd_iv__Intercept .lower .upper .width .point .interval
 ##              &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
-## 1            0.523 0.0156   2.07   0.95 mean   qi
+## 1            0.454 0.0137   1.70   0.95 mean   qi
 ```
 
 ---
-
 
 
 ```r
@@ -5416,18 +5442,18 @@ mr.10 %&gt;%
 ```
 ## # A tibble: 12,000 x 5
 ## # Groups:   group [3]
-##    group     r_iv .chain .iteration .draw
-##    &lt;int&gt;    &lt;dbl&gt;  &lt;int&gt;      &lt;int&gt; &lt;int&gt;
-##  1     1 -0.316        1          1     1
-##  2     1  0.0528       1          2     2
-##  3     1 -0.0430       1          3     3
-##  4     1 -0.353        1          4     4
-##  5     1 -0.0285       1          5     5
-##  6     1 -0.0780       1          6     6
-##  7     1 -0.140        1          7     7
-##  8     1 -0.0455       1          8     8
-##  9     1 -0.0155       1          9     9
-## 10     1 -0.00788      1         10    10
+##    group    r_iv .chain .iteration .draw
+##    &lt;int&gt;   &lt;dbl&gt;  &lt;int&gt;      &lt;int&gt; &lt;int&gt;
+##  1     1 -0.139       1          1     1
+##  2     1 -0.121       1          2     2
+##  3     1  0.0255      1          3     3
+##  4     1 -0.0644      1          4     4
+##  5     1 -0.0841      1          5     5
+##  6     1 -0.435       1          6     6
+##  7     1  0.144       1          7     7
+##  8     1 -0.475       1          8     8
+##  9     1 -1.01        1          9     9
+## 10     1 -0.639       1         10    10
 ## # … with 11,990 more rows
 ```
 4000 samples * 3 groups
@@ -5472,9 +5498,9 @@ mr.10 %&gt;%
 ## # A tibble: 3 x 7
 ##   group    r_iv .lower .upper .width .point .interval
 ##   &lt;int&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
-## 1     1 -0.112  -1.11   0.745   0.95 mean   qi       
-## 2     2  0.0324 -0.956  1.01    0.95 mean   qi       
-## 3     3  0.0738 -0.866  1.02    0.95 mean   qi
+## 1     1 -0.0959 -0.885  0.604   0.95 mean   qi       
+## 2     2  0.0556 -0.623  0.884   0.95 mean   qi       
+## 3     3  0.0913 -0.554  0.883   0.95 mean   qi
 ```
 ]
 
@@ -5501,19 +5527,439 @@ mr.10 %&gt;%
 ]
 
 
+---
+
+.pull-left[
+
+```r
+mr.4 %&gt;% 
+ spread_draws(b_iv1, b_iv2,b_iv3) %&gt;% 
+  mutate(b_1 = b_iv1-mean(b_iv1),
+         b_2 = b_iv2-mean(b_iv2),
+         b_3 = b_iv3-mean(b_iv3)) %&gt;% 
+  pivot_longer(b_1:b_3) %&gt;% 
+  ggplot(aes(y = name, x = value)) +
+  stat_dotsinterval()
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-78-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+
+```r
+mr.10 %&gt;%
+  spread_draws(r_iv[group,]) %&gt;% 
+  mutate(group = as.factor(group)) %&gt;% 
+    ggplot(aes(y = group, x = r_iv)) +
+  stat_dotsinterval() + xlim(-1,1)
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-79-1.png)&lt;!-- --&gt;
+
+]
 
 ---
 ## shrinkage and partial pooling
 
+We get greater uncertainty and a greater push towards similar values across the groups. Why? (1) our regularizing (centered around zero) priors push mean to zero. (2) we are partially pooling values across groups, shrinking the mean to the group mean. 
+
+(3) Incorporating uncertainty in the random effects. The SD parameter describes how much uncertainty in the differences between the groups. We said that they could differ, but they didn't. The model is taking the potential that they differ and placing that into the model as uncertainty. Now there is larger dispersion within each of the posteriors for each group. This is because we said these differences "could happen"  
 
 
+---
+## Interactions
 
+Continuing our translation of previous skills to a Bayesian framework. 
+
+Interactions reflect when the influence of one variables depends on another. No longer can speak of main effects, now one needs to describe the association between two (or more) variables and the DV. The result is the interpretation is the hard part, not necessarily the modeling. 
+
+As models get more complex, interactions become more likely (anytime there is a boundary in the DV)
+
+
+---
+### Dichotomous example
+
+
+```r
+mr.11 &lt;-
+  brm(family = gaussian,
+      happiness ~ 0 + iv.d + SS_c,
+      prior = c(prior(normal(5, 3), class = b, coef = iv.dcontrol),
+                prior(normal(5, 3), class = b, coef = iv.dtx),
+                prior(normal(0, .5), class = b, coef = SS_c),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = MR, 
+      file = "mr.11")
+```
+
+---
+
+```r
+summary(mr.11)
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: happiness ~ 0 + iv.d + SS_c 
+##    Data: MR (Number of observations: 118) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## iv.dcontrol     4.97      0.25     4.49     5.46 1.00     4261     3286
+## iv.dtx          5.35      0.19     4.98     5.73 1.00     4407     2498
+## SS_c            0.29      0.05     0.20     0.38 1.00     4416     2888
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     1.64      0.11     1.44     1.88 1.00     4333     3004
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+
+
+```r
+MR %&gt;%
+  group_by(iv.d) %&gt;%
+  data_grid(SS_c = seq_range(SS_c, n = 50), .model = MR) %&gt;%
+  add_fitted_draws(mr.11, n = 100) %&gt;%
+  ggplot(aes(x = SS_c, y = happiness, color = iv.d)) +
+  geom_line(aes(y = .value, group = paste(iv.d, .draw)),alpha = .1) +
+  geom_point(data = MR) 
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-82-1.png)&lt;!-- --&gt;
+
+---
+### adding an interaction
+
+
+```r
+mr.12 &lt;- 
+  brm(family = gaussian,
+      bf(happiness ~ 0 + a + b * SS_c, 
+         a ~ 0 + iv.d, 
+         b ~ 0 + iv.d,
+         nl = TRUE),
+      prior = c(prior(normal(5, 3), class = b, coef = iv.dcontrol, nlpar = a),
+                prior(normal(5, 3), class = b, coef = iv.dtx, nlpar = a),
+                prior(normal(0, .5), class = b, coef = iv.dcontrol, nlpar = b),
+                prior(normal(0, .5), class = b, coef = iv.dtx, nlpar = b),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = MR, 
+      file = "mr.12")
+```
+
+
+---
+### get prior function
+
+For those times you aren't sure what the priors should be or the names that go with them. Add: likelihood, model, and data. 
+
+```r
+get_prior(family = gaussian,
+      bf(happiness ~ 0 + a + b * SS_c, 
+         a ~ 0 + iv.d, 
+         b ~ 0 + iv.d,
+         nl = TRUE),
+         data = MR)
+```
+
+```
+##                  prior class        coef group resp dpar nlpar bound
+## 1 student_t(3, 0, 2.5) sigma                                        
+## 2                          b                                 a      
+## 3                          b iv.dcontrol                     a      
+## 4                          b      iv.dtx                     a      
+## 5                          b                                 b      
+## 6                          b iv.dcontrol                     b      
+## 7                          b      iv.dtx                     b
+```
+
+---
+
+
+```r
+summary(mr.12)
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: happiness ~ 0 + a + b * SS_c 
+##          a ~ 0 + iv.d
+##          b ~ 0 + iv.d
+##    Data: MR (Number of observations: 118) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## a_iv.dcontrol     4.97      0.24     4.50     5.44 1.00     5308     2823
+## a_iv.dtx          5.34      0.18     4.97     5.70 1.00     4654     3141
+## b_iv.dcontrol     0.40      0.06     0.29     0.52 1.00     4217     3068
+## b_iv.dtx          0.13      0.07    -0.01     0.26 1.00     4205     2581
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     1.59      0.11     1.40     1.83 1.00     4182     2582
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+
+---
+
+
+```r
+plot(mr.12)
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-86-1.png)&lt;!-- --&gt;
+
+
+---
+
+
+```r
+hypothesis(mr.12, "b_iv.dtx  &lt; b_iv.dcontrol" )
+```
+
+```
+## Hypothesis Tests for class b:
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (b_iv.dtx)-(b_iv.... &lt; 0    -0.28      0.09    -0.43    -0.13        999
+##   Post.Prob Star
+## 1         1    *
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.
+```
+
+---
+
+
+```r
+MR %&gt;%
+  group_by(iv.d) %&gt;%
+  data_grid(SS_c = seq_range(SS_c, n = 50), .model = MR) %&gt;%
+  add_fitted_draws(mr.12, n = 100) %&gt;%
+  ggplot(aes(x = SS_c, y = happiness, color = iv.d)) +
+  geom_line(aes(y = .value, group = paste(iv.d, .draw)),alpha = .1) +
+  geom_point(data = MR) 
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-88-1.png)&lt;!-- --&gt;
+
+---
+## Continuous interaction example
+
+![](MR-5_files/figure-html/unnamed-chunk-89-1.png)&lt;!-- --&gt;
+
+---
+![](MR-5_files/figure-html/unnamed-chunk-90-1.png)&lt;!-- --&gt;
 
 
 
 
 ---
-## Interactions
+
+
+```r
+get_prior(family = gaussian,
+      happiness ~ 1 + SS_c * FQ_c,data = MR)
+```
+
+```
+##                    prior     class      coef group resp dpar nlpar bound
+## 1                                b                                      
+## 2                                b      FQ_c                            
+## 3                                b      SS_c                            
+## 4                                b SS_c:FQ_c                            
+## 5 student_t(3, 5.3, 2.5) Intercept                                      
+## 6   student_t(3, 0, 2.5)     sigma
+```
+
+
+---
+
+
+```r
+mr.13 &lt;- 
+  brm(family = gaussian,
+      happiness ~ 1 + SS_c * FQ_c,
+      prior = c(prior(normal(0, 3), class = Intercept),
+                prior(normal(0, 2), class = b, coef = SS_c),
+                prior(normal(0, 2), class = b, coef = FQ_c),
+                prior(normal(0, 2), class = b, coef = SS_c:FQ_c),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = MR,
+      sample_prior = T,
+      file = "mr.13")
+```
+
+
+---
+
+
+```r
+summary(mr.13)
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: happiness ~ 1 + SS_c * FQ_c 
+##    Data: MR (Number of observations: 118) 
+## Samples: 2 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 2000
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept     5.03      0.15     4.74     5.31 1.00     2640     1662
+## SS_c          0.33      0.06     0.22     0.44 1.00     1950     1501
+## FQ_c          0.21      0.07     0.08     0.35 1.00     2128     1393
+## SS_c:FQ_c    -0.04      0.01    -0.07    -0.01 1.00     2297     1359
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     1.55      0.10     1.36     1.76 1.00     2365     1243
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+
+
+```r
+conditional_effects(mr.13, effects = "SS_c:FQ_c" )
+```
+
+![](MR-5_files/figure-html/unnamed-chunk-94-1.png)&lt;!-- --&gt;
+
+
+---
+## graphing
+
+
+```r
+library(psych)
+describe(MR$FQ_c)
+```
+
+```
+##    vars   n mean   sd median trimmed  mad   min  max range  skew kurtosis   se
+## X1    1 118    0 2.49   0.14    0.05 2.26 -6.92 7.03 13.94 -0.18     0.28 0.23
+```
+
+
+
+
+```r
+MR %&gt;% 
+data_grid(SS_c = seq_range(SS_c, n = 20), FQ_c = c(-2.5,0,2.5), .model = MR) 
+```
+
+```
+## # A tibble: 120 x 11
+##     SS_c  FQ_c `friendship qua… happiness `schoool succes…   SES
+##    &lt;dbl&gt; &lt;dbl&gt;            &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt; &lt;dbl&gt;
+##  1 -8.71  -2.5             7.75      5.34             8.52  2.31
+##  2 -8.71  -2.5             7.75      5.34             8.52  2.31
+##  3 -8.71   0               7.75      5.34             8.52  2.31
+##  4 -8.71   0               7.75      5.34             8.52  2.31
+##  5 -8.71   2.5             7.75      5.34             8.52  2.31
+##  6 -8.71   2.5             7.75      5.34             8.52  2.31
+##  7 -7.80  -2.5             7.75      5.34             8.52  2.31
+##  8 -7.80  -2.5             7.75      5.34             8.52  2.31
+##  9 -7.80   0               7.75      5.34             8.52  2.31
+## 10 -7.80   0               7.75      5.34             8.52  2.31
+## # … with 110 more rows, and 5 more variables: `intervention group` &lt;dbl&gt;,
+## #   iv &lt;chr&gt;, iv.d &lt;chr&gt;, iv2 &lt;chr&gt;, happy_c &lt;dbl&gt;
+```
+
+---
+
+
+```r
+MR %&gt;% 
+data_grid(SS_c = seq_range(SS_c, n = 20), FQ_c = c(-2.5,0,2.5), .model = MR) %&gt;% add_fitted_draws(mr.13)
+```
+
+```
+## # A tibble: 240,000 x 16
+## # Groups:   SS_c, FQ_c, friendship quality, happiness, schoool success, SES,
+## #   intervention group, iv, iv.d, iv2, happy_c, .row [120]
+##     SS_c  FQ_c `friendship qua… happiness `schoool succes…   SES
+##    &lt;dbl&gt; &lt;dbl&gt;            &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt; &lt;dbl&gt;
+##  1 -8.71  -2.5             7.75      5.34             8.52  2.31
+##  2 -8.71  -2.5             7.75      5.34             8.52  2.31
+##  3 -8.71  -2.5             7.75      5.34             8.52  2.31
+##  4 -8.71  -2.5             7.75      5.34             8.52  2.31
+##  5 -8.71  -2.5             7.75      5.34             8.52  2.31
+##  6 -8.71  -2.5             7.75      5.34             8.52  2.31
+##  7 -8.71  -2.5             7.75      5.34             8.52  2.31
+##  8 -8.71  -2.5             7.75      5.34             8.52  2.31
+##  9 -8.71  -2.5             7.75      5.34             8.52  2.31
+## 10 -8.71  -2.5             7.75      5.34             8.52  2.31
+## # … with 239,990 more rows, and 10 more variables: `intervention group` &lt;dbl&gt;,
+## #   iv &lt;chr&gt;, iv.d &lt;chr&gt;, iv2 &lt;chr&gt;, happy_c &lt;dbl&gt;, .row &lt;int&gt;, .chain &lt;int&gt;,
+## #   .iteration &lt;int&gt;, .draw &lt;int&gt;, .value &lt;dbl&gt;
+```
+
+---
+.pull-left[
+
+```r
+MR %&gt;% 
+data_grid(SS_c = seq_range(SS_c, n = 20), FQ_c = c(-2.5,0,2.5), .model = MR) %&gt;%
+  add_fitted_draws(mr.13) %&gt;% 
+  ggplot(aes(x = SS_c, y = happiness, group = FQ_c %&gt;% factor()))+
+  stat_lineribbon(aes(y = .value, color = FQ_c %&gt;% factor(), alpha = .05 ), show.legend = FALSE) +
+  geom_point(data = MR) 
+```
+]
+
+.pull-right[
+
+![](MR-5_files/figure-html/unnamed-chunk-99-1.png)&lt;!-- --&gt;
+
+]
+
+---
+
+.pull-left[
+
+```r
+MR %&gt;% 
+data_grid(SS_c = seq_range(SS_c, n = 20), FQ_c = c(-2.5,0,2.5), .model = MR) %&gt;%
+  add_fitted_draws(mr.13, n = 50)  %&gt;%
+  ggplot(aes(x = SS_c, y = happiness, group = interaction(SS_c, FQ_c), color = FQ_c %&gt;%  as.character())) +
+  geom_line(aes(y = .value, group = paste(FQ_c, .draw), alpha = .5),show.legend = FALSE) +  
+facet_grid(cols = vars(FQ_c))
+```
+]
+
+
+.pull-right[
+![](MR-5_files/figure-html/unnamed-chunk-101-1.png)&lt;!-- --&gt;
+]
 
 
 ---
