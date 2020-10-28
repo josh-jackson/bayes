@@ -1460,8 +1460,7 @@ These are just linear models, so what are we doing different?
 ---
 
 ```{r}
-#anova <-read_csv("https://raw.githubusercontent.com/josh-jackson/bayes/master/anova.csv")
-anova <-read.csv("anova.csv")
+anova <-read_csv("https://raw.githubusercontent.com/josh-jackson/bayes/master/anova.csv")
 anova$SupportLevel<-cut(anova$Support, breaks = c(0,5,10,18), labels = c("low","med","high"))
 anova <- anova %>% 
   mutate(group = as.factor(group))
@@ -1474,23 +1473,29 @@ anxiety ~ group * SupportLevel
 
 
 $$Y_{ijk} = b_{0} + b_{1}J1 + b_{2}K1 + b_{3}K2 + b_{4}J1:K1 + b_{5}J1:K2 +\varepsilon_{ijk}$$
----
-
-|      |       |Group |           | Marginal Means       |
-|------|-------|------|------------|----------------------|
-|      |       | Tx   |  Control   |                      |
-| Support    |low|   |         |                  |
-| Level     | med   |   |         |                  |
-|      | high |   |         |                  |
-|______|_______|______|____________|______________________|
-| M.M  |       |  |         |                  | 
 
 ---
+
+3x2 Between subjects
+
+|      |       |Group |           |     
+|------|-------|------|------------|
+|      |       | Tx   |  Control   |              
+| Support   |low     |   |         |      
+| Level     | med   |    |          |        
+|           | high |    |           |  |
+
+
+---
+
+.tiny[
 ```{r}
 get_prior(family = gaussian,
       Anxiety ~ group * SupportLevel,
       data = anova)
 ```
+]
+
 
 
 ---
@@ -1522,9 +1527,118 @@ summary(mr.14)
 
 How could we get posterior means for each group?
 
-1. feed a matrix into 
+1. feed a matrix/compute longhand into equation to calculate group values for each of our 6 groups
+
+```{r}
+contrasts(anova$group)
+```
+
+```{r}
+contrasts(anova$SupportLevel)
+```
+
+---
+
+```{r}
+mr.14 %>% 
+  spread_draws(b_Intercept, b_groupTx, b_SupportLevelmed,b_SupportLevelhigh, `b_groupTx:SupportLevelmed`, `b_groupTx:SupportLevelhigh`) %>% 
+  mutate(Con_Lo = b_Intercept + b_groupTx * 0 + b_SupportLevelmed * 0 + `b_SupportLevelhigh` * 0 * 0 + `b_groupTx:SupportLevelmed` *0 * 0 + `b_groupTx:SupportLevelhigh` *0 * 0,
+         Con_Med = b_Intercept + b_groupTx * 0 + b_SupportLevelmed * 1 + b_SupportLevelhigh * 0 +  `b_groupTx:SupportLevelmed`*0 * 1 + `b_groupTx:SupportLevelhigh` *0 * 0,
+         Con_Hi = b_Intercept + b_groupTx * 0 + b_SupportLevelmed * 0 + b_SupportLevelhigh *1 +  `b_groupTx:SupportLevelmed` *0 * 0+ `b_groupTx:SupportLevelhigh` *0 * 1)
+```
+
+---
+How could we get posterior means for each group?
+
+1. Feed a matrix/compute longhand into equation to calculate group values for each of our 6 groups
+
+2. Feed similar info into the hypothesis function. This will be especially handy when we have LOTS of parameters from MLM models
+
+---
+
+hi vs medium in the control group
+```{r}
+hypothesis(mr.14, "Intercept + groupTx * 0 + SupportLevelmed * 1 + SupportLevelhigh * 0 +  `groupTx:SupportLevelmed`*0 * 1 + `groupTx:SupportLevelhigh` *0 * 0 > Intercept + groupTx * 0 + SupportLevelmed * 0 + SupportLevelhigh *1 +  `groupTx:SupportLevelmed` *0 * 0+ `groupTx:SupportLevelhigh` *0 * 1")
+```
+
+---
+
+```{r}
+mr.14 %>% 
+  spread_draws(b_Intercept, b_groupTx, b_SupportLevelmed,b_SupportLevelhigh, `b_groupTx:SupportLevelmed`, `b_groupTx:SupportLevelhigh`) %>% 
+  mutate(Con_Med = b_Intercept + b_groupTx * 0 + b_SupportLevelmed * 1 + b_SupportLevelhigh * 0 +  `b_groupTx:SupportLevelmed`*0 * 1 + `b_groupTx:SupportLevelhigh` *0 * 0,
+         Con_Hi = b_Intercept + b_groupTx * 0 + b_SupportLevelmed * 0 + b_SupportLevelhigh *1 +  `b_groupTx:SupportLevelmed` *0 * 0+ `b_groupTx:SupportLevelhigh` *0 * 1, 
+         hi_med_diff = Con_Hi - Con_Med) %>% 
+  mean_qi(hi_med_diff)
+```
 
 
 ---
-## emmeans
+
+How could we get posterior means for each group?
+
+1. Feed a matrix/compute longhand into equation to calculate group values for each of our 6 groups
+
+2. Feed similar info into the hypothesis function. This will be especially handy when we have LOTS of parameters from MLM models
+
+3. Use a package that does this for you, like {emmeans}
+
+---
+
+```{r}
+em.1<- emmeans(mr.14, c("group", "SupportLevel"))
+em.1
+```
+
+---
+
+```{r}
+emmip(mr.14, group ~ SupportLevel)
+```
+
+---
+
+```{r}
+emmeans(mr.14, pairwise ~ SupportLevel)
+```
+
+---
+
+```{r}
+pairs(em.1)
+```
+
+---
+
+```{r}
+mr.14 %>%
+  emmeans( ~ SupportLevel) %>%
+  contrast(method = "pairwise") %>%
+  gather_emmeans_draws() %>%
+   ggplot(aes(x = .value, y = contrast)) +
+  stat_halfeye()
+```
+
+---
+
+```{r}
+
+mr.14 %>%
+  emmeans( ~ SupportLevel | group) %>%
+  gather_emmeans_draws() %>%
+   ggplot(aes(x = SupportLevel, y = .value, fill = group, color=group)) +
+  stat_lineribbon(alpha = .4, .width = .99)
+```
+
+---
+
+```{r}
+mr.14 %>%
+  emmeans( ~ SupportLevel | group) %>%
+  gather_emmeans_draws() %>%
+   ggplot(aes(x = SupportLevel, y = .value, fill = group, color=group)) +
+  geom_line(aes(group = .draw), alpha = .005) +
+  stat_pointinterval() +
+  facet_grid(~ group) 
+```
 
