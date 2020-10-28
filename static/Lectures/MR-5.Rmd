@@ -1450,7 +1450,79 @@ facet_grid(cols = vars(FQ_c))
 
 ---
 ## Factorial designs
-Note that there are no SS derivations -- bc we don't use that type of estimation! 
+
+When we have multiple categorical independent variables (and maybe some metric/continuous variables). 
+
+Note that there are no SS derivations, no Fs -- because we don't use that type of estimation! 
+
+These are just linear models, so what are we doing different? 
+
+---
+
+```{r}
+#anova <-read_csv("https://raw.githubusercontent.com/josh-jackson/bayes/master/anova.csv")
+anova <-read.csv("anova.csv")
+anova$SupportLevel<-cut(anova$Support, breaks = c(0,5,10,18), labels = c("low","med","high"))
+anova <- anova %>% 
+  mutate(group = as.factor(group))
+```
+
+If we want to fit a 3x2 ANOVA, what linear model are we running? 
+```{r, eval = FALSE}
+anxiety ~ group * SupportLevel
+```
+
+
+$$Y_{ijk} = b_{0} + b_{1}J1 + b_{2}K1 + b_{3}K2 + b_{4}J1:K1 + b_{5}J1:K2 +\varepsilon_{ijk}$$
+---
+
+|      |       |Group |           | Marginal Means       |
+|------|-------|------|------------|----------------------|
+|      |       | Tx   |  Control   |                      |
+| Support    |low|   |         |                  |
+| Level     | med   |   |         |                  |
+|      | high |   |         |                  |
+|______|_______|______|____________|______________________|
+| M.M  |       |  |         |                  | 
+
+---
+```{r}
+get_prior(family = gaussian,
+      Anxiety ~ group * SupportLevel,
+      data = anova)
+```
+
+
+---
+
+```{r}
+mr.14 <- 
+  brm(family = gaussian,
+      Anxiety ~ group * SupportLevel,
+      prior = c(prior(normal(5, 3), class = Intercept),
+                prior(normal(0, 2), class = b, coef = groupTx),
+                prior(normal(0, 2), class = b, coef =SupportLevelhigh),
+                prior(normal(0, 2), class = b, coef = SupportLevelmed),
+                prior(normal(0, 2), class = b, coef =groupTx:SupportLevelhigh),
+                prior(normal(0, 2), class = b, coef = groupTx:SupportLevelmed),
+                prior(student_t(3, 0, 2.5), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = anova,
+      sample_prior = T,
+      file = "mr.14")
+```
+
+---
+
+```{r}
+summary(mr.14)
+```
+
+---
+
+How could we get posterior means for each group?
+
+1. feed a matrix into 
 
 
 ---

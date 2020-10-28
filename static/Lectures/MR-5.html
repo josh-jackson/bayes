@@ -4924,10 +4924,10 @@ MR %&gt;%
 
 ```
 ## # A tibble: 2 x 3
-##   iv2       mean     n
-##   &lt;fct&gt;    &lt;dbl&gt; &lt;int&gt;
-## 1 drug.a -0.0629    59
-## 2 drug.b  0.0629    59
+##   iv2      mean     n
+##   &lt;fct&gt;   &lt;dbl&gt; &lt;int&gt;
+## 1 drug.a  0.354    59
+## 2 drug.b -0.354    59
 ```
 
 ---
@@ -5964,7 +5964,138 @@ facet_grid(cols = vars(FQ_c))
 
 ---
 ## Factorial designs
-Note that there are no SS derivations -- bc we don't use that type of estimation! 
+
+When we have multiple categorical independent variables (and maybe some metric/continuous variables). 
+
+Note that there are no SS derivations, no Fs -- because we don't use that type of estimation! 
+
+These are just linear models, so what are we doing different? 
+
+---
+
+
+```r
+#anova &lt;-read_csv("https://raw.githubusercontent.com/josh-jackson/bayes/master/anova.csv")
+anova &lt;-read.csv("anova.csv")
+anova$SupportLevel&lt;-cut(anova$Support, breaks = c(0,5,10,18), labels = c("low","med","high"))
+anova &lt;- anova %&gt;% 
+  mutate(group = as.factor(group))
+```
+
+If we want to fit a 3x2 ANOVA, what linear model are we running? 
+
+```r
+anxiety ~ group * SupportLevel
+```
+
+
+`$$Y_{ijk} = b_{0} + b_{1}J1 + b_{2}K1 + b_{3}K2 + b_{4}J1:K1 + b_{5}J1:K2 +\varepsilon_{ijk}$$`
+---
+
+|      |       |Group |           | Marginal Means       |
+|------|-------|------|------------|----------------------|
+|      |       | Tx   |  Control   |                      |
+| Support    |low|   |         |                  |
+| Level     | med   |   |         |                  |
+|      | high |   |         |                  |
+|______|_______|______|____________|______________________|
+| M.M  |       |  |         |                  | 
+
+---
+
+```r
+get_prior(family = gaussian,
+      Anxiety ~ group * SupportLevel,
+      data = anova)
+```
+
+```
+##                    prior     class                     coef group resp dpar
+## 1                                b                                         
+## 2                                b                  groupTx                
+## 3                                b groupTx:SupportLevelhigh                
+## 4                                b  groupTx:SupportLevelmed                
+## 5                                b         SupportLevelhigh                
+## 6                                b          SupportLevelmed                
+## 7 student_t(3, 7.8, 2.5) Intercept                                         
+## 8   student_t(3, 0, 2.5)     sigma                                         
+##   nlpar bound
+## 1            
+## 2            
+## 3            
+## 4            
+## 5            
+## 6            
+## 7            
+## 8
+```
+
+
+---
+
+
+```r
+mr.14 &lt;- 
+  brm(family = gaussian,
+      Anxiety ~ group * SupportLevel,
+      prior = c(prior(normal(5, 3), class = Intercept),
+                prior(normal(0, 2), class = b, coef = groupTx),
+                prior(normal(0, 2), class = b, coef =SupportLevelhigh),
+                prior(normal(0, 2), class = b, coef = SupportLevelmed),
+                prior(normal(0, 2), class = b, coef =groupTx:SupportLevelhigh),
+                prior(normal(0, 2), class = b, coef = groupTx:SupportLevelmed),
+                prior(student_t(3, 0, 2.5), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = anova,
+      sample_prior = T,
+      file = "mr.14")
+```
+
+---
+
+
+```r
+summary(mr.14)
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: Anxiety ~ group * SupportLevel 
+##    Data: anova (Number of observations: 118) 
+## Samples: 2 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 2000
+## 
+## Population-Level Effects: 
+##                          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+## Intercept                    8.46      0.62     7.24     9.67 1.00     1607
+## groupTx                     -0.26      0.95    -2.10     1.66 1.00     1387
+## SupportLevelmed             -0.28      0.69    -1.62     1.10 1.00     1724
+## SupportLevelhigh            -2.52      0.85    -4.14    -0.85 1.00     1670
+## groupTx:SupportLevelmed      0.55      1.05    -1.59     2.68 1.00     1356
+## groupTx:SupportLevelhigh     0.53      1.11    -1.61     2.77 1.00     1409
+##                          Tail_ESS
+## Intercept                    1456
+## groupTx                      1346
+## SupportLevelmed              1419
+## SupportLevelhigh             1420
+## groupTx:SupportLevelmed      1236
+## groupTx:SupportLevelhigh     1361
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     2.28      0.16     1.99     2.60 1.00     2235     1324
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+
+How could we get posterior means for each group?
+
+1. feed a matrix into 
 
 
 ---
