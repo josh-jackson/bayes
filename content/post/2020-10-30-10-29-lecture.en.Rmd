@@ -1,0 +1,21 @@
+---
+title: 10-29 lecture
+author: ''
+date: '2020-10-30'
+slug: 10-29-lecture
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-10-30T14:57:59-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+https://wustl.zoom.us/rec/share/m5979QHjhO5Uz0dRDEqIL6KxJpSS3XBeXZbEeG_C1cgi4cTPCoSGvyp3lDCqEbkR.n0wfOVsdK7dDnUDE
+
