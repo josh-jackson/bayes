@@ -1,0 +1,451 @@
+---
+title: "Information 2"
+author: Josh Jackson
+date: "11-5-20"
+output:
+  xaringan::moon_reader:
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    css: xaringan-themer.css
+    seal: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      ratio: "16:9"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "#23395b",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Droid Mono"),
+)
+
+library(tidyverse)
+library(broom)
+```
+
+<style type="text/css">
+.remark-slide-content {
+    font-size: 30px;
+    padding: 1em 4em 1em 4em;
+}
+
+.small .remark-code { 
+  font-size: 80% !important;
+}
+.tiny .remark-code {
+  font-size: 65% !important;
+}
+</style>
+
+
+
+## This time: 
+
+Model evaluation
+How do we choose the best model?  
+What is our goal in running the model? 
+What sort of indexes can we use to evaluate fit?  
+
+We want to know how good predictions the model can make for future.  
+We want to know if the model describes the observed data well, but we are not going make any predictions for the future.  
+
+```{r, echo = FALSE, message=FALSE}
+library(tidybayes)
+library(tidyverse)
+library(brms)
+```
+
+
+---
+## NHST
+
+Bayesian typically do not use NHST 
+
+Why?
+1. There is no null
+2. It is associated with tons of problems eg dichotomous thinking
+3. Because we are interested in the posterior, not a point estimate
+4. Model comparison is more elegant
+
+---
+## Mimicking NHST
+
+If you wanted to appease an editor/reviewer/adviser what do you do (other than teach them Bayes)?
+
+CIs! HDPIs! Predictions! 
+
+```{r, eval=TRUE, message=FALSE}
+mr.10 <- readRDS("mr.10.rds")
+
+mr.10 %>%
+  spread_draws(r_iv[group,]) %>% 
+    mean_qi()
+```
+
+---
+## Standard fit indicies and tests
+
+.pull-left[
+$R^2$ 
+AIC
+BIC
+Likelihood ratio test (LRT)
+Bayes Factors
+
+```{r, eval = FALSE}
+bayes_R2(mr.10, summary = F) %>% 
+  data.frame() %>% 
+  ggplot(aes(x = R2)) +
+  geom_density() +
+  scale_y_continuous(NULL, breaks = NULL) 
+```
+]
+
+.pull-right[
+```{r, echo = FALSE}
+bayes_R2(mr.10, summary = F) %>% 
+  data.frame() %>% 
+  ggplot(aes(x = R2)) +
+  geom_density() +
+  scale_y_continuous(NULL, breaks = NULL) 
+```
+
+]
+
+---
+## What is likelihood?
+
+.pull-left[
+Model fit indexes like likelihood ratio test, AIC, BIC rely on likelihoods.
+
+The distribution of the likelihood of various hypothesis. p(data | $\theta$ ). For likelihood, the data are treated as a given, and value of theta varies. Probability of the data that you got, assuming a particular theta is true.
+
+]
+
+.pull-right[
+binomial ~ $p(3|10,p)$ ?
+```{r, echo = FALSE, message = FALSE}
+library(tidyverse)
+ggplot(tibble(x = c(0, 1)), 
+       aes(x = x)) + 
+  stat_function(fun = dbinom, args = list(x = 3, size = 10)) + 
+  labs(x = expression(theta), 
+       y = "likelihood")
+```
+
+]
+
+---
+## Log likelihood
+.pull-left[
+The log of the likelihood is easier to work with (adding rather than multiplying small values). It will always be negative, with higher values (closer to zero) indicating a better fitting model. In frequentist estimation, the log likelihood is a single number, one that indicates the maximum, thus maximum likelihood estimation.
+ 
+]
+
+.pull-right[
+Revisiting grid approximation from week 2, we hand calculated a regression likelihood.
+```{r}
+library(psychTools)
+galton.data <- galton
+grid <-
+  crossing(mu = seq(from = 66, to = 69, length.out = 200), sigma = seq(from = 2, to = 3, length.out = 200))
+grid
+```
+]
+
+---
+
+.pull-left[
+1. After defining the grid space we need to calculate the likelihood (are these numbers likely or not, given some distribution)
+
+2. Likelihood of our data (each child's height) assuming each part of our grid is true. So if we take the first line of our grid (mu = 66, sigma = 2) we can see how likely each child (all 928) by dnorm(height, 66, 2) 
+]
+
+.pull-right[
+```{r, eval=FALSE}
+library(purrr)
+grid_function <- function(mu, sigma) {
+  dnorm(galton.data$child, mean = mu, sd = sigma, log = T) %>%
+    sum() 
+  }
+
+p_grid <-
+  grid %>% 
+  mutate(log_likelihood = map2(mu, sigma, grid_function)) %>%
+  unnest(log_likelihood)
+  p_grid
+```
+
+
+]
+
+
+---
+
+We averaged across all 928 participants for each spot in the grid to get the average log-likelihood for each grid spot 
+
+```{r, echo=FALSE}
+library(purrr)
+grid_function <- function(mu, sigma) {
+  dnorm(galton.data$child, mean = mu, sd = sigma, log = T) %>%
+    sum() 
+  }
+
+p_grid <-
+  grid %>% 
+  mutate(log_likelihood = map2(mu, sigma, grid_function)) %>%
+  unnest(log_likelihood)
+  p_grid
+```
+
+---
+.pull-left[
+```{r, echo = FALSE}
+library(viridis)
+p_grid %>% 
+  ggplot(aes(x = mu, y = sigma, fill = log_likelihood)) + 
+  geom_raster(interpolate = T) +
+  scale_fill_viridis_c(option = "C") +
+  labs(x = expression(mu),
+       y = expression(sigma)) +
+  theme(panel.grid = element_blank())
+```
+]
+
+.pull-right[
+```{r, echo = FALSE}
+
+p_grid %>% 
+  ggplot(aes(x = mu, y = log_likelihood )) + 
+   geom_density_2d_filled() 
+
+```
+]
+
+---
+## LRT
+
+The likelihood ratio test compares the likelihood ratios of two models (usually likelihood evaluated at the MLE/MAP and at the null). 
+
+If we multiply the difference in log-likelihood by -2, it follows a $\chi^2$ distribution with 1 degrees of freedom. 
+
+$LR = -2 ln\left(\frac{L(m_1)}{L(m_2)}\right) = 2(loglik(m_2)-loglik(m_1))$
+
+
+---
+## Information theory
+Ideally we want to learn something new, gain some additional *information* about the world. But how do you quantify learning or information? Not dichotomous decision rules, not variance explained which can be gamed via overfitting, nor by amassing more data if most of it is just noise, nor by picking the most obvious outcome. 
+
+First step is to define what it means to be accurate in our predictions--cannot learn if we don't have some criterion. We above defined accuracy as the log probability of the data.
+
+Second step is to define what a perfect prediction would look like, and thus how much *uncertainty* we are dealing with. While the log probability of the data defines what parameter is most "accurate", it does not tell us how much we are learning. 
+
+---
+## Information theory
+
+The reduction uncertainty by learning the outcome is how much *information* we have learned. If we know how much uncertainty we have we can know how much improvement is possible in our prediction. 
+
+"Information is the resolution of uncertainty" - C.S.
+
+Claude Shannon (1916-2001) developed the field of information theory by making an analogy to bits of information, just like within computers. Prior to this, information, and thus learning was poorly defined. Information theory is responsible for many computer/AI advances like jpeg and facial recognition. 
+
+---
+## Maximum entropy
+
+Uncertainty is thus a key concept to define. SR lays out three important properties of an uncertainty measure: 1. continuous measure of uncertainty, 2. increase as possibilities increase, 3. should be additive.  
+
+We can use information theory to help us pick our likelihood distributions. Given what you know, what is the least surprising distribution ie that can arise the most ways with our data? Maximizing information entropy yields the flattest distribution given your data constraints. Gaussian is a maximum entropy distribution (uniform, binomial, exponential). 
+
+---
+## Information entropy
+
+Information entropy, H(p), tells us how hard it is to make an accurate prediction. 
+
+H(p) = $-\sum p_ilog(p_i)$
+
+Think of tossing rocks into 10 buckets. Each bucket can have a probability associated with getting a rock. H(p) is maximized when ps are equal. This gives us the least surprising distribution ie that can arise the most ways with our data
+
+---
+
+But how far away is our model from an accurate prediction? Divergence (KL) is the uncertainty created by using probabilities from one distribution to describe another distribution. 
+
+$D(m1, m2) = -\sum p_i(log(p_i) - log(q_i))$
+
+The difference between two entropies... or average difference in log probability between model 1 (target) and model 2 (actual)  
+
+We never know the target but that is okay. We can still compute divergences and compare with other divergences because the target is a constant. This means we cannot look at a divergence and know if it is good or bad, but we can use them to compare! The result is called a deviance. 
+
+D(q) = -2 $\sum_i$ $\log$ (q_i)
+
+---
+## How is this different from LRT? 
+
+Deviance is a model of relative fit, but with a constant specific to the model. Log likelihoods thus only differ by a constant. Comparing two models with LRT should yield similar scores as comparing two deviances.  
+
+But Bayesians don't like NHST, so they sometimes leave off the -2, which simplifies the deviance equation but then does not allow a chi-square difference test to be completed
+
+D(q) = $\sum_i$ $\log$ (q_i),
+
+Further, with Bayes we need to use the entire posterior to define deviance! If not, we are throwing away information. Often referred to Log Pointwise Prediciive Density (lpd or llpd)
+
+---
+## Two options that use information
+
+1. Cross validation
+2. Information indexes
+
+
+---
+## Cross validation
+Compare different models in their prediction in and out of sample (train and a test sample)  
+
+Predictions to NEW DATA are key, as this separates the sample specific influence (irregular features) from population influence (regular features)  
+
+Identify the model with the lowest test set error (deviance). In frequentist we typically use MSE.  
+
+But leaving out data is not necessary ideal, so we split them into folds. 
+
+---
+## LOO & PSIS-LOO
+
+Leaving out 1 observation per fold results in Leave One Out cross validation. 
+
+Great in theory, but computationally difficult. Pareto Smoothed Importance Sampling (PSIS). Importance  is similar to "deleted residuals" where one a case by case basis we asked whether this data point impacts the posterior. Instead of rerunning your model N of data points times, importance scores are used to weight each datapoint, resulting in an equivalent to LOO without actually doing LOO. 
+
+---
+## PSIS-LOO example
+
+.pull-left[
+```{r}
+mr.12 <- readRDS("mr.12.rds")
+mr.12 <- add_criterion(mr.12, "loo")
+mr.12$criteria$loo
+```
+]
+
+.pull-right[
+
+elpd theoretical expected log pointwise predictive density for a new dataset (an llpd equivalent). Larger the better. 
+
+p_loo is effective number of parameters
+
+looic is -2(elpd). Low scores better. 
+
+]
+
+---
+
+```{r}
+mr.11 <- readRDS("mr.11.rds")
+mr.11 <- add_criterion(mr.11, "loo")
+loo(mr.11)
+```
+
+```{r}
+loo_compare(mr.11, mr.12, criterion = "loo")
+```
+recommend the elpd_diff > 4(se_diff). While the interaction fits better (mr.12), it is negligibly so. 
+
+---
+## Information Criteria
+
+AIC, BIC, WAIC, DIC, etc. Information criteria are a theoretical fit for out of sample cross validation, not unlike psis-loo
+
+AIC = deviance(training) + 2p (p = number of parameters). Low scores better. 
+
+DIC (Deviance information criteria) is more flexible for Bayesian models, but assumes a multivariate Gaussian posterior
+
+---
+## WAIC
+
+$$\text{WAIC}(y, \theta) = -2 \big (\text{lppd} - \underbrace{\sum_i \operatorname{var}_\theta \log p(y_i | \theta)}_\text{penalty term} \big)$$
+
+lppd = log pointwise predictive density = deviance over the entire posterior = 
+
+$$\text{lppd}(y, \theta) = \sum_i \log \frac{1}{S} \sum_sp(y_i|\theta_S)$$
+
+$$\text{AIC}(y, \theta) = -2(\text{llpd}) + 2p$$
+
+
+---
+## example
+
+```{r}
+waic(mr.12)
+```
+
+---
+### elpd_waic, llpd, p_waic 
+
+pwaic = penality term (similar to the penality term in AIC)
+
+elpd_waic = lppd - pwaic
+
+
+---
+
+```{r}
+waic(mr.11)
+```
+
+```{r}
+w.11<-waic(mr.11)
+w.11
+```
+
+
+---
+
+## Using information critera
+
+Each of these criteria do not have scales that are bounded by numbers (eg 0-1), nor can they be evaluated by some other number (eg SDs)
+Provide relative fit, so you need to compare different models, choosing the model with the lowest IC or the highest expected IC
+The criteria are also dependent on sample size, so you cannot compare across models that differ in sample size
+You can compare non-nested models eg ones with different sets of predictors
+
+---
+
+
+---
+## Prediction
+
+
+---
+## Overfitting
+
+- Fit is relative to our sample, not the population 
+- Need to balance between parsimony and completeness
+- Ironically, the best fitting model may not be the *best* model. The model will be tuned to our particular random sample
+- We are "fitting the noise" or overfitting the specifics of our sample
+
+---
+## Regularization
+
+- "penalizing" our model estimates to prevent overfitting
+- find coefficients that compromise between (a) minimizing the SS
+and (b) minimizing sum of abs value of coefficients
+- Tends to "shrink"" coefficients to zero
+- Shrinkage/penalization is based on lambda
+
+
+---
+## Bayes Factors
+
+https://psyarxiv.com/cu43g/
+
+
+---
+## ROPE
+
+
+
+
+
+
+

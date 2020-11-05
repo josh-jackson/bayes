@@ -5,6 +5,8 @@ date: "10/15/2020"
 output: html_document
 ---
 
+## 6. Information
+[Information](/Lectures/info-6.html)
 
 ## 5. Multiple Regression
 [Multiple Regression](/Lectures/MR-5.html)
