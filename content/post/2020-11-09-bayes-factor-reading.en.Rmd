@@ -1,0 +1,24 @@
+---
+title: Bayes factor reading
+author: ''
+date: '2020-11-09'
+slug: bayes-factor-reading
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-11-09T11:49:41-06:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+http://www.ejwagenmakers.com/2010/WagenmakersEtAlCogPsy2010.pdf
+
+and
+
+https://psyarxiv.com/cu43g/

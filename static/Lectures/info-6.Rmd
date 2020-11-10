@@ -35,12 +35,10 @@ library(broom)
     padding: 1em 4em 1em 4em;
 }
 
-.small .remark-code { 
-  font-size: 80% !important;
-}
-.tiny .remark-code {
-  font-size: 65% !important;
-}
+.small{ 
+  font-size: 80%}
+.tiny{
+  font-size: 65%}
 </style>
 
 
@@ -96,7 +94,7 @@ $R^2$
 AIC
 BIC
 Likelihood ratio test (LRT)
-Bayes Factors
+
 
 ```{r, eval = FALSE}
 bayes_R2(mr.10, summary = F) %>% 
@@ -399,22 +397,25 @@ w.11<-waic(mr.11)
 w.11
 ```
 
+---
+
+
+```{r}
+loo_compare(mr.11, mr.12, criterion = "waic")
+```
+Note: looks similar to loo results, even though this is with waic. Both are computed from the llpd, so it makes sense they can be similar. It will not always be this way, however. 
 
 ---
 
 ## Using information critera
 
 Each of these criteria do not have scales that are bounded by numbers (eg 0-1), nor can they be evaluated by some other number (eg SDs)
+
 Provide relative fit, so you need to compare different models, choosing the model with the lowest IC or the highest expected IC
+
 The criteria are also dependent on sample size, so you cannot compare across models that differ in sample size
+
 You can compare non-nested models eg ones with different sets of predictors
-
----
-
-
----
-## Prediction
-
 
 ---
 ## Overfitting
@@ -433,15 +434,348 @@ and (b) minimizing sum of abs value of coefficients
 - Tends to "shrink"" coefficients to zero
 - Shrinkage/penalization is based on lambda
 
+---
+
+```{r}
+mr.2 <- readRDS("mr.2.rds")
+
+```
+
+```{r, eval = FALSE}
+mr.2 <- 
+  brm(family = gaussian,
+      happiness ~ 1 + SS_c + FQ_c,
+      prior = c(prior(normal(5, 2), class = Intercept),
+                prior(normal(0, .2), class = b, coef = SS_c),
+                prior(normal(0, .2), class = b, coef = FQ_c),
+                prior(exponential(.5), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = MR,
+      sample_prior = T,
+      file = "mr.2")
+```
+
+---
+```{r}
+summary(mr.2)
+```
+
+---
+## update prior
+
+```{r}
+
+mr.2p <- update(mr.2, prior =  
+                c(prior(normal(5, 2), class = Intercept),
+                 prior(normal(0, .2), class = b, coef = SS_c),
+                prior(normal(0, .05), class = b, coef = FQ_c),
+                prior(exponential(.5), class = sigma)),
+                  file = "mr.2p")
+```
+
+
+---
+
+```{r}
+summary(mr.2p)
+```
+
+---
+
+.pull-left[
+```{r, eval = FALSE}
+priors <-
+  c(prior(normal(0, .2), class = b, coef = FQ_c),
+    prior(normal(0, .05), class = b, coef = FQ_c))
+
+priors %>% 
+  parse_dist(prior) %>% 
+  ggplot(aes(y=class, dist =.dist, args=.args,  fill = prior)) +
+  stat_dist_halfeye(alpha = .6)
+```
+]
+
+
+
+.pull-right[
+```{r, echo = FALSE}
+priors <-
+  c(prior(normal(0, .2), class = b, coef = FQ_c),
+    prior(normal(0, .05), class = b, coef = FQ_c))
+
+priors %>% 
+  parse_dist(prior) %>% 
+  ggplot(aes(y=class, dist =.dist, args=.args,  fill = prior)) +
+  stat_dist_halfeye(alpha = .6)
+```
+]
 
 ---
 ## Bayes Factors
 
-https://psyarxiv.com/cu43g/
+Quantifies the support in the data for two competing statistical models. Ratio of the two marginal likelihoods of an observed outcome for these two models. E.g., how likely is a b = .2 vs b = 0, given our data. Gives relative evidence for different positions by comparing the predictive accuracy of two model-prior combinations
+
+$$\text{BF} = \frac{p(D | m = 1)}{p(D | m = 2)}$$
+
+---
+
+```{r, message = FALSE, echo = FALSE}
+library(bayestestR)
+library(see)
+prior <- distribution_normal(10000, mean = 0, sd = 1)
+posterior <- distribution_normal(10000, mean = 1, sd = 0.7)
+bf_plot<- bayesfactor_parameters(posterior, prior, direction = "two-sided", null = 0)
+plot(bf_plot)
+```
+
+---
+### BF interpretation
+Extent to which the data sway our relative belief from one hypothesis to the other  
+
+Strength of evidence from data about the hypotheses
+
+Relative predictive accuracy of one hypothesis over another
+
+
+---
+
+$$\frac{p(m = 1 | D)}{p(m = 2 | D)} = \left (\frac{p(D | m = 1)}{p(D | m = 2)} \right ) \left ( \frac{p(m = 1)}{p(m = 2)} \right)$$
+This equation shows that the posterior odds is determined entirely by the ratio of the marginal likelihoods (Bayes Factors) multiplied by the prior odds
+
+---
+```{r, eval = FALSE}
+mr.2 <- 
+  brm(family = gaussian,
+      happiness ~ 1 + SS_c + FQ_c,
+      prior = c(prior(normal(5, 2), class = Intercept),
+                prior(normal(0, .2), class = b, coef = SS_c),
+                prior(normal(0, .2), class = b, coef = FQ_c),
+                prior(exponential(.5), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = MR,
+      sample_prior = T,
+      file = "mr.2")
+```
+
+---
+## BF with {brms}
+
+```{r}
+bf.result <- bayestestR::bayesfactor_parameters(mr.2)
+bf.result
+```
+
+
+---
+```{r}
+plot(bf.result)
+```
+
+
+---
+
+```{r}
+bf.result2 <- bayesfactor_parameters(mr.2, null = rope_range(mr.2))
+bf.result2 
+```
+
+---
+.pull-left[
+The Bayes factor represents the degree by which the distribution mass of the posterior has shifted outside or inside the null interval relative to the prior distribution
+]
+
+.pull-right[
+```{r}
+plot(bf.result2)
+```
+
+]
+
+---
+### using hypothesis
+divides the posterior by the prior (1/evidence to flip)
+
+```{r}
+hypothesis(mr.2, "FQ_c = 0")
+```
+
+```{r}
+hypothesis(mr.2, "FQ_c > 0")
+```
+
+---
+
+```{r}
+plot(hypothesis(mr.2, "FQ_c = 0"))
+```
+
+---
+###Model comparisons
+via {bridgesampling and brms}
+```{r}
+bayes_factor(mr.12, mr.11)
+```
+
+
+---
+###Model comparisons
+via {bayestestR}
+```{r}
+comparison <- bayesfactor_models(mr.12, denominator = mr.11)
+comparison
+```
+
+---
+### group comparison
+caution for factors with more than 2 levels
+
+```{r, message = FALSE, warnings = FALSE}
+library(emmeans)
+groups <- emmeans(mr.11, ~ iv.d)
+group_diff <- pairs(groups)
+groups_all <- rbind(groups, group_diff)
+bayesfactor_parameters(groups_all, prior = mr.11)
+```
+
+---
+### Proposed cutoffs
+.small[
+| BF10         | Interpretation               |
+|--------------|------------------------------|
+| > 100        | Extreme evidence for H1      |
+| 30 - 100     | Very strong evidence for H1  |
+| 10 - 30      | Strong evidence for H1       |
+| 3 - 10       | Moderate evidence for H1     |
+| 1 - 3        | Anecdotal evidence for H1    |
+| 1            | Equal evidence for H1 and H0 |
+| 1/3 - 1      | Anecdotal evidence for H0    |
+| 1/10 - 1/3   | Moderate evidence for H0     |
+| 1/30 - 1/10  | Strong evidence for H0       |
+| 1/100 - 1/30 | Very strong evidence for H0  |
+| < 1/100      | Extreme evidence for H0      |
+]
+
+---
+## Shortcomings of Bayes Factors
+
+.small[
+1. Heavy reliance on priors. The marginal likelihood is an average taken with respect to the prior, so bayes factors can be seen as relatively subjective compared to alternative approaches. This is less so a problem for models with more straightforward "nulls" eg a correct/incorrect and less so for more continuous metrics
+
+2. BF provide differences between models without quantifying whether the chosen model is any good (similar issues with waic, loo, p-values -- you can calculate BF with bic!)
+
+3. Favors more parsimonious models and thus is more conservative (could also be a pro) 
+
+4. Potentially reinforces dichotomous thinking 
+
+5. May be used as a measure of effect size (similar shortfalls to using p as such)
+
+6. Null is mostly not useful (!)
+]
+
+---
+
+
+```{r}
+mr.1 <- readRDS("mr.1.rds")
+mr.1 <- 
+  brm(family = gaussian,
+      happiness ~ 1 + SS_c + FQ_c,
+      prior = c(prior(normal(5, 2), class = Intercept),
+                prior(normal(0, 2), class = b, coef = SS_c),
+                prior(normal(0, 2), class = b, coef = FQ_c),
+                prior(exponential(1), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = MR,
+      sample_prior = T,
+      file = "mr.1")
+```
+
+```{r, eval = FALSE}
+mr.2 <- 
+  brm(family = gaussian,
+      happiness ~ 1 + SS_c + FQ_c,
+      prior = c(prior(normal(5, 2), class = Intercept),
+                prior(normal(0, .2), class = b, coef = SS_c),
+                prior(normal(0, .2), class = b, coef = FQ_c),
+                prior(exponential(.5), class = sigma)),
+      iter = 2000, warmup = 1000, chains = 2, cores = 2,
+      data = MR,
+      sample_prior = T,
+      file = "mr.2")
+```
+
+---
+.pull-left[
+```{r}
+bf.result <- bayestestR::bayesfactor_parameters(mr.1)
+bf.result
+```
+
+]
+
+.pull-right[
+```{r}
+bf.result <- bayestestR::bayesfactor_parameters(mr.2)
+bf.result
+```
+]
+
+---
+## ROPE
+Region of Practical Equivalence - a small range of parameter values that are considered to be practically equivalent to the null. E.g,. std b = [-.07, .07]
+
+Compare our 95% (or whatever value you want) CI/HDPI to see if it overlaps with the ROPE. Reject null if it doesn't. 
+
+Note: not all values within the ROPE are rejected, just the null. 
+
+
+---
+
+```{r}
+bayestestR::rope(mr.2, range = c(-0.07, 0.07))
+```
+
+---
+
+```{r}
+rope <- rope(mr.2, range = c(-0.07, 0.07), ci = c(0.93))
+plot(rope)
+```
+
+
+---
+
+```{r}
+result <- equivalence_test(mr.2)
+result
+```
 
 
 ---
 ## ROPE
+
+Why not just use the CI like you normally would? Because what if CI and ROPE overlap? 
+
+CI completely contains ROPE vs partially contains
+
+This allows you to 1. have a middle ground between accept vs reject. A range of equivalence. 
+
+2. Allows one to affirm a predicted value, which is logically impossible in a standard NHST framework
+
+---
+## ROPE
+
+How to come up with ROPE values? 
+
+Difficult. Balance practicality with expertise judgment. DBDA: -0.1 to 0.1 of a standardized parameter (ie negligible effect size, Cohen, 1988). 
+
+```{r}
+rope_range(mr.2)
+```
+
+
+Usually implemented when a decision needs to be made. More common in medicine than psych. 
+
 
 
 
