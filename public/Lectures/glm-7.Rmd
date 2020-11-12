@@ -90,9 +90,13 @@ Here it is the uniform
 ]
 
 .pull-right[
-```{r, echo = FALSE, messages = FALSE}
+```{r, echo = FALSE, warning = FALSE, message= FALSE}
 library(tidyverse)
 library(brms)
+```
+
+
+```{r, echo = FALSE, messages = FALSE}
 
 d <-
   tibble(a = c(0, 0, 10, 0, 0),
@@ -181,8 +185,9 @@ gaussian, student, binomial, bernoulli, poisson, negbinomial, geometric, Gamma, 
 
 ---
 ## Common RT distributions
-
+.small[
 ![test](../img/RT.png)
+]
 
 ---
 ## Example
@@ -283,8 +288,8 @@ prior_samples(glm.3)
 
 
 ---
-
-```{r}
+.pull-left[
+```{r, eval = FALSE}
 prior_samples(glm.3)%>% 
   sample_n(size = 100) %>% 
   rownames_to_column("draw") %>% 
@@ -299,10 +304,30 @@ prior_samples(glm.3)%>%
   theme_bw() +
   theme(panel.grid = element_blank()) 
 ```
+]
+
+.pull-right[
+```{r, echo = FALSE}
+prior_samples(glm.3)%>% 
+  sample_n(size = 100) %>% 
+  rownames_to_column("draw") %>% 
+  expand(nesting(draw, Intercept, b),
+         a = c(-9, 9)) %>% 
+  mutate(d = Intercept + b * a) %>% 
+  ggplot(aes(x = a, y = d)) +
+  geom_line(aes(group = draw), alpha = .4) +
+  labs(x = "IQ",
+       y = "logit(Not-premature dealth)") +
+  coord_cartesian(ylim = c(0, 10)) +
+  theme_bw() +
+  theme(panel.grid = element_blank()) 
+```
+]
 
 ---
+.pull-left[
 scaled to probability
-```{r}
+```{r, eval = FALSE}
 
 a <- seq(-9,9, .2)
 
@@ -317,6 +342,26 @@ prior_samples(glm.3)%>%
        y = "prob(Not-premature dealth)") +
   coord_cartesian(ylim = c(0, 1))
 ```
+]
+
+.pull-right[
+```{r, echo = FALSE}
+
+a <- seq(-9,9, .2)
+
+prior_samples(glm.3)%>% 
+  sample_n(size = 100) %>% 
+  rownames_to_column("draw") %>% 
+  expand(nesting(draw, Intercept, b), a) %>% 
+  mutate(d = inv_logit_scaled(Intercept + b * a)) %>% 
+  ggplot(aes(x = a, y = d)) +
+  geom_line(aes(group = draw), alpha = .4) +
+  labs(x = "IQ",
+       y = "prob(Not-premature dealth)") +
+  coord_cartesian(ylim = c(0, 1))
+```
+
+]
 
 ---
 
@@ -341,7 +386,27 @@ glm.4 <-
 
 ---
 
-```{r}
+.pull-left[
+```{r, eval = FALSE}
+
+a <- seq(-9,9, .2)
+
+prior_samples(glm.4)%>% 
+  sample_n(size = 100) %>% 
+  rownames_to_column("draw") %>% 
+  expand(nesting(draw, Intercept, b), a) %>% 
+  mutate(d = inv_logit_scaled(Intercept + b * a)) %>% 
+  ggplot(aes(x = a, y = d)) +
+  geom_line(aes(group = draw), alpha = .4) +
+  labs(x = "IQ",
+       y = "prob(Not-premature dealth)") +
+  coord_cartesian(ylim = c(0, 1))
+```
+]
+
+
+.pull-right[
+```{r, echo = FALSE}
 
 a <- seq(-9,9, .2)
 
@@ -357,11 +422,25 @@ prior_samples(glm.4)%>%
   coord_cartesian(ylim = c(0, 1))
 ```
 
+]
+
 ---
 
 ```{r}
 summary(glm.4)
 ```
+
+---
+
+```{r}
+tibble(b0     = 1.62,
+       b1     = .08,
+       IQ_c = c(-6,-2,0,2,6)) %>% 
+  mutate(logit_mu = b0 + b1 * IQ_c ) %>%
+  mutate(Not_premature   = 1 / (1 + exp(-logit_mu)))
+```
+
+
 
 ---
 ```{r}
@@ -375,8 +454,8 @@ pp_check(glm.4)
 
 
 ---
-.left-pull[
-```{r, eval = FALSE}
+.pull-left[
+```{r, eval = FALSE, message= FALSE, warning=FALSE}
 library(tidybayes)
 library(modelr)
 
@@ -393,7 +472,7 @@ mortality %>%
 ```
 ]
 
-.right-pull[
+.pull-right[
 ```{r, echo = FALSE}
 library(tidybayes)
 library(modelr)
@@ -412,6 +491,33 @@ mortality %>%
 ]
 
 ---
+## multinomial logistic regression
+When you are predicting more than two groups (aka softmax regression aka categorical regression aka maximum entropy classifier)
+
+Uses a multi-nomial distribution, which is a parent of the binomial distribution
+
+Need to construct K - 1 linear models for K events, similar to constructing number of dummy variables
+
+---
+
+```{r, eval=FALSE}
+fit1 <-
+  brm( family = categorical(link = logit),
+      Y ~ 0 + intercept + X1 + X2,
+      prior(normal(0, 20), class = b),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      data=data)
+```
 
 
+
+
+---
+## Ordinal regression models
+
+https://journals.sagepub.com/doi/pdf/10.1177/2515245918823199
+
+---
+
+test test
 

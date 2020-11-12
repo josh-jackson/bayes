@@ -78,28 +78,9 @@ Here it is the uniform
 
 .pull-right[
 
-```
-## Loading required package: Rcpp
-```
 
-```
-## Loading 'brms' package (version 2.13.5). Useful instructions
-## can be found by typing help('brms'). A more detailed introduction
-## to the package is available through vignette('brms_overview').
-```
 
-```
-## 
-## Attaching package: 'brms'
-```
-
-```
-## The following object is masked from 'package:stats':
-## 
-##     ar
-```
-
-![](glm-7_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+![](glm-7_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
 ]
 
 ---
@@ -113,7 +94,7 @@ There is a folk understanding about different types of data and the distribution
 ---
 ## Exponential Family
 
-![](glm-7_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+![](glm-7_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -137,8 +118,9 @@ gaussian, student, binomial, bernoulli, poisson, negbinomial, geometric, Gamma, 
 
 ---
 ## Common RT distributions
-
+.small[
 ![test](../img/RT.png)
+]
 
 ---
 ## Example
@@ -4216,7 +4198,7 @@ prior_samples(glm.1) %&gt;%
   geom_density( )
 ```
 
-![](glm-7_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+![](glm-7_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
 
 ]
 
@@ -4244,7 +4226,7 @@ prior_samples(glm.2) %&gt;%
   geom_density( )
 ```
 
-![](glm-7_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+![](glm-7_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -8275,7 +8257,7 @@ prior_samples(glm.3)
 
 
 ---
-
+.pull-left[
 
 ```r
 prior_samples(glm.3)%&gt;% 
@@ -8292,10 +8274,14 @@ prior_samples(glm.3)%&gt;%
   theme_bw() +
   theme(panel.grid = element_blank()) 
 ```
+]
 
-![](glm-7_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+.pull-right[
+![](glm-7_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+]
 
 ---
+.pull-left[
 scaled to probability
 
 ```r
@@ -8312,8 +8298,12 @@ prior_samples(glm.3)%&gt;%
        y = "prob(Not-premature dealth)") +
   coord_cartesian(ylim = c(0, 1))
 ```
+]
 
-![](glm-7_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+.pull-right[
+![](glm-7_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+
+]
 
 ---
 
@@ -8358,6 +8348,7 @@ glm.4 &lt;-
 
 ---
 
+.pull-left[
 
 ```r
 a &lt;- seq(-9,9, .2)
@@ -8373,8 +8364,13 @@ prior_samples(glm.4)%&gt;%
        y = "prob(Not-premature dealth)") +
   coord_cartesian(ylim = c(0, 1))
 ```
+]
 
-![](glm-7_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+
+.pull-right[
+![](glm-7_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+
+]
 
 ---
 
@@ -8403,11 +8399,35 @@ summary(glm.4)
 
 ---
 
+
+```r
+tibble(b0     = 1.62,
+       b1     = .08,
+       IQ_c = c(-6,-2,0,2,6)) %&gt;% 
+  mutate(logit_mu = b0 + b1 * IQ_c ) %&gt;%
+  mutate(Not_premature   = 1 / (1 + exp(-logit_mu)))
+```
+
+```
+## # A tibble: 5 x 5
+##      b0    b1  IQ_c logit_mu Not_premature
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;         &lt;dbl&gt;
+## 1  1.62  0.08    -6     1.14         0.758
+## 2  1.62  0.08    -2     1.46         0.812
+## 3  1.62  0.08     0     1.62         0.835
+## 4  1.62  0.08     2     1.78         0.856
+## 5  1.62  0.08     6     2.1          0.891
+```
+
+
+
+---
+
 ```r
 plot(glm.4)
 ```
 
-![](glm-7_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+![](glm-7_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -8419,11 +8439,11 @@ pp_check(glm.4)
 ## Using 10 posterior samples for ppc type 'dens_overlay' by default.
 ```
 
-![](glm-7_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+![](glm-7_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
 
 
 ---
-.left-pull[
+.pull-left[
 
 ```r
 library(tidybayes)
@@ -8442,7 +8462,7 @@ mortality %&gt;%
 ```
 ]
 
-.right-pull[
+.pull-right[
 
 ```
 ## 
@@ -8466,12 +8486,40 @@ mortality %&gt;%
 ##     bootstrap
 ```
 
-![](glm-7_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
+![](glm-7_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
 ]
+
+---
+## multinomial logistic regression
+When you are predicting more than two groups (aka softmax regression aka categorical regression aka maximum entropy classifier)
+
+Uses a multi-nomial distribution, which is a parent of the binomial distribution
+
+Need to construct K - 1 linear models for K events, similar to constructing number of dummy variables
 
 ---
 
 
+```r
+fit1 &lt;-
+  brm( family = categorical(link = logit),
+      Y ~ 0 + intercept + X1 + X2,
+      prior(normal(0, 20), class = b),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      data=data)
+```
+
+
+
+
+---
+## Ordinal regression models
+
+https://journals.sagepub.com/doi/pdf/10.1177/2515245918823199
+
+---
+
+test test
 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
