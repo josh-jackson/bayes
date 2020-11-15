@@ -27,6 +27,8 @@ mono_light(
 
 library(tidyverse)
 library(broom)
+library(tidybayes)
+library(modelr)
 ```
 
 <style type="text/css">
@@ -173,7 +175,7 @@ Poisson for counts, when p is low and or number of trials is considered infinite
 
 ---
 
-.tiny[
+.small[
 ![test](../img/dist.png)
 
 ]
@@ -186,7 +188,9 @@ gaussian, student, binomial, bernoulli, poisson, negbinomial, geometric, Gamma, 
 ---
 ## Common RT distributions
 .small[
+
 ![test](../img/RT.png)
+
 ]
 
 ---
@@ -474,9 +478,6 @@ mortality %>%
 
 .pull-right[
 ```{r, echo = FALSE, messages = FALSE, warnings = FALSE}
-library(tidybayes)
-library(modelr)
-
 mortality %>%
   data_grid(IQ_c, .model = mortality) %>%
   add_fitted_draws(glm.4) %>%
