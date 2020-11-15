@@ -8498,7 +8498,48 @@ Uses a multi-nomial distribution, which is a parent of the binomial distribution
 Need to construct K - 1 linear models for K events, similar to constructing number of dummy variables
 
 ---
+## Example from SR
 
+
+```r
+library(rethinking)
+
+# simulate career choices among 500 individuals
+n      &lt;- 500           # number of individuals
+income &lt;- c(1, 2, 5)    # expected income of each career
+score  &lt;- 0.5 * income  # scores for each career, based on income
+
+# next line converts scores to probabilities
+p &lt;- softmax(score[1], score[2], score[3])
+
+# now simulate choice
+# outcome career holds event type values, not counts
+career &lt;- rep(NA, n)  # empty vector of choices for each individual
+
+# sample chosen career for each individual
+set.seed(34302)
+# sample chosen career for each individual
+for(i in 1:n) career[i] &lt;- sample(1:3, size = 1, prob = p)
+
+d &lt;-
+  tibble(career = career) %&gt;% 
+  mutate(career_income = ifelse(career == 3, 5, career))
+
+d %&gt;%
+  ggplot(aes(x = career)) +
+  geom_bar(size = 0)
+```
+
+![](glm-7_files/figure-html/unnamed-chunk-27-1.png)&lt;!-- --&gt;
+
+
+---
+
+
+
+
+
+---
 
 ```r
 fit1 &lt;-
