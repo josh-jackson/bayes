@@ -8469,69 +8469,368 @@ mortality %&gt;%
 ]
 
 ---
-## multinomial logistic regression
+## Multinomial logistic regression
 When you are predicting more than two groups (aka softmax regression aka categorical regression aka maximum entropy classifier)
 
-Uses a multi-nomial distribution, which is a parent of the binomial distribution
+Uses a multi-nomial distribution, which is a parent of the binomial distribution. Like the binomial but with more events (think of the bucket tossing example where each bucket has its own p). 
 
 Need to construct K - 1 linear models for K events, similar to constructing number of dummy variables
 
 ---
 ## Example from SR
-
-
-```r
-library(rethinking)
-
-# simulate career choices among 500 individuals
-n      &lt;- 500           # number of individuals
-income &lt;- c(1, 2, 5)    # expected income of each career
-score  &lt;- 0.5 * income  # scores for each career, based on income
-
-# next line converts scores to probabilities
-p &lt;- softmax(score[1], score[2], score[3])
-
-# now simulate choice
-# outcome career holds event type values, not counts
-career &lt;- rep(NA, n)  # empty vector of choices for each individual
-
-# sample chosen career for each individual
-set.seed(34302)
-# sample chosen career for each individual
-for(i in 1:n) career[i] &lt;- sample(1:3, size = 1, prob = p)
-
-d &lt;-
-  tibble(career = career) %&gt;% 
-  mutate(career_income = ifelse(career == 3, 5, career))
-
-d %&gt;%
-  ggplot(aes(x = career)) +
-  geom_bar(size = 0)
-```
-
+Career choice predicted by salary
 ![](glm-7_files/figure-html/unnamed-chunk-27-1.png)&lt;!-- --&gt;
 
-
 ---
 
 
+```r
+d
+```
+
+```
+## # A tibble: 500 x 2
+##    career career_income
+##     &lt;int&gt;         &lt;dbl&gt;
+##  1      3             5
+##  2      3             5
+##  3      3             5
+##  4      3             5
+##  5      3             5
+##  6      3             5
+##  7      3             5
+##  8      3             5
+##  9      3             5
+## 10      3             5
+## # … with 490 more rows
+```
 
 
 
 ---
 
 ```r
-fit1 &lt;-
-  brm( family = categorical(link = logit),
-      Y ~ 0 + intercept + X1 + X2,
-      prior(normal(0, 20), class = b),
+glm.5 &lt;-
+  brm(family = categorical(link = logit, refcat = 3),
+      career ~ 1,
+      prior = c(prior(normal(0, 1), class = Intercept, dpar = mu1),
+                prior(normal(0, 1), class = Intercept, dpar = mu2)),
       iter = 2000, warmup = 1000, cores = 4, chains = 4,
-      data=data)
+      data = d, 
+      file = "glm.5")
+```
+
+---
+
+
+```r
+summary(glm.5)
+```
+
+```
+##  Family: categorical 
+##   Links: mu1 = logit; mu2 = logit 
+## Formula: career ~ 1 
+##    Data: d (Number of observations: 500) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## mu1_Intercept    -2.01      0.15    -2.31    -1.71 1.00     3098     2433
+## mu2_Intercept    -1.53      0.12    -1.77    -1.29 1.00     3046     2359
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+
+---
+
+
+```r
+glm.5 %&gt;% 
+spread_draws(b_mu1_Intercept, b_mu2_Intercept) %&gt;% 
+  mutate(b_mu3_Intercept = 0) %&gt;% 
+  mutate(p1 = exp(b_mu1_Intercept) / (exp(b_mu1_Intercept) + exp(b_mu2_Intercept) + exp(b_mu3_Intercept)),
+         p2 = exp(b_mu2_Intercept) / (exp(b_mu1_Intercept) + exp(b_mu2_Intercept) + exp(b_mu3_Intercept)),
+         p3 = exp(b_mu3_Intercept) / (exp(b_mu1_Intercept) + exp(b_mu2_Intercept) + exp(b_mu3_Intercept))) %&gt;% 
+  pivot_longer(p1:p3) %&gt;% 
+  group_by(name) %&gt;% 
+  mean_qi(value) %&gt;% 
+  mutate_if(is.double, round, digits = 2)
+```
+
+```
+## # A tibble: 3 x 7
+##   name  value .lower .upper .width .point .interval
+##   &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+## 1 p1     0.1    0.08   0.13   0.95 mean   qi       
+## 2 p2     0.16   0.13   0.19   0.95 mean   qi       
+## 3 p3     0.74   0.7    0.78   0.95 mean   qi
+```
+
+---
+
+mu1_Intercept coefficnet is -2.01. What does that mean? 
+
+```r
+exp(-2.01)
+```
+
+```
+## [1] 0.1339887
+```
+
+---
+
+```r
+get_prior(data = d, 
+          family = categorical(link = logit, refcat = 3), 
+          career ~ 1 + career_income)
+```
+
+```
+##                  prior     class          coef group resp dpar nlpar bound
+## 1                              b                                          
+## 2                      Intercept                                          
+## 3                              b                           mu1            
+## 4                              b career_income             mu1            
+## 5 student_t(3, 3, 2.5) Intercept                           mu1            
+## 6                              b                           mu2            
+## 7                              b career_income             mu2            
+## 8 student_t(3, 3, 2.5) Intercept                           mu2
 ```
 
 
 
+---
 
+```r
+glm.6 &lt;-
+  brm(family = categorical(link = logit, refcat = 3),
+      career ~ 1 + career_income,
+      prior = c(prior(normal(0, 1), class = Intercept, dpar = mu1),
+                prior(normal(0, 1), class = Intercept, dpar = mu2),
+                prior(normal(0, .5), class = b, dpar = mu1),
+                prior(normal(0, .5), class = b, dpar = mu2)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      data = d, 
+      file = "glm.6")
+```
+
+---
+
+```r
+summary(glm.6)
+```
+
+```
+##  Family: categorical 
+##   Links: mu1 = logit; mu2 = logit 
+## Formula: career ~ 1 + career_income 
+##    Data: d (Number of observations: 500) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##                   Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## mu1_Intercept         7.77      0.79     6.31     9.39 1.00     1804     1996
+## mu2_Intercept         6.50      0.73     5.15     7.96 1.00     1895     1961
+## mu1_career_income    -2.99      0.26    -3.51    -2.51 1.00     1589     1918
+## mu2_career_income    -2.01      0.17    -2.34    -1.70 1.00     1953     1997
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+### Comparison with logistic
+Only fit 1 and 3 categories. Note how we fit a categorical, which a binomial is a special case, and which bernoulli is an even more special case. 
+
+
+```r
+glm.7 &lt;-
+  brm(family = categorical(link = logit, refcat = 3),
+      career ~ 1 + career_income,
+      prior = c(prior(normal(0, 1), class = Intercept),
+                prior(normal(0, .5), class = b)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      data = d %&gt;% filter(career != 2), 
+      file = "glm.7")
+```
+
+
+---
+
+```r
+summary(glm.7)
+```
+
+```
+##  Family: categorical 
+##   Links: mu1 = logit 
+## Formula: career ~ 1 + career_income 
+##    Data: d %&gt;% filter(career != 2) (Number of observations: 421) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##                   Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## mu1_Intercept         5.64      0.98     3.98     7.77 1.00     2627     2144
+## mu1_career_income    -2.00      0.22    -2.46    -1.63 1.00     2201     2159
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+
+
+```r
+tibble(b0     = 5.64,
+       b1     = -2.00,
+       career_income = c(1:5)) %&gt;% 
+  mutate(logit_mu = b0 + b1 * career_income ) %&gt;%
+  mutate(career   = 1 / (1 + exp(-logit_mu)))
+```
+
+```
+## # A tibble: 5 x 5
+##      b0    b1 career_income logit_mu career
+##   &lt;dbl&gt; &lt;dbl&gt;         &lt;int&gt;    &lt;dbl&gt;  &lt;dbl&gt;
+## 1  5.64    -2             1     3.64 0.974 
+## 2  5.64    -2             2     1.64 0.838 
+## 3  5.64    -2             3    -0.36 0.411 
+## 4  5.64    -2             4    -2.36 0.0863
+## 5  5.64    -2             5    -4.36 0.0126
+```
+
+---
+
+```r
+summary(glm.6)
+```
+
+```
+##  Family: categorical 
+##   Links: mu1 = logit; mu2 = logit 
+## Formula: career ~ 1 + career_income 
+##    Data: d (Number of observations: 500) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##                   Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## mu1_Intercept         7.77      0.79     6.31     9.39 1.00     1804     1996
+## mu2_Intercept         6.50      0.73     5.15     7.96 1.00     1895     1961
+## mu1_career_income    -2.99      0.26    -3.51    -2.51 1.00     1589     1918
+## mu2_career_income    -2.01      0.17    -2.34    -1.70 1.00     1953     1997
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+
+
+---
+
+```r
+tibble(b0     = 7.77,
+       b1     = -2.99,
+       career_income = c(1:5)) %&gt;% 
+  mutate(logit_mu = b0 + b1 * career_income ) %&gt;%
+  mutate(career   = 1 / (1 + exp(-logit_mu)))
+```
+
+```
+## # A tibble: 5 x 5
+##      b0    b1 career_income logit_mu   career
+##   &lt;dbl&gt; &lt;dbl&gt;         &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+## 1  7.77 -2.99             1     4.78 0.992   
+## 2  7.77 -2.99             2     1.79 0.857   
+## 3  7.77 -2.99             3    -1.2  0.231   
+## 4  7.77 -2.99             4    -4.19 0.0149  
+## 5  7.77 -2.99             5    -7.18 0.000761
+```
+
+
+
+---
+### Constraining the effect to be similar across models
+
+
+```r
+glm.8 &lt;-
+  brm(family = categorical(link = logit, refcat = 3),
+      bf(career ~ 1,
+         nlf(mu1 ~ a1 + b *career_income ),
+         nlf(mu2 ~ a2 + b *career_income),
+         a1 + a2 + b ~ 1),
+      prior = c(prior(normal(0, 1), class = b, nlpar = a1),
+                prior(normal(0, 1), class = b, nlpar = a2),
+                prior(normal(0, 0.5), class = b, nlpar = b)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      data = d,
+      file = "glm.8")
+```
+
+
+---
+
+```r
+summary(glm.8)
+```
+
+```
+##  Family: categorical 
+##   Links: mu1 = logit; mu2 = logit 
+## Formula: career ~ 1 
+##          mu1 ~ a1 + b * career_income
+##          mu2 ~ a2 + b * career_income
+##          a1 ~ 1
+##          a2 ~ 1
+##          b ~ 1
+##    Data: d (Number of observations: 500) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## a1_Intercept     4.12      0.39     3.36     4.89 1.00      876     1213
+## a2_Intercept     4.64      0.39     3.88     5.42 1.00      921     1224
+## b_Intercept     -1.81      0.12    -2.04    -1.58 1.00      916     1200
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+
+
+```r
+tibble(b0     = 4.12,
+       b1     = -1.81,
+       career_income = c(1:5)) %&gt;% 
+  mutate(logit_mu = b0 + b1 * career_income ) %&gt;%
+  mutate(career   = 1 / (1 + exp(-logit_mu)))
+```
+
+```
+## # A tibble: 5 x 5
+##      b0    b1 career_income logit_mu  career
+##   &lt;dbl&gt; &lt;dbl&gt;         &lt;int&gt;    &lt;dbl&gt;   &lt;dbl&gt;
+## 1  4.12 -1.81             1     2.31 0.910  
+## 2  4.12 -1.81             2     0.5  0.622  
+## 3  4.12 -1.81             3    -1.31 0.212  
+## 4  4.12 -1.81             4    -3.12 0.0423 
+## 5  4.12 -1.81             5    -4.93 0.00717
+```
 ---
 ## Ordinal regression models
 

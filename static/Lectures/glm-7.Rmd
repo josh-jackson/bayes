@@ -492,17 +492,17 @@ mortality %>%
 ]
 
 ---
-## multinomial logistic regression
+## Multinomial logistic regression
 When you are predicting more than two groups (aka softmax regression aka categorical regression aka maximum entropy classifier)
 
-Uses a multi-nomial distribution, which is a parent of the binomial distribution
+Uses a multi-nomial distribution, which is a parent of the binomial distribution. Like the binomial but with more events (think of the bucket tossing example where each bucket has its own p). 
 
 Need to construct K - 1 linear models for K events, similar to constructing number of dummy variables
 
 ---
 ## Example from SR
-
-```{r, message = FALSE}
+Career choice predicted by salary
+```{r, echo = FALSE, message = FALSE}
 library(rethinking)
 
 # simulate career choices among 500 individuals
@@ -532,26 +532,172 @@ d %>%
 
 ```
 
-
 ---
 
-
-
-
-
----
-```{r, eval=FALSE}
-fit1 <-
-  brm( family = categorical(link = logit),
-      Y ~ 0 + intercept + X1 + X2,
-      prior(normal(0, 20), class = b),
-      iter = 2000, warmup = 1000, cores = 4, chains = 4,
-      data=data)
+```{r}
+d
 ```
 
 
 
+---
+```{r}
+glm.5 <-
+  brm(family = categorical(link = logit, refcat = 3),
+      career ~ 1,
+      prior = c(prior(normal(0, 1), class = Intercept, dpar = mu1),
+                prior(normal(0, 1), class = Intercept, dpar = mu2)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      data = d, 
+      file = "glm.5")
+```
 
+---
+
+```{r}
+summary(glm.5)
+```
+
+
+---
+
+```{r}
+glm.5 %>% 
+spread_draws(b_mu1_Intercept, b_mu2_Intercept) %>% 
+  mutate(b_mu3_Intercept = 0) %>% 
+  mutate(p1 = exp(b_mu1_Intercept) / (exp(b_mu1_Intercept) + exp(b_mu2_Intercept) + exp(b_mu3_Intercept)),
+         p2 = exp(b_mu2_Intercept) / (exp(b_mu1_Intercept) + exp(b_mu2_Intercept) + exp(b_mu3_Intercept)),
+         p3 = exp(b_mu3_Intercept) / (exp(b_mu1_Intercept) + exp(b_mu2_Intercept) + exp(b_mu3_Intercept))) %>% 
+  pivot_longer(p1:p3) %>% 
+  group_by(name) %>% 
+  mean_qi(value) %>% 
+  mutate_if(is.double, round, digits = 2)
+```
+
+---
+
+mu1_Intercept coefficnet is -2.01. What does that mean? 
+```{r}
+
+exp(-2.01)
+```
+
+---
+```{r}
+get_prior(data = d, 
+          family = categorical(link = logit, refcat = 3), 
+          career ~ 1 + career_income)
+```
+
+
+
+---
+```{r}
+
+glm.6 <-
+  brm(family = categorical(link = logit, refcat = 3),
+      career ~ 1 + career_income,
+      prior = c(prior(normal(0, 1), class = Intercept, dpar = mu1),
+                prior(normal(0, 1), class = Intercept, dpar = mu2),
+                prior(normal(0, .5), class = b, dpar = mu1),
+                prior(normal(0, .5), class = b, dpar = mu2)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      data = d, 
+      file = "glm.6")
+
+```
+
+---
+```{r}
+summary(glm.6)
+```
+
+---
+### Comparison with logistic
+Only fit 1 and 3 categories. Note how we fit a categorical, which a binomial is a special case, and which bernoulli is an even more special case. 
+
+```{r}
+glm.7 <-
+  brm(family = categorical(link = logit, refcat = 3),
+      career ~ 1 + career_income,
+      prior = c(prior(normal(0, 1), class = Intercept),
+                prior(normal(0, .5), class = b)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      data = d %>% filter(career != 2), 
+      file = "glm.7")
+```
+
+
+---
+```{r}
+summary(glm.7)
+```
+
+---
+
+```{r}
+
+tibble(b0     = 5.64,
+       b1     = -2.00,
+       career_income = c(1:5)) %>% 
+  mutate(logit_mu = b0 + b1 * career_income ) %>%
+  mutate(career   = 1 / (1 + exp(-logit_mu)))
+```
+
+---
+```{r}
+summary(glm.6)
+```
+
+
+
+---
+```{r}
+
+tibble(b0     = 7.77,
+       b1     = -2.99,
+       career_income = c(1:5)) %>% 
+  mutate(logit_mu = b0 + b1 * career_income ) %>%
+  mutate(career   = 1 / (1 + exp(-logit_mu)))
+```
+
+
+
+---
+### Constraining the effect to be similar across models
+
+```{r}
+glm.8 <-
+  brm(family = categorical(link = logit, refcat = 3),
+      bf(career ~ 1,
+         nlf(mu1 ~ a1 + b *career_income ),
+         nlf(mu2 ~ a2 + b *career_income),
+         a1 + a2 + b ~ 1),
+      prior = c(prior(normal(0, 1), class = b, nlpar = a1),
+                prior(normal(0, 1), class = b, nlpar = a2),
+                prior(normal(0, 0.5), class = b, nlpar = b)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      data = d,
+      file = "glm.8")
+
+```
+
+
+---
+```{r}
+summary(glm.8)
+```
+
+---
+
+```{r}
+
+tibble(b0     = 4.12,
+       b1     = -1.81,
+       career_income = c(1:5)) %>% 
+  mutate(logit_mu = b0 + b1 * career_income ) %>%
+  mutate(career   = 1 / (1 + exp(-logit_mu)))
+```
 ---
 ## Ordinal regression models
 
