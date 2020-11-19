@@ -582,7 +582,14 @@ mu1_Intercept coefficnet is -2.01. What does that mean?
 exp(-2.01)
 ```
 
+
+```{r}
+1/exp(-2.01)
+```
+
+
 ---
+### Adding a predictor
 ```{r}
 get_prior(data = d, 
           family = categorical(link = logit, refcat = 3), 
@@ -703,36 +710,38 @@ tibble(b0     = 4.12,
 ## GLMs for Counts
 Binomial, Poisson, multinomial categorical
 
-Geometric -- number of trails until an event
-Surivial models
-Mixtures like beta-binomial or Negative Binomial (gamma Poisson)
+Geometric -- number of trails until an event  
+
+Surivial models  
+
+Mixtures like beta-binomial or Negative Binomial (gamma Poisson)  
 
 ---
 ## Zero-inflated models
+.pull-left[
 Use when there are different causes for the same observation -- a mixture of DGPs. 
 
 Lots of ways to get zero counts: 
 Missed observation or the rate is low -- hard to distinguish. 
+]
 
-```{r}
+.pull-right[
+```{r, echo = FALSE}
 
 prob_drink <- 0.2  # 20% of days
 rate_work  <- 1    # average 1 manuscript per day
-
 # sample one year of production
 n <- 365
-
 # simulate days monks drink
 set.seed(365)
 drink <- rbinom(n, 1, prob_drink)
-
 # simulate manuscripts completed
 y <- (1 - drink) * rpois(n, rate_work)
 
 zips <-
   tibble(drink = factor(drink, levels = 1:0), 
          y     = y)
-  
+
 ggplot(data = zips, aes(x = y)) +
   geom_histogram(aes(fill = drink),
                  binwidth = 1, size = 1/10, color = "grey92") +
@@ -740,16 +749,21 @@ ggplot(data = zips, aes(x = y)) +
   xlab("Manuscripts completed") +
   theme(legend.position = "none")
 ```
-
+]
 
 ---
 ### ZIP Zero inflated poisson
-p = the probability of drinking (vs working). If drinking we know no manuscripts are created. If working, manuscripts still may not be created. That rate is modeled through lambda as a poisson, and a bernulli with a p 
+p = the probability of drinking (vs working). If drinking we know no manuscripts are created. If working, manuscripts still may not be created. That rate is modeled through lambda as a poisson, and a bernulli with a p  
+
 $$\operatorname{Pr} (0 | p, \lambda)  = \operatorname{Pr} (\text{drink} | p) + \operatorname{Pr} (\text{work} | p) \times \operatorname{Pr} (0 | \lambda)$$
-                                   $$= p + (1 - p) \exp (- \lambda)$$
+$$= p + (1 - p) \exp (- \lambda)$$
+
+---
+
 The probability of observing a zero is the probability that the monks didn’t drink OR the probability that the monks worked AND failed to finish anything
 
-$$\operatorname{Pr} (y | y > 0, p, \lambda) = \operatorname{Pr} (\text{drink} | p) (0) + \operatorname{Pr} (\text{work} | p) \operatorname{Pr} (y | \lambda) = (1 - p) \frac {\lambda^y \exp (- \lambda)}{y!}$$
+$$\operatorname{Pr} (y | y > 0, p, \lambda) = $$
+$$ \operatorname{Pr} (\text{drink} | p) (0) + \operatorname{Pr} (\text{work} | p) \operatorname{Pr} (y | \lambda) = (1 - p) \frac {\lambda^y \exp (- \lambda)}{y!}$$
 Since drinking monks never produce, the expression above is  the chance the monks both work (1-p), and finish y manuscripts
 
 ---
@@ -805,9 +819,9 @@ glm.9 <-
 ```
 
 ---
+### Hurdle models/zero augmented
 
-Hurdle models/zero augmented
-
+Are also mixure (two-part) models that specifies one process for zero counts and another process for positive counts. The idea is that positive counts occur once a threshold is crossed. 
 
 ---
 ## Ordinal regression models
@@ -822,7 +836,9 @@ common assumption is to treat differences as the same and model as continuous wi
 ---
 ### log cumulative odds link
 
-The cumulative probability of a value is the probability of that value or any smaller value. In the context of ordered categories, the cumulative probability of 3 is the sum of the probabilities of 3, 2, and 1
+.pull-left[ The cumulative probability of a value is the probability of that value or any smaller value. In the context of ordered categories, the cumulative probability of 3 is the sum of the probabilities of 3, 2, and 1
+
+
 
 ```{r}
 library(rethinking)
@@ -830,6 +846,9 @@ data(Trolley)
 trolley <- Trolley
 ```
 
+]
+
+.pull-right[
 ```{r, echo = FALSE}
 p2 <-
   trolley %>%
@@ -850,7 +869,7 @@ p2 <-
 
 p2
 ```
-
+]
 
 ---
 
@@ -1029,6 +1048,8 @@ Do you want to assume similar effects of your predictors across the range of you
 
 For example, predicting educational attainment. Negative peer influences may have a large effect at graduating HS but little effect compared to whether or not someone goes to graduate school. 
 
+
+
 ---
 
 ```{r}
@@ -1037,8 +1058,15 @@ conditional_effects(glm.11, categorical =TRUE)
 
 
 ---
-## Categorical predictors
+## Ordinal predictors
 
+Cant you just model ordinal predictors as a series of dummy variables? 
+
+AKA monotonic effects
+
+https://cran.r-project.org/web/packages/brms/vignettes/brms_monotonic.html
+
+https://psyarxiv.com/9qkhj/
 
 
 

@@ -8583,7 +8583,19 @@ exp(-2.01)
 ## [1] 0.1339887
 ```
 
+
+
+```r
+1/exp(-2.01)
+```
+
+```
+## [1] 7.463317
+```
+
+
 ---
+### Adding a predictor
 
 ```r
 get_prior(data = d, 
@@ -8836,55 +8848,38 @@ tibble(b0     = 4.12,
 ## GLMs for Counts
 Binomial, Poisson, multinomial categorical
 
-Geometric -- number of trails until an event
-Surivial models
-Mixtures like beta-binomial or Negative Binomial (gamma Poisson)
+Geometric -- number of trails until an event  
+
+Surivial models  
+
+Mixtures like beta-binomial or Negative Binomial (gamma Poisson)  
 
 ---
 ## Zero-inflated models
+.pull-left[
 Use when there are different causes for the same observation -- a mixture of DGPs. 
 
 Lots of ways to get zero counts: 
 Missed observation or the rate is low -- hard to distinguish. 
+]
 
-
-```r
-prob_drink &lt;- 0.2  # 20% of days
-rate_work  &lt;- 1    # average 1 manuscript per day
-
-# sample one year of production
-n &lt;- 365
-
-# simulate days monks drink
-set.seed(365)
-drink &lt;- rbinom(n, 1, prob_drink)
-
-# simulate manuscripts completed
-y &lt;- (1 - drink) * rpois(n, rate_work)
-
-zips &lt;-
-  tibble(drink = factor(drink, levels = 1:0), 
-         y     = y)
-  
-ggplot(data = zips, aes(x = y)) +
-  geom_histogram(aes(fill = drink),
-                 binwidth = 1, size = 1/10, color = "grey92") +
-  scale_fill_manual(values = 1:2) +
-  xlab("Manuscripts completed") +
-  theme(legend.position = "none")
-```
-
-![](glm-7_files/figure-html/unnamed-chunk-44-1.png)&lt;!-- --&gt;
-
+.pull-right[
+![](glm-7_files/figure-html/unnamed-chunk-45-1.png)&lt;!-- --&gt;
+]
 
 ---
 ### ZIP Zero inflated poisson
-p = the probability of drinking (vs working). If drinking we know no manuscripts are created. If working, manuscripts still may not be created. That rate is modeled through lambda as a poisson, and a bernulli with a p 
+p = the probability of drinking (vs working). If drinking we know no manuscripts are created. If working, manuscripts still may not be created. That rate is modeled through lambda as a poisson, and a bernulli with a p  
+
 `$$\operatorname{Pr} (0 | p, \lambda)  = \operatorname{Pr} (\text{drink} | p) + \operatorname{Pr} (\text{work} | p) \times \operatorname{Pr} (0 | \lambda)$$`
-                                   `$$= p + (1 - p) \exp (- \lambda)$$`
+`$$= p + (1 - p) \exp (- \lambda)$$`
+
+---
+
 The probability of observing a zero is the probability that the monks didn’t drink OR the probability that the monks worked AND failed to finish anything
 
-`$$\operatorname{Pr} (y | y &gt; 0, p, \lambda) = \operatorname{Pr} (\text{drink} | p) (0) + \operatorname{Pr} (\text{work} | p) \operatorname{Pr} (y | \lambda) = (1 - p) \frac {\lambda^y \exp (- \lambda)}{y!}$$`
+$$\operatorname{Pr} (y | y &gt; 0, p, \lambda) = $$
+$$ \operatorname{Pr} (\text{drink} | p) (0) + \operatorname{Pr} (\text{work} | p) \operatorname{Pr} (y | \lambda) = (1 - p) \frac {\lambda^y \exp (- \lambda)}{y!}$$
 Since drinking monks never produce, the expression above is  the chance the monks both work (1-p), and finish y manuscripts
 
 ---
@@ -8906,7 +8901,7 @@ glm.9 &lt;-
       file = "glm.9")
 ```
 
-![](glm-7_files/figure-html/unnamed-chunk-46-1.png)&lt;!-- --&gt;
+![](glm-7_files/figure-html/unnamed-chunk-47-1.png)&lt;!-- --&gt;
 
 ---
 Noe: When there are no predictors for zi, the brms default is to use the identity link. With predictors it will use logit, so you will have to use what you know about logits to correctly interpret. 
@@ -8953,9 +8948,9 @@ glm.9 &lt;-
 ```
 
 ---
+### Hurdle models/zero augmented
 
-Hurdle models/zero augmented
-
+Are also mixure (two-part) models that specifies one process for zero counts and another process for positive counts. The idea is that positive counts occur once a threshold is crossed. 
 
 ---
 ## Ordinal regression models
@@ -8970,7 +8965,9 @@ common assumption is to treat differences as the same and model as continuous wi
 ---
 ### log cumulative odds link
 
-The cumulative probability of a value is the probability of that value or any smaller value. In the context of ordered categories, the cumulative probability of 3 is the sum of the probabilities of 3, 2, and 1
+.pull-left[ The cumulative probability of a value is the probability of that value or any smaller value. In the context of ordered categories, the cumulative probability of 3 is the sum of the probabilities of 3, 2, and 1
+
+
 
 
 ```r
@@ -8979,8 +8976,11 @@ data(Trolley)
 trolley &lt;- Trolley
 ```
 
-![](glm-7_files/figure-html/unnamed-chunk-50-1.png)&lt;!-- --&gt;
+]
 
+.pull-right[
+![](glm-7_files/figure-html/unnamed-chunk-51-1.png)&lt;!-- --&gt;
+]
 
 ---
 
@@ -9015,7 +9015,7 @@ trolley %&gt;%
 
 ---
 
-![](glm-7_files/figure-html/unnamed-chunk-52-1.png)&lt;!-- --&gt;
+![](glm-7_files/figure-html/unnamed-chunk-53-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -9200,7 +9200,7 @@ posterior_samples(glm.11) %&gt;%
   coord_cartesian(xlim = c(-1.4, 0))
 ```
 
-![](glm-7_files/figure-html/unnamed-chunk-59-1.png)&lt;!-- --&gt;
+![](glm-7_files/figure-html/unnamed-chunk-60-1.png)&lt;!-- --&gt;
 
 ---
 ### Unequal variances
@@ -9285,6 +9285,8 @@ Do you want to assume similar effects of your predictors across the range of you
 
 For example, predicting educational attainment. Negative peer influences may have a large effect at graduating HS but little effect compared to whether or not someone goes to graduate school. 
 
+
+
 ---
 
 
@@ -9297,12 +9299,19 @@ conditional_effects(glm.11, categorical =TRUE)
 ## Please use argument 'conditions' instead.
 ```
 
-![](glm-7_files/figure-html/unnamed-chunk-62-1.png)&lt;!-- --&gt;![](glm-7_files/figure-html/unnamed-chunk-62-2.png)&lt;!-- --&gt;![](glm-7_files/figure-html/unnamed-chunk-62-3.png)&lt;!-- --&gt;
+![](glm-7_files/figure-html/unnamed-chunk-63-1.png)&lt;!-- --&gt;![](glm-7_files/figure-html/unnamed-chunk-63-2.png)&lt;!-- --&gt;![](glm-7_files/figure-html/unnamed-chunk-63-3.png)&lt;!-- --&gt;
 
 
 ---
-## Categorical predictors
+## Ordinal predictors
 
+Cant you just model ordinal predictors as a series of dummy variables? 
+
+AKA monotonic effects
+
+https://cran.r-project.org/web/packages/brms/vignettes/brms_monotonic.html
+
+https://psyarxiv.com/9qkhj/
 
 
 
