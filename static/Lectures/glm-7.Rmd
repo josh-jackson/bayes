@@ -500,7 +500,7 @@ Uses a multi-nomial distribution, which is a parent of the binomial distribution
 Need to construct K - 1 linear models for K events, similar to constructing number of dummy variables
 
 ---
-## Example from SR
+## Multinomial example from SR
 Career choice predicted by salary
 ```{r, echo = FALSE, message = FALSE}
 library(rethinking)
@@ -698,12 +698,347 @@ tibble(b0     = 4.12,
   mutate(logit_mu = b0 + b1 * career_income ) %>%
   mutate(career   = 1 / (1 + exp(-logit_mu)))
 ```
+
+---
+## GLMs for Counts
+Binomial, Poisson, multinomial categorical
+
+Geometric -- number of trails until an event
+Surivial models
+Mixtures like beta-binomial or Negative Binomial (gamma Poisson)
+
+---
+## Zero-inflated models
+Use when there are different causes for the same observation -- a mixture of DGPs. 
+
+Lots of ways to get zero counts: 
+Missed observation or the rate is low -- hard to distinguish. 
+
+```{r}
+
+prob_drink <- 0.2  # 20% of days
+rate_work  <- 1    # average 1 manuscript per day
+
+# sample one year of production
+n <- 365
+
+# simulate days monks drink
+set.seed(365)
+drink <- rbinom(n, 1, prob_drink)
+
+# simulate manuscripts completed
+y <- (1 - drink) * rpois(n, rate_work)
+
+zips <-
+  tibble(drink = factor(drink, levels = 1:0), 
+         y     = y)
+  
+ggplot(data = zips, aes(x = y)) +
+  geom_histogram(aes(fill = drink),
+                 binwidth = 1, size = 1/10, color = "grey92") +
+  scale_fill_manual(values = 1:2) +
+  xlab("Manuscripts completed") +
+  theme(legend.position = "none")
+```
+
+
+---
+### ZIP Zero inflated poisson
+p = the probability of drinking (vs working). If drinking we know no manuscripts are created. If working, manuscripts still may not be created. That rate is modeled through lambda as a poisson, and a bernulli with a p 
+$$\operatorname{Pr} (0 | p, \lambda)  = \operatorname{Pr} (\text{drink} | p) + \operatorname{Pr} (\text{work} | p) \times \operatorname{Pr} (0 | \lambda)$$
+                                   $$= p + (1 - p) \exp (- \lambda)$$
+The probability of observing a zero is the probability that the monks didn’t drink OR the probability that the monks worked AND failed to finish anything
+
+$$\operatorname{Pr} (y | y > 0, p, \lambda) = \operatorname{Pr} (\text{drink} | p) (0) + \operatorname{Pr} (\text{work} | p) \operatorname{Pr} (y | \lambda) = (1 - p) \frac {\lambda^y \exp (- \lambda)}{y!}$$
+Since drinking monks never produce, the expression above is  the chance the monks both work (1-p), and finish y manuscripts
+
+---
+
+$$y_i  \sim \operatorname{ZIPoisson} (p_i, \lambda_i)$$
+$$\operatorname{logit} (p_i)      = \alpha_p + \beta_p x_i$$
+$$\log (\lambda_i)  = \alpha_\lambda + \beta_\lambda x_i$$
+---
+
+```{r}
+glm.9 <- 
+  brm(family = zero_inflated_poisson,
+      y ~ 1,
+      prior = c(prior(normal(-1.5, 1), class = Intercept),
+                prior(beta(2, 6), class = zi)),  # the brms default is beta(1, 1)
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = zips,
+      file = "glm.9")
+```
+
+```{r, echo = FALSE}
+zip.priors <-
+  c(prior(beta(1, 1), class = zi),
+    prior(beta(2, 6), class = zi))
+zip.priors %>% 
+  parse_dist(prior) %>%
+  ggplot(aes(y = prior, dist = .dist, args = .args, fill = prior)) +
+  stat_dist_halfeye(.width = .95) +
+  scale_x_continuous("zi", breaks = c(0, .5, 1)) +
+  ylab(NULL) +
+  theme(legend.position = "none")
+```
+
+---
+Noe: When there are no predictors for zi, the brms default is to use the identity link. With predictors it will use logit, so you will have to use what you know about logits to correctly interpret. 
+```{r}
+summary(glm.9)
+```
+
+
+---
+Adding predictors. Do not necessarily need to have the same predictors for each process. One can predict the excess zeros, the other can predict the counts. 
+```{r, eval = FALSE}
+glm.9 <- 
+  brm(family = zero_inflated_poisson,
+      y ~ 1 + b, 
+      zi ~ 1 + c,
+      prior = c(prior(normal(-1.5, 1), class = Intercept),
+                prior(beta(2, 6), class = zi)),  # the brms default is beta(1, 1)
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      data = zips,
+      file = "glm.9")
+```
+
+---
+
+Hurdle models/zero augmented
+
+
 ---
 ## Ordinal regression models
 
-https://journals.sagepub.com/doi/pdf/10.1177/2515245918823199
+likert scales
+never, sometimes, often
+no degree, hs degree, some college, college degree
+
+discrete, defined order, distance between categories is unknown
+
+common assumption is to treat differences as the same and model as continuous with guassian 
+---
+### log cumulative odds link
+
+The cumulative probability of a value is the probability of that value or any smaller value. In the context of ordered categories, the cumulative probability of 3 is the sum of the probabilities of 3, 2, and 1
+
+```{r}
+library(rethinking)
+data(Trolley)
+trolley <- Trolley
+```
+
+```{r, echo = FALSE}
+p2 <-
+  trolley %>%
+  count(response) %>%
+  mutate(pr_k     = n / nrow(trolley),
+         cum_pr_k = cumsum(pr_k)) %>% 
+  ggplot(aes(x = response, y = cum_pr_k, 
+             fill = response)) +
+  geom_line() +
+  geom_point(shape = 21, color = "grey92", 
+             size = 2.5, stroke = 1) +
+  scale_x_continuous(breaks = 1:7) +
+  scale_y_continuous("cumulative proportion", 
+                     breaks = c(0, .5, 1), limits = c(0, 1)) +
+  theme(axis.ticks = element_blank(),
+        axis.title.y = element_text(angle = 90),
+        legend.position = "none")
+
+p2
+```
+
 
 ---
 
-test test
+We will have intercepts for each response option, each on the log-cumulative-odds scale. They will be interpreted as the cumulative probability of each outcome.
+
+ $\alpha_k$ is an “intercept” unique to each possible outcome value k. We estimating the probability of some response yi being equal or less than to some category. E.g., the cumulative probability of getting a 5? It is the proportion of values that are 5 or less.  
+
+$$\log \frac{\operatorname{Pr}(y_i \leq k)}{1 - \operatorname{Pr}(y_i \leq k)} = \alpha_k$$
+
+---
+
+```{r}
+logit <- function(x) log(x / (1 - x)) 
+trolley %>%
+  count(response) %>%
+  mutate(pr_k     = n / nrow(trolley),
+         cum_pr_k = cumsum(n / nrow(trolley))) %>% 
+  mutate(alpha = logit(cum_pr_k) %>% round(digits = 2))
+```
+
+---
+
+```{r, echo = FALSE}
+p1 <-
+  trolley %>% 
+  ggplot(aes(x = response, fill = ..x..)) +
+  geom_histogram(binwidth = 1/4, size = 0) +
+  # scale_fill_gradient(low = "grey",
+  #                     high = "black") +
+  scale_x_continuous(breaks = 1:7) +
+  theme(axis.ticks = element_blank(),
+        axis.title.y = element_text(angle = 90),
+        legend.position = "none")
+
+
+p3 <-
+  trolley %>%
+  count(response) %>%
+  mutate(cum_pr_k = cumsum(n / nrow(trolley))) %>% 
+  filter(response < 7) %>% 
+  ggplot(aes(x = response, y = logit(cum_pr_k), fill = response)) +
+  geom_line() +
+  geom_point(shape = 21, colour = "grey92", 
+             size = 2.5, stroke = 1) +
+  scale_x_continuous(breaks = 1:7, limits = c(1, 7)) +
+  ylab("log-cumulative-odds") +
+  theme(axis.ticks = element_blank(),
+        axis.title.y = element_text(angle = 90), 
+        legend.position = "none")
+
+(p1 | p2 | p3) 
+
+```
+
+---
+
+$$\text{response}_i  \sim \operatorname{Categorical} (\mathbf p) $$
+$$\text{logit}(p_k)  = \alpha_k - \phi $$ 
+$$\phi               = 0 $$
+$$\alpha_k           \sim \operatorname{Normal}(0, 1.5)$$
+
+
+Where $\phi$ is a stand in for regression terms. Right now it is an intercept only model. 
+$\alpha_k$ are our k intercepts, make up for #categories minus 1. 
+
+
+---
+
+```{r}
+glm.10 <- 
+  brm(family = cumulative,
+      response ~ 1,
+      prior(normal(0, 1.5), class = Intercept),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      data = trolley, 
+      file = "glm.10")
+```
+
+
+---
+
+```{r}
+summary(glm.10)
+```
+
+---
+
+```{r}
+glm.10 %>% 
+gather_draws(b_Intercept[cut]) %>% 
+  mutate(.value = inv_logit_scaled(.value)) %>% 
+  group_by(cut) %>% 
+  summarise(mean = mean(.value),
+            sd   = sd(.value),
+            ll   = quantile(.value, probs = .025),
+            ul   = quantile(.value, probs = .975))
+```
+
+---
+
+Quicker way via brms functions to get it but note that the standard error isn't in the probability metric. 
+```{r}
+glm.10 %>% 
+  fixef() %>% 
+  inv_logit_scaled()
+```
+
+---
+### adding predictors
+
+$$ \text{response}_i  \sim \operatorname{Categorical} (\mathbf p) $$
+$$ \text{logit}(p_k)      = \alpha_k - \phi_i $$
+$$  \phi_i = \beta_1 \text{action}_i + \beta_2 \text{contact}_i + \beta_3 \text{intention}_i + \beta_4 (\text{action}_i \times \text{intention}_i) + \beta_5 (\text{contact}_i \times \text{intention}_i) $$
+$$\alpha_k               \sim \operatorname{Normal}(0, 1.5) $$
+$$\beta_1, ..., \beta_5  \sim \operatorname{Normal}(0, 0.5) $$
+
+---
+
+```{r}
+glm.11 <- 
+  brm(family = cumulative,
+      response ~ 1 + action + contact + intention + intention:action + intention:contact,
+      prior = c(prior(normal(0, 1.5), class = Intercept),
+                prior(normal(0, 0.5), class = b)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      data = trolley,
+      file = "glm.11")
+```
+
+---
+
+```{r}
+summary(glm.11)
+```
+
+---
+```{r}
+posterior_samples(glm.11) %>% 
+  select(b_action:`b_contact:intention`) %>% 
+  pivot_longer(everything()) %>% 
+  ggplot(aes(x = value, y = name)) +
+  geom_vline(xintercept = 0, alpha = 1/5, linetype = 3) +
+  stat_gradientinterval(.width = .5, size = 1, point_size = 3/2, shape = 21) +
+  scale_x_continuous("marginal posterior", breaks = -5:0 / 4) +
+  coord_cartesian(xlim = c(-1.4, 0))
+```
+
+---
+### Unequal variances
+
+The parameter related to latent variances is called disc (short for discrimination). 
+
+```{r}
+glm.12 <- 
+  brm(family = cumulative,
+      bf(response ~ 1 + action + contact + intention + intention:action + intention:contact) +
+      lf(disc ~ 0 + action + contact + intention + intention:action + intention:contact, cmc = FALSE),
+      prior = c(prior(normal(0, 1.5), class = Intercept),
+                prior(normal(0, 0.5), class = b)),
+      iter = 2000, warmup = 1000, cores = 4, chains = 4,
+      data = trolley,
+      file = "glm.12")
+```
+
+---
+```{r}
+summary(glm.12)
+```
+
+
+
+---
+## Adjacent category /category specific models
+
+Do you want to assume similar effects of your predictors across the range of your DV? Or does the effect occur only as certain differences between the categories? 
+
+For example, predicting educational attainment. Negative peer influences may have a large effect at graduating HS but little effect compared to whether or not someone goes to graduate school. 
+
+---
+
+```{r}
+conditional_effects(glm.11, categorical =TRUE)
+```
+
+
+---
+## Categorical predictors
+
+
+
 

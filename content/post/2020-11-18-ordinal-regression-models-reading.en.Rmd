@@ -1,0 +1,21 @@
+---
+title: ordinal regression models reading
+author: ''
+date: '2020-11-18'
+slug: ordinal-regression-models-reading
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-11-18T15:28:36-06:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+https://journals.sagepub.com/doi/pdf/10.1177/2515245918823199
