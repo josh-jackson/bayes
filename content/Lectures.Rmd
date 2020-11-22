@@ -5,6 +5,9 @@ date: "10/15/2020"
 output: html_document
 ---
 
+## 8. MLM
+[MLM](/Lectures/mlm-8.html)
+
 ## 7. GLM
 [GLM](/Lectures/glm-7.html)
 

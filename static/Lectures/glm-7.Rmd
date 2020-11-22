@@ -1018,6 +1018,76 @@ posterior_samples(glm.11) %>%
 ```
 
 ---
+
+
+```{r}
+conditional_effects(glm.11, categorical =TRUE)
+```
+
+---
+
+```{r, echo = FALSE}
+nd <- 
+  trolley %>% 
+  distinct(action, contact, intention) %>% 
+  mutate(combination = str_c(action, contact, intention, sep = "_"))
+
+fit.11 <-
+  fitted(glm.11,
+         newdata = nd,
+         summary = F)
+
+fit.11 <-
+  rbind(fit.11[, , 1],
+        fit.11[, , 2],
+        fit.11[, , 3],
+        fit.11[, , 4],
+        fit.11[, , 5],
+        fit.11[, , 6],
+        fit.11[, , 7]) %>% 
+  data.frame() %>% 
+  set_names(pull(nd, combination)) %>% 
+  mutate(response = rep(1:7, each = n() / 7),
+         iter     = rep(1:4000, times = 7)) %>% 
+  pivot_longer(-c(iter, response),
+               names_to = c("action", "contact", "intention"),
+               names_sep = "_",
+               values_to = "pk") %>% 
+  mutate(intention = intention %>% as.integer())
+
+levels <- c("action=0, contact=0", "action=1, contact=0", "action=0, contact=1")
+
+  fit.11 %>% 
+  filter(response < 7) %>% 
+  mutate(facet = factor(str_c("action=", action, ", contact=", contact),
+                        levels = levels)) %>% 
+  group_by(iter, facet, intention) %>% 
+  arrange(iter, facet, intention, response) %>% 
+  mutate(probability = cumsum(pk)) %>% 
+  ungroup() %>% 
+  nest(data = -iter) %>% 
+  sample_n(size = 50) %>%
+  unnest(data) %>% 
+
+  ggplot(aes(x = intention, y = probability)) +
+  geom_line(aes(group = interaction(iter, response), color = probability),
+            alpha = 1/10) +
+  geom_point(data = trolley %>%  
+               group_by(intention, contact, action) %>% 
+               count(response) %>% 
+               mutate(probability = cumsum(n / sum(n)),
+                      facet = factor(str_c("action=", action, ", contact=", contact),
+                                     levels = levels)) %>% 
+               filter(response < 7),) +
+  scale_x_continuous("intention", breaks = 0:1) +
+  scale_y_continuous(breaks = c(0, .5, 1), limits = c(0, 1)) +
+  theme(legend.position = "none") +
+  facet_wrap(~facet)
+```
+
+
+
+---
 ### Unequal variances
 
 The parameter related to latent variances is called disc (short for discrimination). 
@@ -1050,11 +1120,7 @@ For example, predicting educational attainment. Negative peer influences may hav
 
 
 
----
 
-```{r}
-conditional_effects(glm.11, categorical =TRUE)
-```
 
 
 ---

@@ -9203,6 +9203,27 @@ posterior_samples(glm.11) %&gt;%
 ![](glm-7_files/figure-html/unnamed-chunk-60-1.png)&lt;!-- --&gt;
 
 ---
+
+
+
+```r
+conditional_effects(glm.11, categorical =TRUE)
+```
+
+```
+## Warning: Interactions cannot be plotted directly if 'categorical' is TRUE.
+## Please use argument 'conditions' instead.
+```
+
+![](glm-7_files/figure-html/unnamed-chunk-61-1.png)&lt;!-- --&gt;![](glm-7_files/figure-html/unnamed-chunk-61-2.png)&lt;!-- --&gt;![](glm-7_files/figure-html/unnamed-chunk-61-3.png)&lt;!-- --&gt;
+
+---
+
+![](glm-7_files/figure-html/unnamed-chunk-62-1.png)&lt;!-- --&gt;
+
+
+
+---
 ### Unequal variances
 
 The parameter related to latent variances is called disc (short for discrimination). 
@@ -9287,19 +9308,7 @@ For example, predicting educational attainment. Negative peer influences may hav
 
 
 
----
 
-
-```r
-conditional_effects(glm.11, categorical =TRUE)
-```
-
-```
-## Warning: Interactions cannot be plotted directly if 'categorical' is TRUE.
-## Please use argument 'conditions' instead.
-```
-
-![](glm-7_files/figure-html/unnamed-chunk-63-1.png)&lt;!-- --&gt;![](glm-7_files/figure-html/unnamed-chunk-63-2.png)&lt;!-- --&gt;![](glm-7_files/figure-html/unnamed-chunk-63-3.png)&lt;!-- --&gt;
 
 
 ---
