@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>MLM</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Josh Jackson" />
+    <script src="mlm-8_files/header-attrs-2.5/header-attrs.js"></script>
+    <link href="mlm-8_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+    <script src="mlm-8_files/anchor-sections-1.0/anchor-sections.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+&lt;style type="text/css"&gt;
+.remark-slide-content {
+    font-size: 30px;
+    padding: 1em 4em 1em 4em;
+}
+
+.small{ 
+  font-size: 80%}
+.tiny{
+  font-size: 65%}
+&lt;/style&gt;
+
+## This time
+
+MLM bayes Style
+
+---
+## MLM review 
+
+`$${Y}_{i} = b_{0} + b_{1}X_{i} +  ... +\epsilon_{i}$$`
+
+`$${Y}_{ij} = b_{0} + b_{1}X_{ij} + ... +\epsilon_{i}$$`
+Where j refers to some clustering or grouping variable and i refers to the observations within j
+
+
+
+
+
+```r
+library(tidyverse)
+sample_n_of &lt;- function(data, size, ...) {
+  dots &lt;- quos(...)
+  
+  group_ids &lt;- data %&gt;% 
+    group_by(!!! dots) %&gt;% 
+    group_indices()
+  
+  sampled_groups &lt;- sample(unique(group_ids), size)
+  data %&gt;% 
+    filter(group_ids %in% sampled_groups)
+}
+```
+
+
+![](mlm-8_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+
+
+---
+### Empty model
+
+Level 1
+`$${Y}_{ij} = \beta_{0j}  + \varepsilon_{ij}$$`
+
+Level 2
+`$${\beta}_{0j} = \gamma_{00} + U_{0j}$$`
+
+`$${U}_{0j} \sim \mathcal{N}(0, \tau_{00}^{2})$$`
+`$${e}_{ij} \sim \mathcal{N}(0, \sigma^{2})$$`
+
+---
+
+  `$${Y}_{ij} = \gamma_{00} + U_{0j}  + \varepsilon_{ij}$$`
+![](mlm-8_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+Akin to ANOVA if we treat `\(U_{0j}\)` as between subjects variance &amp; `\(\varepsilon_{ij}\)` as within subjects variance
+
+---
+## Random and fixed effects
+
+Level 1:
+`$${Y}_{ij} = \beta_{0j}  + \varepsilon_{ij}$$`
+
+Level 2:
+`$${\beta}_{0j} = \gamma_{00} + U_{0j}$$`
+Combined:
+`$${Y}_{ij} = \gamma_{00} + U_{0j}  + \varepsilon_{ij}$$`
+
+`\(U_{0j}\)` is considered a random effect, as it is varies across our grouping
+
+`\(\gamma_{00}\)` is considered a fixed effect, as it is what is fixed (average) across our grouping
+
+
+---
+## Level 1 predictors
+
+Level 1 is where you have data that repeats within your grouping or clustering data. Is your cluster classrooms? Then students are level 1. Is your cluster people? Then observations are level 1. 
+
+$$ {Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij} $$
+Notice on the subscript of X that these predictors vary across group (j) and within the group (i) So if your grouping (j) is people, then i refers to different observations. 
+
+---
+
+Level 2 takes the parameters at level 1 and decomposes them into a fixed component ($\gamma$) that reflects the average and, if desired, the individual deviations around that fixed effect (U).
+
+level 1
+`$${Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij}$$`
+
+level 2
+`$${\beta}_{0j} = \gamma_{00} + U_{0j}$$`  
+`$${\beta}_{1j} = \gamma_{10}$$`  
+
+---
+
+By including random effects (U) you making a claim that every group/cluster does *not* have the same `\(\gamma\)` ie intercept/regression coefficient. 
+
+An advantage of MLM is to separate more "buckets" of variance that are unexplained. What was originally `\(e_ij\)` is now ( `\(U_0\)` + `\(U_1\)` + `\(e_ij\)` ). This additional decomposition of variance is beneficial because you are separating signal from noise, translating what was noise `\(e_ij\)` into meaningful signal ( `\(U_0\)` + `\(U_1\)` ). 
+
+---
+
+Level 1:
+ 
+$${Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij} $$
+Level 2:  
+`$${\beta}_{0j} = \gamma_{00} + U_{0j}$$`
+
+
+`$${\beta}_{1j} = \gamma_{10} + U_{1j}$$`  
+
+Combined
+`$${Y}_{ij} = \gamma_{00} + \gamma_{10}(X_{ij})+ U_{0j} + U_{1j}(X_{ij}) + \varepsilon_{ij}$$`
+
+Can think of a persons score divided up into a fixed component as well as the random component. 
+
+`$${\beta}_{16} = \gamma_{10} \pm U_{16}$$` 
+
+
+---
+## Error structure
+These random effects are likely related to one another. The residual structure, where the random effects are again normally distributed with a mean of zero, but this time one must also consider covariance in addition to variance. 
+
+`$$\begin{pmatrix} {U}_{0j} \\ {U}_{1j} \end{pmatrix}
+\sim \mathcal{N} \begin{pmatrix} 
+  0,      \tau_{00}^{2} &amp; \tau_{01}\\ 
+  0,  \tau_{01} &amp; \tau_{10}^{2}
+\end{pmatrix}$$`
+
+Note that it is possible to have a different error structure
+
+$$ {e}_{ij} \sim \mathcal{N}(0, \sigma^{2})  $$
+
+---
+## Multiple level 1 predictors
+
+Level 1:
+ 
+$${Y}_{ijk} = \beta_{0j}  + \beta_{1j}X_{ij} + \beta_{2j}Z_{ik} + \varepsilon_{ijk} $$
+Level 2:  
+`$${\beta}_{0j} = \gamma_{00} + U_{0j}$$`
+
+`$${\beta}_{1j} = \gamma_{10} + U_{1j}$$` 
+`$${\beta}_{2k} = \gamma_{20} + U_{2k}$$`
+
+---
+## Level 2 predictors
+
+Level 1: 
+`$${Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij}$$`
+Level 2: 
+`$${\beta}_{0j} = \gamma_{00} + \gamma_{01}G_{j} +   U_{0j}$$`  
+`$${\beta}_{1j} = \gamma_{10} + U_{1j}$$`  
+
+
+Combined
+  $$ {Y}_{ij} = \gamma_{00} + \gamma_{01}G_{j}+  \gamma_{10} (X_{ij}) + U_{0j} + U_{1j}(Time_{ij}) + \varepsilon_{ij} $$
+  `$${Y}_{ij} = [\gamma_{00} + \gamma_{01}G_{j}+ U_{0j}]  + [(\gamma_{10}  + U_{1j})(Time_{ij})] + \varepsilon_{ij}$$`
+
+---
+## Cross level interactions
+
+level 1: 
+$$ {Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij} $$
+Level 2: 
+$$ {\beta}_{0j} = \gamma_{00} + \gamma_{01}G_{j} +   U_{0j}$$  
+$$ {\beta}_{1j} = \gamma_{10} + \gamma_{11}G_{j} + U_{1j} $$  
+
+
+Combined
+  $$ {Y}_{ij} = \gamma_{00} + \gamma_{01}G_{j}+  \gamma_{10} (X_{ij}) + \gamma_{11}(G_{j}*Time_{ij}) +  U_{0j} + U_{1j}(Time_{ij}) + \varepsilon_{ij} $$
+
+`$${Y}_{ij} = [\gamma_{00} + U_{0j} +\gamma_{01}G_{j}] + [(\gamma_{10}  + \gamma_{11}G_{j}+  U_{1j})(Time_{ij})] + \varepsilon_{ij}$$`
+
+---
+## Centering
+
+As a rule, each level-1 predictor is usually really 2 predictor variables. It is important to separate within-group from between group variance. Failing to do so will "smush" between and within variance to level 1.
+
+Example: student SES at level 1, with schools at level 2. 
+Some kids have more money than other kids in their school
+Some schools have more money than other schools
+
+Fortunately it is easy to separate this
+
+---
+
+Level 1: 
+`$${Y}_{ij} = \beta_{0j}  + \beta_{1j}(X_{ij}- \bar{X_j}) + \varepsilon_{ij}$$`
+
+Level 2: 
+`$${\beta}_{0j} = \gamma_{00} + \bar{X_j} +   U_{0j}$$` 
+
+`$${\beta}_{1j} = \gamma_{10} + \bar{X_j} + U_{1j}$$` 
+
+---
+## MLM as default and make it maximum
+
+If you have data like this you should analyze like this! If you don't, then you are losing information (GEE being a potential exception).
+
+The question often is about which random effects to fit. There are multiple opinions, but mine is to start maximum, and then work downward if necessary/consistent with theory. It doesn't really hurt to include them, especially within Bayes! 
+
+---
+## Partial pooling/shrinkage
+
+We treat our group variable as coming from a population. All groups are alike (because they are from the same population), but different in their own way. Because of this it is helpful to use information from other groups to help make predictions. 
+
+We do this in standard regression where we make predictions based on values not only using data from X but from the whole dataset. An similar analogy for MLM is running a regression for each group.
+
+
+---
+## priors for priors
+
+Also known as hyperpriors
+
+$$\text{y}_{ij}  \sim \operatorname{Normal}(\mu_i, \sigma_i) $$
+`$$\mu_i  = \beta_{0[i]}$$` 
+
+`$$\beta_{0[j]} \sim \operatorname{Normal}({\bar \mu},  \sigma)$$`
+`$${\bar \mu}  \sim {\operatorname{Normal}(0, 1.5)}$$`
+`$$\sigma \sim {\operatorname{Exponential}(1)}$$`
+
+---
+
+
+```r
+library(brms)
+```
+
+```
+## Loading required package: Rcpp
+```
+
+```
+## Loading 'brms' package (version 2.13.5). Useful instructions
+## can be found by typing help('brms'). A more detailed introduction
+## to the package is available through vignette('brms_overview').
+```
+
+```
+## 
+## Attaching package: 'brms'
+```
+
+```
+## The following objects are masked from 'package:tidybayes':
+## 
+##     dstudent_t, pstudent_t, qstudent_t, rstudent_t
+```
+
+```
+## The following object is masked from 'package:stats':
+## 
+##     ar
+```
+
+```r
+mlm.1 &lt;- 
+  brm(family = gaussian,
+      CON ~ 1 + (1 | ID),
+      prior = c(prior(normal(0, 1.5), class = Intercept),
+                prior(normal(0, 1.5), class = sd), 
+                prior(exponential(1), class = sigma)),
+      iter = 5000, warmup = 1000, chains = 4, cores = 4,
+      sample_prior = "yes",
+      data = mlm, 
+      file = "mlm.1")
+```
+
+---
+
+
+```r
+summary(mlm.1)
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: CON ~ 1 + (1 | ID) 
+##    Data: mlm (Number of observations: 225) 
+## Samples: 4 chains, each with iter = 5000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 16000
+## 
+## Group-Level Effects: 
+## ~ID (Number of levels: 91) 
+##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sd(Intercept)     0.06      0.01     0.05     0.07 1.00     5205     8457
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept     0.19      0.01     0.18     0.20 1.00     8238    10695
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     0.05      0.00     0.04     0.05 1.00     9478    11175
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+
+
+
+---
+## Random slopes
+
+`$$y_i \sim \text{Normal}(\mu, \sigma)$$` 
+`$$\mu_i = \beta_{0,\text{pid}} + \beta_{1, \text{pid}}x_i$$`
+`$$\begin{bmatrix}
+\beta_{0,\text{pid}}
+\beta_{1, \text{pid}}
+\end{bmatrix}`
+\sim \text{MVNormal}\bigg(
+`\begin{bmatrix}
+\beta_0 \\
+\beta_1
+\end{bmatrix}`
+, \Sigma
+\bigg)$$`
+
+`$$\Sigma = 
+\left(\begin{array}{cc}
+\sigma_{\beta_0}&amp;0\\
+0&amp;\sigma_{\beta_1}
+\end{array}\right)\Omega
+\left(\begin{array}{cc}
+\sigma_{\beta_0}&amp;0\\
+0&amp;\sigma_{\beta_1}
+\end{array}\right)$$`
+
+`$$\beta_0 \sim \text{Normal}(0, 1)$$`
+`$$\beta_1 \sim \text{Normal}(0, 1)$$`
+`$$\sigma_{\beta_0} \sim \text{Exponential}(1)$$`
+`$$\sigma_{\beta_1} \sim \text{Exponential}(1)$$`
+`$$\sigma \sim \text{Exponential}(1)$$`
+`$$\Omega \sim \text{LKJcorr(2)}$$`
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

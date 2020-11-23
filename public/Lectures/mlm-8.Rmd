@@ -56,10 +56,14 @@ $${Y}_{ij} = b_{0} + b_{1}X_{ij} + ... +\epsilon_{i}$$
 Where j refers to some clustering or grouping variable and i refers to the observations within j
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
-mlm <- "https://raw.githubusercontent.com/josh-jackson/bayes/master/mlm.csv"
+data <- "https://raw.githubusercontent.com/josh-jackson/bayes/master/mlm.csv"
+
+mlm <- read.csv(data) 
+
 ```
 
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+```{r}
 library(tidyverse)
 sample_n_of <- function(data, size, ...) {
   dots <- quos(...)
@@ -69,10 +73,13 @@ sample_n_of <- function(data, size, ...) {
     group_indices()
   
   sampled_groups <- sample(unique(group_ids), size)
-  
   data %>% 
     filter(group_ids %in% sampled_groups)
 }
+```
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 
 set.seed(114)
 mlm %>%
@@ -272,12 +279,13 @@ $$\sigma \sim {\operatorname{Exponential}(1)}$$
 ---
 
 ```{r}
+library(brms)
 mlm.1 <- 
   brm(family = gaussian,
       CON ~ 1 + (1 | ID),
       prior = c(prior(normal(0, 1.5), class = Intercept),
-                prior(normal(0, 1.5), class = sd), ## this is new compared to regression
-                prior(exponential(1), class = sigma))
+                prior(normal(0, 1.5), class = sd), 
+                prior(exponential(1), class = sigma)),
       iter = 5000, warmup = 1000, chains = 4, cores = 4,
       sample_prior = "yes",
       data = mlm, 
