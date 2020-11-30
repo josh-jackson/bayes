@@ -44,22 +44,8 @@ Where j refers to some clustering or grouping variable and i refers to the obser
 
 
 
-```r
-library(tidyverse)
-sample_n_of &lt;- function(data, size, ...) {
-  dots &lt;- quos(...)
-  
-  group_ids &lt;- data %&gt;% 
-    group_by(!!! dots) %&gt;% 
-    group_indices()
-  
-  sampled_groups &lt;- sample(unique(group_ids), size)
-  data %&gt;% 
-    filter(group_ids %in% sampled_groups)
-}
-```
 
-
+---
 ![](mlm-8_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
 
 
@@ -77,13 +63,22 @@ Level 2
 
 ---
 
-  `$${Y}_{ij} = \gamma_{00} + U_{0j}  + \varepsilon_{ij}$$`
+
+  
+.pull-left[
 ![](mlm-8_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
-Akin to ANOVA if we treat `\(U_{0j}\)` as between subjects variance &amp; `\(\varepsilon_{ij}\)` as within subjects variance
+]
+
+.pull-right[
+  `$${Y}_{ij} = \gamma_{00} + U_{0j}  + \varepsilon_{ij}$$`
+
+Akin to ANOVA if we treat `\(U_{0j}\)` as between subjects variance &amp; `\(\varepsilon_{ij}\)` as within subjects variance. 
+]
 
 ---
 ## Random and fixed effects
 
+.pull-left[
 Level 1:
 `$${Y}_{ij} = \beta_{0j}  + \varepsilon_{ij}$$`
 
@@ -91,18 +86,20 @@ Level 2:
 `$${\beta}_{0j} = \gamma_{00} + U_{0j}$$`
 Combined:
 `$${Y}_{ij} = \gamma_{00} + U_{0j}  + \varepsilon_{ij}$$`
+]
 
+.pull-right[
 `\(U_{0j}\)` is considered a random effect, as it is varies across our grouping
 
 `\(\gamma_{00}\)` is considered a fixed effect, as it is what is fixed (average) across our grouping
-
+]
 
 ---
 ## Level 1 predictors
 
 Level 1 is where you have data that repeats within your grouping or clustering data. Is your cluster classrooms? Then students are level 1. Is your cluster people? Then observations are level 1. 
 
-$$ {Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij} $$
+`$${Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij}$$`
 Notice on the subscript of X that these predictors vary across group (j) and within the group (i) So if your grouping (j) is people, then i refers to different observations. 
 
 ---
@@ -122,11 +119,14 @@ By including random effects (U) you making a claim that every group/cluster does
 
 An advantage of MLM is to separate more "buckets" of variance that are unexplained. What was originally `\(e_ij\)` is now ( `\(U_0\)` + `\(U_1\)` + `\(e_ij\)` ). This additional decomposition of variance is beneficial because you are separating signal from noise, translating what was noise `\(e_ij\)` into meaningful signal ( `\(U_0\)` + `\(U_1\)` ). 
 
----
+For example, multiple responses per person can identify individual differences (eg not everyone shows the stroop effect) that normally would be chalked up to error. If you parse out this error your signal becomes stronger. 
 
+---
+## Predictions for a person
+.pull-left[
 Level 1:
  
-$${Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij} $$
+`$${Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij}$$`
 Level 2:  
 `$${\beta}_{0j} = \gamma_{00} + U_{0j}$$`
 
@@ -135,15 +135,17 @@ Level 2:
 
 Combined
 `$${Y}_{ij} = \gamma_{00} + \gamma_{10}(X_{ij})+ U_{0j} + U_{1j}(X_{ij}) + \varepsilon_{ij}$$`
-
+]
+.pull-right[
 Can think of a persons score divided up into a fixed component as well as the random component. 
 
 `$${\beta}_{16} = \gamma_{10} \pm U_{16}$$` 
+]
 
 
 ---
 ## Error structure
-These random effects are likely related to one another. The residual structure, where the random effects are again normally distributed with a mean of zero, but this time one must also consider covariance in addition to variance. 
+The residual structure, where the random effects are again normally distributed with a mean of zero, but this time one must also consider covariance in addition to variance. 
 
 `$$\begin{pmatrix} {U}_{0j} \\ {U}_{1j} \end{pmatrix}
 \sim \mathcal{N} \begin{pmatrix} 
@@ -151,16 +153,16 @@ These random effects are likely related to one another. The residual structure, 
   0,  \tau_{01} &amp; \tau_{10}^{2}
 \end{pmatrix}$$`
 
-Note that it is possible to have a different error structure
+Note that it is possible to have a different error structure for the random effects
 
-$$ {e}_{ij} \sim \mathcal{N}(0, \sigma^{2})  $$
+`$${e}_{ij} \sim \mathcal{N}(0, \sigma^{2})$$`
 
 ---
 ## Multiple level 1 predictors
 
 Level 1:
  
-$${Y}_{ijk} = \beta_{0j}  + \beta_{1j}X_{ij} + \beta_{2j}Z_{ik} + \varepsilon_{ijk} $$
+`$${Y}_{ijk} = \beta_{0j}  + \beta_{1j}X_{ij} + \beta_{2j}Z_{ik} + \varepsilon_{ijk}$$`
 Level 2:  
 `$${\beta}_{0j} = \gamma_{00} + U_{0j}$$`
 
@@ -169,30 +171,31 @@ Level 2:
 
 ---
 ## Level 2 predictors
-
+.small[
 Level 1: 
 `$${Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij}$$`
 Level 2: 
 `$${\beta}_{0j} = \gamma_{00} + \gamma_{01}G_{j} +   U_{0j}$$`  
 `$${\beta}_{1j} = \gamma_{10} + U_{1j}$$`  
-
+]
 
 Combined
-  $$ {Y}_{ij} = \gamma_{00} + \gamma_{01}G_{j}+  \gamma_{10} (X_{ij}) + U_{0j} + U_{1j}(Time_{ij}) + \varepsilon_{ij} $$
+  `$${Y}_{ij} = \gamma_{00} + \gamma_{01}G_{j}+  \gamma_{10} (X_{ij}) + U_{0j} + U_{1j}(Time_{ij}) + \varepsilon_{ij}$$`
   `$${Y}_{ij} = [\gamma_{00} + \gamma_{01}G_{j}+ U_{0j}]  + [(\gamma_{10}  + U_{1j})(Time_{ij})] + \varepsilon_{ij}$$`
 
 ---
 ## Cross level interactions
 
+.small[
 level 1: 
-$$ {Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij} $$
+`$${Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij}$$`
 Level 2: 
-$$ {\beta}_{0j} = \gamma_{00} + \gamma_{01}G_{j} +   U_{0j}$$  
-$$ {\beta}_{1j} = \gamma_{10} + \gamma_{11}G_{j} + U_{1j} $$  
-
+`$${\beta}_{0j} = \gamma_{00} + \gamma_{01}G_{j} +   U_{0j}$$`  
+`$${\beta}_{1j} = \gamma_{10} + \gamma_{11}G_{j} + U_{1j}$$`  
+]
 
 Combined
-  $$ {Y}_{ij} = \gamma_{00} + \gamma_{01}G_{j}+  \gamma_{10} (X_{ij}) + \gamma_{11}(G_{j}*Time_{ij}) +  U_{0j} + U_{1j}(Time_{ij}) + \varepsilon_{ij} $$
+  `$${Y}_{ij} = \gamma_{00} + \gamma_{01}G_{j}+  \gamma_{10} (X_{ij}) + \gamma_{11}(G_{j}*Time_{ij}) +  U_{0j} + U_{1j}(Time_{ij}) + \varepsilon_{ij}$$`
 
 `$${Y}_{ij} = [\gamma_{00} + U_{0j} +\gamma_{01}G_{j}] + [(\gamma_{10}  + \gamma_{11}G_{j}+  U_{1j})(Time_{ij})] + \varepsilon_{ij}$$`
 
@@ -222,22 +225,22 @@ Level 2:
 
 If you have data like this you should analyze like this! If you don't, then you are losing information (GEE being a potential exception).
 
-The question often is about which random effects to fit. There are multiple opinions, but mine is to start maximum, and then work downward if necessary/consistent with theory. It doesn't really hurt to include them, especially within Bayes! 
+The question often is about which random effects to fit. There are multiple opinions, but mine is to start maximum, and then work downward (ie simplify) if necessary/consistent with theory. It doesn't really hurt to include them, especially within Bayesian estimation! 
 
 ---
 ## Partial pooling/shrinkage
 
 We treat our group variable as coming from a population. All groups are alike (because they are from the same population), but different in their own way. Because of this it is helpful to use information from other groups to help make predictions. 
 
-We do this in standard regression where we make predictions based on values not only using data from X but from the whole dataset. An similar analogy for MLM is running a regression for each group.
+We do this in standard regression where we make predictions based on values not only using data from X but from the whole dataset. A similar analogy for MLM is running a regression for each group. We want to pool as this leads to better predictions as we are not overfitting our data! 
 
 
 ---
 ## priors for priors
 
-Also known as hyperpriors
+The extent we do the shrinkage depends on a few things (eg number of observations per group) but also depends on our priors. Also known as hyperpriors
 
-$$\text{y}_{ij}  \sim \operatorname{Normal}(\mu_i, \sigma_i) $$
+`$$\text{y}_{ij}  \sim \operatorname{Normal}(\mu_i, \sigma_i)$$`
 `$$\mu_i  = \beta_{0[i]}$$` 
 
 `$$\beta_{0[j]} \sim \operatorname{Normal}({\bar \mu},  \sigma)$$`
@@ -247,36 +250,8 @@ $$\text{y}_{ij}  \sim \operatorname{Normal}(\mu_i, \sigma_i) $$
 ---
 
 
-```r
-library(brms)
-```
 
-```
-## Loading required package: Rcpp
-```
 
-```
-## Loading 'brms' package (version 2.13.5). Useful instructions
-## can be found by typing help('brms'). A more detailed introduction
-## to the package is available through vignette('brms_overview').
-```
-
-```
-## 
-## Attaching package: 'brms'
-```
-
-```
-## The following objects are masked from 'package:tidybayes':
-## 
-##     dstudent_t, pstudent_t, qstudent_t, rstudent_t
-```
-
-```
-## The following object is masked from 'package:stats':
-## 
-##     ar
-```
 
 ```r
 mlm.1 &lt;- 
@@ -324,18 +299,83 @@ summary(mlm.1)
 ## scale reduction factor on split chains (at convergence, Rhat = 1).
 ```
 
+---
+Notice we have one less paramter we are estimating. 
+
+```r
+mlm.2 &lt;- 
+  brm(family = gaussian,
+      CON ~ 1 ,
+      prior = c(prior(normal(0, 1.5), class = Intercept),
+                prior(exponential(1), class = sigma)),
+      iter = 5000, warmup = 1000, chains = 4, cores = 4,
+      sample_prior = "yes",
+      data = mlm, 
+      file = "mlm.2")
+```
+
+---
+
+```r
+summary(mlm.2)
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: CON ~ 1 
+##    Data: mlm (Number of observations: 225) 
+## Samples: 4 chains, each with iter = 5000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 16000
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept     0.19      0.00     0.18     0.20 1.00    16473    11582
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     0.07      0.00     0.07     0.08 1.00     9374     9244
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+
+```r
+mlm.1 &lt;- add_criterion(mlm.1, "loo")
+mlm.2 &lt;- add_criterion(mlm.2, "loo")
+loo_compare(mlm.1, mlm.2, criterion = "loo")
+```
+
+```
+##       elpd_diff se_diff
+## mlm.1   0.0       0.0  
+## mlm.2 -58.6       8.8
+```
 
 
+---
+![](mlm-8_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+
+---
+When we have these priors it indicates that we have some 
+`$$\text{y}_{ij}  \sim \operatorname{Normal}(\mu_i, \sigma_i)$$`
+`$$\mu_i  = \beta_{0[i]}$$` 
+This line indicates we have varying intercepts. Much like going from level 1 -&gt; 2, we do priors on that parameter. Indicates that there is a distribution FOR EACH PERSON/GROUP. The distribution needs a prior. 
+`$$\beta_{0[j]} \sim \operatorname{Normal}({\bar \mu},  \sigma)$$`
+`$${\bar \mu}  \sim {\operatorname{Normal}(0, 1.5)}$$`
+`$$\sigma \sim {\operatorname{Exponential}(1)}$$`
 
 ---
 ## Random slopes
 
 `$$y_i \sim \text{Normal}(\mu, \sigma)$$` 
 `$$\mu_i = \beta_{0,\text{pid}} + \beta_{1, \text{pid}}x_i$$`
-`$$\begin{bmatrix}
-\beta_{0,\text{pid}}
-\beta_{1, \text{pid}}
-\end{bmatrix}`
+$$
+[\beta_{0,\text{pid}}
+\beta_{1, \text{pid}}]
 \sim \text{MVNormal}\bigg(
 `\begin{bmatrix}
 \beta_0 \\
