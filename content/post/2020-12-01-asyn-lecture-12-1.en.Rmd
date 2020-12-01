@@ -1,0 +1,21 @@
+---
+title: asyn lecture 12/1
+author: ''
+date: '2020-12-01'
+slug: asyn-lecture-12-1
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-12-01T08:57:10-06:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+https://wustl.zoom.us/rec/share/i0O_QhcLGuLzBGylX08Us6nziFn29Imc7iIY4qo2iCbmmRECt1ck8d2K_XPHzy6d.7aya4OdTt1uid2J1
