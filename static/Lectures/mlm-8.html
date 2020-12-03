@@ -243,8 +243,9 @@ The extent we do the shrinkage depends on a few things (eg number of observation
 `$$\text{y}_{ij}  \sim \operatorname{Normal}(\mu_i, \sigma_i)$$`
 `$$\mu_i  = \beta_{0[i]}$$` 
 
-`$$\beta_{0[j]} \sim \operatorname{Normal}({\bar \mu},  \sigma)$$`
+`$$\beta_{0[j]} \sim \operatorname{Normal}({\bar \mu},  \sigma_0)$$`
 `$${\bar \mu}  \sim {\operatorname{Normal}(0, 1.5)}$$`
+`$$\sigma_0 \sim {\operatorname{Exponential}(1)}$$`
 `$$\sigma \sim {\operatorname{Exponential}(1)}$$`
 
 ---
@@ -360,29 +361,295 @@ loo_compare(mlm.1, mlm.2, criterion = "loo")
 ![](mlm-8_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
 
 ---
+
 When we have these priors it indicates that we have some 
-`$$\text{y}_{ij}  \sim \operatorname{Normal}(\mu_i, \sigma_i)$$`
+`$$\text{y}_{ij}  \sim \operatorname{Normal}(\mu_i, \sigma)$$`
 `$$\mu_i  = \beta_{0[i]}$$` 
 This line indicates we have varying intercepts. Much like going from level 1 -&gt; 2, we do priors on that parameter. Indicates that there is a distribution FOR EACH PERSON/GROUP. The distribution needs a prior. 
-`$$\beta_{0[j]} \sim \operatorname{Normal}({\bar \mu},  \sigma)$$`
+`$$\beta_{0[j]} \sim \operatorname{Normal}({\bar \mu},  \sigma_0)$$`
 `$${\bar \mu}  \sim {\operatorname{Normal}(0, 1.5)}$$`
+`$$\sigma_0 \sim {\operatorname{Exponential}(1)}$$`
 `$$\sigma \sim {\operatorname{Exponential}(1)}$$`
+
+
+
+---
+## Ways to think about MLM
+
+1. Multiple levels of focus (L1 vs L2, within vs between, trial vs person)
+2. Creating piles of meaningful variance
+
+3. Parameters that depend on parameters
+4. Shrinkage towards mean of some population (higher N, less shrinkage)
+
+
+---
+### Parameters that depend on parameters
+
+![](mlm-8_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+
+---
+###  Shrinkage towards mean 
+
+.small[
+`$$\text{y}_{ij}  \sim \operatorname{Normal}(\mu_i, \sigma_i)$$`
+
+`$$\mu_i  = \beta_{0[i]}$$` 
+
+`$$\beta_{0[j]} \sim \operatorname{Normal}({\bar \mu},  \sigma_0)$$`
+`$${\bar \mu}  \sim {\operatorname{Normal}(0, 1.5)}$$`
+
+`$$\sigma_0 \sim {\operatorname{Normal}(0, 1.5)}$$`
+
+
+
+`$$\sigma \sim {\operatorname{Exponential}(1)}$$`
+]
+
+Half normal can turn on/off shrinkage. Setting SD to zero says everyone is the same (complete). Infinite SD says all groups are unrelated (no pooling). In the middle gives you partial pooling. Remember, with MLE, you are using flat priors.   
+
+---
+
+
+```r
+summary(mlm.1)
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: CON ~ 1 + (1 | ID) 
+##    Data: mlm (Number of observations: 225) 
+## Samples: 4 chains, each with iter = 5000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 16000
+## 
+## Group-Level Effects: 
+## ~ID (Number of levels: 91) 
+##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sd(Intercept)     0.06      0.01     0.05     0.07 1.00     5205     8457
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept     0.19      0.01     0.18     0.20 1.00     8238    10695
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     0.05      0.00     0.04     0.05 1.00     9478    11175
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+
+
+---
+
+
+```r
+library(tidybayes)
+get_variables(mlm.1)
+```
+
+```
+##   [1] "b_Intercept"         "sd_ID__Intercept"    "sigma"              
+##   [4] "r_ID[6,Intercept]"   "r_ID[29,Intercept]"  "r_ID[34,Intercept]" 
+##   [7] "r_ID[36,Intercept]"  "r_ID[37,Intercept]"  "r_ID[48,Intercept]" 
+##  [10] "r_ID[53,Intercept]"  "r_ID[54,Intercept]"  "r_ID[58,Intercept]" 
+##  [13] "r_ID[61,Intercept]"  "r_ID[66,Intercept]"  "r_ID[67,Intercept]" 
+##  [16] "r_ID[69,Intercept]"  "r_ID[71,Intercept]"  "r_ID[74,Intercept]" 
+##  [19] "r_ID[75,Intercept]"  "r_ID[76,Intercept]"  "r_ID[78,Intercept]" 
+##  [22] "r_ID[79,Intercept]"  "r_ID[80,Intercept]"  "r_ID[81,Intercept]" 
+##  [25] "r_ID[82,Intercept]"  "r_ID[85,Intercept]"  "r_ID[86,Intercept]" 
+##  [28] "r_ID[87,Intercept]"  "r_ID[89,Intercept]"  "r_ID[91,Intercept]" 
+##  [31] "r_ID[92,Intercept]"  "r_ID[93,Intercept]"  "r_ID[94,Intercept]" 
+##  [34] "r_ID[96,Intercept]"  "r_ID[97,Intercept]"  "r_ID[98,Intercept]" 
+##  [37] "r_ID[99,Intercept]"  "r_ID[101,Intercept]" "r_ID[102,Intercept]"
+##  [40] "r_ID[103,Intercept]" "r_ID[104,Intercept]" "r_ID[105,Intercept]"
+##  [43] "r_ID[106,Intercept]" "r_ID[110,Intercept]" "r_ID[112,Intercept]"
+##  [46] "r_ID[114,Intercept]" "r_ID[115,Intercept]" "r_ID[116,Intercept]"
+##  [49] "r_ID[120,Intercept]" "r_ID[122,Intercept]" "r_ID[125,Intercept]"
+##  [52] "r_ID[127,Intercept]" "r_ID[129,Intercept]" "r_ID[135,Intercept]"
+##  [55] "r_ID[136,Intercept]" "r_ID[137,Intercept]" "r_ID[140,Intercept]"
+##  [58] "r_ID[141,Intercept]" "r_ID[142,Intercept]" "r_ID[143,Intercept]"
+##  [61] "r_ID[144,Intercept]" "r_ID[146,Intercept]" "r_ID[149,Intercept]"
+##  [64] "r_ID[150,Intercept]" "r_ID[152,Intercept]" "r_ID[153,Intercept]"
+##  [67] "r_ID[155,Intercept]" "r_ID[156,Intercept]" "r_ID[159,Intercept]"
+##  [70] "r_ID[160,Intercept]" "r_ID[162,Intercept]" "r_ID[163,Intercept]"
+##  [73] "r_ID[165,Intercept]" "r_ID[167,Intercept]" "r_ID[169,Intercept]"
+##  [76] "r_ID[171,Intercept]" "r_ID[174,Intercept]" "r_ID[182,Intercept]"
+##  [79] "r_ID[187,Intercept]" "r_ID[189,Intercept]" "r_ID[190,Intercept]"
+##  [82] "r_ID[193,Intercept]" "r_ID[194,Intercept]" "r_ID[201,Intercept]"
+##  [85] "r_ID[204,Intercept]" "r_ID[205,Intercept]" "r_ID[208,Intercept]"
+##  [88] "r_ID[209,Intercept]" "r_ID[211,Intercept]" "r_ID[214,Intercept]"
+##  [91] "r_ID[219,Intercept]" "r_ID[222,Intercept]" "r_ID[223,Intercept]"
+##  [94] "r_ID[229,Intercept]" "prior_Intercept"     "prior_sigma"        
+##  [97] "prior_sd_ID"         "lp__"                "accept_stat__"      
+## [100] "stepsize__"          "treedepth__"         "n_leapfrog__"       
+## [103] "divergent__"         "energy__"
+```
+
+
+---
+
+
+```r
+mlm.1 %&gt;%
+  spread_draws(r_ID[ID, term]) 
+```
+
+```
+## # A tibble: 1,456,000 x 6
+## # Groups:   ID, term [91]
+##       ID term          r_ID .chain .iteration .draw
+##    &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt;  &lt;int&gt;      &lt;int&gt; &lt;int&gt;
+##  1     6 Intercept  0.00585      1          1     1
+##  2     6 Intercept  0.00850      1          2     2
+##  3     6 Intercept  0.00333      1          3     3
+##  4     6 Intercept  0.00222      1          4     4
+##  5     6 Intercept  0.0231       1          5     5
+##  6     6 Intercept  0.0147       1          6     6
+##  7     6 Intercept  0.00593      1          7     7
+##  8     6 Intercept  0.00779      1          8     8
+##  9     6 Intercept -0.00722      1          9     9
+## 10     6 Intercept  0.00491      1         10    10
+## # … with 1,455,990 more rows
+```
+16000 samples (4 chains * 4k iterations) * 91 people
+
+---
+
+
+```r
+mlm.1 %&gt;%
+  spread_draws(r_ID[ID, term]) %&gt;%
+ median_qi()
+```
+
+```
+## # A tibble: 91 x 8
+## # Groups:   ID [91]
+##       ID term           r_ID   .lower   .upper .width .point .interval
+##    &lt;int&gt; &lt;chr&gt;         &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+##  1     6 Intercept  0.000352 -0.0483   0.0496    0.95 median qi       
+##  2    29 Intercept -0.0479   -0.105    0.00966   0.95 median qi       
+##  3    34 Intercept -0.0611   -0.118   -0.00271   0.95 median qi       
+##  4    36 Intercept -0.0224   -0.0794   0.0357    0.95 median qi       
+##  5    37 Intercept -0.00303  -0.0515   0.0454    0.95 median qi       
+##  6    48 Intercept  0.0231   -0.0250   0.0720    0.95 median qi       
+##  7    53 Intercept  0.000113 -0.0581   0.0581    0.95 median qi       
+##  8    54 Intercept  0.0453   -0.00385  0.0932    0.95 median qi       
+##  9    58 Intercept  0.0367   -0.0140   0.0871    0.95 median qi       
+## 10    61 Intercept -0.0746   -0.131   -0.0176    0.95 median qi       
+## # … with 81 more rows
+```
+
+
+---
+.pull-left[
+
+```r
+mlm.1 %&gt;%
+  spread_draws(r_ID[ID, term]) %&gt;%
+  left_join(mlm %&gt;% select (ID, CON) %&gt;% group_by(ID) %&gt;%  mutate(CON = mean(CON))) %&gt;% 
+ median_qi() %&gt;% 
+ggplot(aes(x = ID)) +
+  geom_point(aes(y = r_ID), color = "orange2") +
+  geom_point(aes(y = CON), shape = 1) 
+```
+]
+
+.pull-right[
+![](mlm-8_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+]
+
+---
+
+
+```r
+mlm.1 %&gt;%
+  spread_draws(b_Intercept, r_ID[ID, term]) 
+```
+
+```
+## # A tibble: 1,456,000 x 7
+## # Groups:   ID, term [91]
+##    .chain .iteration .draw b_Intercept    ID term          r_ID
+##     &lt;int&gt;      &lt;int&gt; &lt;int&gt;       &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt;
+##  1      1          1     1       0.185     6 Intercept  0.00585
+##  2      1          1     1       0.185    29 Intercept -0.0423 
+##  3      1          1     1       0.185    34 Intercept -0.149  
+##  4      1          1     1       0.185    36 Intercept  0.0127 
+##  5      1          1     1       0.185    37 Intercept  0.0299 
+##  6      1          1     1       0.185    48 Intercept  0.0213 
+##  7      1          1     1       0.185    53 Intercept  0.00556
+##  8      1          1     1       0.185    54 Intercept  0.0314 
+##  9      1          1     1       0.185    58 Intercept  0.0559 
+## 10      1          1     1       0.185    61 Intercept -0.0675 
+## # … with 1,455,990 more rows
+```
+
+---
+
+
+```r
+mlm.1 %&gt;%
+  spread_draws(b_Intercept, r_ID[ID, term]) %&gt;% 
+   mutate(person_I = b_Intercept + r_ID) 
+```
+
+```
+## # A tibble: 1,456,000 x 8
+## # Groups:   ID, term [91]
+##    .chain .iteration .draw b_Intercept    ID term          r_ID person_I
+##     &lt;int&gt;      &lt;int&gt; &lt;int&gt;       &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt;    &lt;dbl&gt;
+##  1      1          1     1       0.185     6 Intercept  0.00585   0.191 
+##  2      1          1     1       0.185    29 Intercept -0.0423    0.143 
+##  3      1          1     1       0.185    34 Intercept -0.149     0.0363
+##  4      1          1     1       0.185    36 Intercept  0.0127    0.198 
+##  5      1          1     1       0.185    37 Intercept  0.0299    0.215 
+##  6      1          1     1       0.185    48 Intercept  0.0213    0.206 
+##  7      1          1     1       0.185    53 Intercept  0.00556   0.191 
+##  8      1          1     1       0.185    54 Intercept  0.0314    0.216 
+##  9      1          1     1       0.185    58 Intercept  0.0559    0.241 
+## 10      1          1     1       0.185    61 Intercept -0.0675    0.118 
+## # … with 1,455,990 more rows
+```
+
+---
+
+![](mlm-8_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
+
+---
+.pull-left[
+
+```r
+mlm.1 %&gt;%
+  spread_draws(b_Intercept, r_ID[ID, term]) %&gt;%
+   median_qi(person_I = b_Intercept + r_ID) %&gt;%
+  ggplot(aes( y = reorder(ID, person_I), x = person_I, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() + xlab("est") + ylab("ID")
+```
+]
+
+.pull-right[
+![](mlm-8_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
+]
 
 ---
 ## Random slopes
 
 `$$y_i \sim \text{Normal}(\mu, \sigma)$$` 
-`$$\mu_i = \beta_{0,\text{pid}} + \beta_{1, \text{pid}}x_i$$`
+`$$\mu_i = \beta_{0j} + \beta_{1j}X_{ij}$$`
 $$
-[\beta_{0,\text{pid}}
-\beta_{1, \text{pid}}]
-\sim \text{MVNormal}\bigg(
+[\beta_{0j},
+\beta_{1j}]
+\sim \text{MVNormal}
 `\begin{bmatrix}
 \beta_0 \\
-\beta_1
-\end{bmatrix}`
-, \Sigma
-\bigg)$$`
+\beta_1\end{bmatrix}, \Sigma\bigg)$$`
+
 
 `$$\Sigma = 
 \left(\begin{array}{cc}
