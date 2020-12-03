@@ -804,9 +804,70 @@ mlm.1 %>%
 ```
 ]
 
+
+---
+## level 1 predictors
+
+$$\text{y}_{ij}  \sim \operatorname{Normal}(\mu_i, \sigma_i)$$
+$$\mu_i  = \beta_{0[i]} + \beta_{1[i]}$$ 
+
+$$\beta_{0[j]} \sim \operatorname{Normal}({\bar \mu}, \sigma_0)$$
+$${\bar \mu}  \sim {\operatorname{Normal}(0, 1.5)}$$
+$$\sigma_0 \sim {\operatorname{Exponential}(1)}$$
+$$\beta_{1[j]} \sim {\operatorname{Normal}(0, 1.5)}$$
+$$\sigma \sim {\operatorname{Exponential}(1)}$$
+
+---
+
+```{r}
+get_prior(CON ~ 1 + time + (1|ID), data = mlm)
+```
+
+
+---
+```{r}
+
+mlm.3 <- 
+  brm(family = gaussian,
+      CON ~ 1 + time + (1 | ID),
+      prior = c(prior(normal(0, 1.5), class = Intercept),
+                prior(normal(0, 1.5), class = b),
+                prior(normal(0, 1.5), class = sd), 
+                prior(exponential(1), class = sigma)),
+      iter = 4000, warmup = 1000, chains = 4, cores = 4,
+      sample_prior = "yes",
+      file = "mlm.3",
+      data = mlm)
+      
+```
+
+
+---
+
+```{r}
+summary(mlm.3)
+```
+
+---
+```{r}
+posterior_summary(mlm.3)
+```
+
+---
+
+```{r}
+pp_check(mlm.3)
+```
+
+
+
+
+
+
 ---
 ## Random slopes
 
+.small[
 $$y_i \sim \text{Normal}(\mu, \sigma)$$ 
 $$\mu_i = \beta_{0j} + \beta_{1j}X_{ij}$$
 $$
@@ -817,7 +878,6 @@ $$
 \beta_0 \\
 \beta_1\end{bmatrix}, \Sigma\bigg)$$
 
-
 $$\Sigma = 
 \left(\begin{array}{cc}
 \sigma_{\beta_0}&0\\
@@ -827,10 +887,38 @@ $$\Sigma =
 \sigma_{\beta_0}&0\\
 0&\sigma_{\beta_1}
 \end{array}\right)$$
-
 $$\beta_0 \sim \text{Normal}(0, 1)$$
 $$\beta_1 \sim \text{Normal}(0, 1)$$
 $$\sigma_{\beta_0} \sim \text{Exponential}(1)$$
 $$\sigma_{\beta_1} \sim \text{Exponential}(1)$$
 $$\sigma \sim \text{Exponential}(1)$$
 $$\Omega \sim \text{LKJcorr(2)}$$
+
+]
+
+
+
+---
+
+
+```{r}
+
+mlm.4 <- 
+  brm(family = gaussian,
+      CON ~ 1 + time + (1 + time | ID),
+      prior = c(prior(normal(0, 1.5), class = Intercept),
+                prior(normal(0, 1.5), class = b),
+                prior(normal(0, 1.5), class = sd), 
+                prior(exponential(1), class = sigma)),
+      iter = 4000, warmup = 1000, chains = 4, cores = 4,
+      file = "mlm.4",
+      data = mlm)
+      
+```
+
+---
+
+```{r}
+summary(mlm.4)
+```
+

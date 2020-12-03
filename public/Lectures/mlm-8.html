@@ -637,9 +637,221 @@ mlm.1 %&gt;%
 ![](mlm-8_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
 ]
 
+
+---
+## level 1 predictors
+
+`$$\text{y}_{ij}  \sim \operatorname{Normal}(\mu_i, \sigma_i)$$`
+`$$\mu_i  = \beta_{0[i]} + \beta_{1[i]}$$` 
+
+`$$\beta_{0[j]} \sim \operatorname{Normal}({\bar \mu}, \sigma_0)$$`
+`$${\bar \mu}  \sim {\operatorname{Normal}(0, 1.5)}$$`
+`$$\sigma_0 \sim {\operatorname{Exponential}(1)}$$`
+`$$\beta_{1[j]} \sim {\operatorname{Normal}(0, 1.5)}$$`
+`$$\sigma \sim {\operatorname{Exponential}(1)}$$`
+
+---
+
+
+```r
+get_prior(CON ~ 1 + time + (1|ID), data = mlm)
+```
+
+```
+##                    prior     class      coef group resp dpar nlpar bound
+## 1                                b                                      
+## 2                                b      time                            
+## 3 student_t(3, 0.2, 2.5) Intercept                                      
+## 4   student_t(3, 0, 2.5)        sd                                      
+## 5                               sd              ID                      
+## 6                               sd Intercept    ID                      
+## 7   student_t(3, 0, 2.5)     sigma
+```
+
+
+---
+
+```r
+mlm.3 &lt;- 
+  brm(family = gaussian,
+      CON ~ 1 + time + (1 | ID),
+      prior = c(prior(normal(0, 1.5), class = Intercept),
+                prior(normal(0, 1.5), class = b),
+                prior(normal(0, 1.5), class = sd), 
+                prior(exponential(1), class = sigma)),
+      iter = 4000, warmup = 1000, chains = 4, cores = 4,
+      sample_prior = "yes",
+      file = "mlm.3",
+      data = mlm)
+```
+
+
+---
+
+
+```r
+summary(mlm.3)
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: CON ~ 1 + time + (1 | ID) 
+##    Data: mlm (Number of observations: 225) 
+## Samples: 4 chains, each with iter = 4000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 12000
+## 
+## Group-Level Effects: 
+## ~ID (Number of levels: 91) 
+##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sd(Intercept)     0.06      0.01     0.05     0.07 1.00     3881     6287
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept     0.19      0.01     0.18     0.21 1.00     6315     8219
+## time         -0.00      0.00    -0.01     0.00 1.00    14445     9701
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     0.05      0.00     0.04     0.05 1.00     7774     9010
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+
+```r
+posterior_summary(mlm.3)
+```
+
+```
+##                          Estimate    Est.Error          Q2.5         Q97.5
+## b_Intercept          1.942546e-01  0.007896868  1.788568e-01  2.098866e-01
+## b_time              -2.681927e-03  0.002193669 -7.005901e-03  1.673801e-03
+## sd_ID__Intercept     5.658460e-02  0.005703638  4.626523e-02  6.851444e-02
+## sigma                4.736330e-02  0.002946050  4.203858e-02  5.362970e-02
+## r_ID[6,Intercept]    7.018953e-03  0.025941421 -4.477088e-02  5.766420e-02
+## r_ID[29,Intercept]  -4.288168e-02  0.030110115 -1.010812e-01  1.694325e-02
+## r_ID[34,Intercept]  -5.532291e-02  0.029653091 -1.141263e-01  2.582092e-03
+## r_ID[36,Intercept]  -2.073992e-02  0.029312647 -7.758616e-02  3.623226e-02
+## r_ID[37,Intercept]   2.927101e-03  0.025757301 -4.748359e-02  5.385893e-02
+## r_ID[48,Intercept]   2.927374e-02  0.025454433 -2.069050e-02  7.967467e-02
+## r_ID[53,Intercept]   5.975410e-03  0.029615044 -5.215262e-02  6.417561e-02
+## r_ID[54,Intercept]   4.987981e-02  0.025357223  3.141462e-04  9.938717e-02
+## r_ID[58,Intercept]   3.781205e-02  0.025449617 -1.329860e-02  8.725924e-02
+## r_ID[61,Intercept]  -6.960958e-02  0.029601512 -1.287767e-01 -1.212965e-02
+## r_ID[66,Intercept]   4.220046e-02  0.025770815 -7.324374e-03  9.239867e-02
+## r_ID[67,Intercept]   1.219182e-02  0.022834285 -3.208344e-02  5.731745e-02
+## r_ID[69,Intercept]   1.209571e-02  0.028981638 -4.486022e-02  6.887835e-02
+## r_ID[71,Intercept]  -1.049422e-01  0.025884046 -1.557768e-01 -5.383888e-02
+## r_ID[74,Intercept]   1.382781e-02  0.025137712 -3.492902e-02  6.313762e-02
+## r_ID[75,Intercept]   5.936441e-02  0.029822870  5.979624e-04  1.167617e-01
+## r_ID[76,Intercept]  -7.309928e-02  0.025467067 -1.222700e-01 -2.214936e-02
+## r_ID[78,Intercept]   4.705561e-02  0.025342553 -3.398375e-03  9.765876e-02
+## r_ID[79,Intercept]  -4.334924e-02  0.029853403 -1.015261e-01  1.540862e-02
+## r_ID[80,Intercept]  -3.339505e-02  0.029687291 -9.119510e-02  2.508338e-02
+## r_ID[81,Intercept]   4.447478e-02  0.025601175 -5.385413e-03  9.495197e-02
+## r_ID[82,Intercept]   1.195476e-01  0.023273396  7.425035e-02  1.650440e-01
+## r_ID[85,Intercept]  -2.690532e-02  0.028646717 -8.389778e-02  2.963529e-02
+## r_ID[86,Intercept]  -5.676805e-02  0.029380950 -1.144974e-01  2.941393e-04
+## r_ID[87,Intercept]  -5.928211e-02  0.029164950 -1.159989e-01 -2.287059e-03
+## r_ID[89,Intercept]  -4.527398e-02  0.025330966 -9.450856e-02  4.540375e-03
+## r_ID[91,Intercept]  -1.532585e-02  0.025444134 -6.638986e-02  3.385095e-02
+## r_ID[92,Intercept]   9.491611e-03  0.025219481 -4.091591e-02  5.805656e-02
+## r_ID[93,Intercept]   5.077455e-02  0.025354322  1.193554e-03  1.008230e-01
+## r_ID[94,Intercept]  -5.892650e-02  0.025191670 -1.086142e-01 -9.250394e-03
+## r_ID[96,Intercept]   2.835245e-02  0.029943507 -3.082319e-02  8.683453e-02
+## r_ID[97,Intercept]   4.918515e-02  0.022387705  4.716593e-03  9.271133e-02
+## r_ID[98,Intercept]  -4.323536e-02  0.022129181 -8.634748e-02  1.932214e-04
+## r_ID[99,Intercept]  -6.992259e-03  0.022367462 -5.073480e-02  3.707988e-02
+## r_ID[101,Intercept]  4.368875e-02  0.025231051 -5.657602e-03  9.236464e-02
+## r_ID[102,Intercept] -2.286680e-03  0.022617700 -4.701696e-02  4.129274e-02
+## r_ID[103,Intercept] -2.858660e-02  0.029047084 -8.555045e-02  2.806853e-02
+## r_ID[104,Intercept] -1.400494e-02  0.029224754 -7.226492e-02  4.344003e-02
+## r_ID[105,Intercept] -2.341769e-02  0.025371371 -7.358910e-02  2.630763e-02
+## r_ID[106,Intercept]  5.518715e-03  0.025254933 -4.385803e-02  5.516233e-02
+## r_ID[110,Intercept] -6.420876e-03  0.025449730 -5.551179e-02  4.357768e-02
+## r_ID[112,Intercept] -7.828839e-02  0.025776244 -1.286628e-01 -2.710820e-02
+## r_ID[114,Intercept] -4.690738e-02  0.025415156 -9.624883e-02  3.264763e-03
+## r_ID[115,Intercept] -4.035656e-02  0.025606948 -9.035083e-02  1.005650e-02
+## r_ID[116,Intercept] -3.764640e-02  0.025039753 -8.637578e-02  1.144856e-02
+## r_ID[120,Intercept]  1.176644e-01  0.030645188  5.744574e-02  1.784991e-01
+## r_ID[122,Intercept] -1.657607e-02  0.025368556 -6.633496e-02  3.321338e-02
+## r_ID[125,Intercept]  3.729669e-03  0.025394199 -4.627640e-02  5.315664e-02
+## r_ID[127,Intercept]  2.882648e-02  0.025672193 -2.123581e-02  7.919260e-02
+## r_ID[129,Intercept] -4.629830e-02  0.029336919 -1.037252e-01  1.110150e-02
+## r_ID[135,Intercept]  8.621197e-02  0.025226545  3.705872e-02  1.357631e-01
+## r_ID[136,Intercept]  8.127130e-02  0.025404208  3.028722e-02  1.308663e-01
+## r_ID[137,Intercept]  7.373746e-02  0.029807884  1.539079e-02  1.314328e-01
+## r_ID[140,Intercept] -4.841797e-02  0.030039326 -1.074086e-01  1.015885e-02
+## r_ID[141,Intercept]  6.833951e-04  0.029315927 -5.671917e-02  5.779745e-02
+## r_ID[142,Intercept] -9.292602e-03  0.028636919 -6.446483e-02  4.718955e-02
+## r_ID[143,Intercept]  8.714624e-02  0.029833395  2.884853e-02  1.452437e-01
+## r_ID[144,Intercept] -1.256967e-02  0.029670900 -7.043836e-02  4.465387e-02
+## r_ID[146,Intercept]  1.429103e-02  0.029313546 -4.287515e-02  7.172247e-02
+## r_ID[149,Intercept]  2.744938e-02  0.029398816 -3.018099e-02  8.416187e-02
+## r_ID[150,Intercept]  7.730344e-03  0.028973000 -4.894491e-02  6.401379e-02
+## r_ID[152,Intercept]  2.213916e-02  0.029119791 -3.451249e-02  7.935258e-02
+## r_ID[153,Intercept] -3.225273e-02  0.029160136 -8.975912e-02  2.448037e-02
+## r_ID[155,Intercept] -3.506993e-02  0.029068786 -9.176123e-02  2.146021e-02
+## r_ID[156,Intercept] -4.429070e-02  0.024890695 -9.325590e-02  4.405192e-03
+## r_ID[159,Intercept] -5.080707e-02  0.028977539 -1.084377e-01  5.960883e-03
+## r_ID[160,Intercept] -1.060459e-02  0.029401585 -6.848742e-02  4.595146e-02
+## r_ID[162,Intercept]  1.633366e-01  0.026898546  1.098817e-01  2.149524e-01
+## r_ID[163,Intercept] -4.263144e-02  0.029107364 -9.919982e-02  1.353090e-02
+## r_ID[165,Intercept]  4.155547e-03  0.029313443 -5.360351e-02  6.138816e-02
+## r_ID[167,Intercept] -4.269228e-02  0.029376594 -1.003594e-01  1.481150e-02
+## r_ID[169,Intercept]  3.982445e-02  0.029145165 -1.793443e-02  9.760079e-02
+## r_ID[171,Intercept]  2.772443e-02  0.029354252 -3.058629e-02  8.515212e-02
+## r_ID[174,Intercept]  5.357064e-02  0.028875050 -3.073679e-03  1.097794e-01
+## r_ID[182,Intercept] -2.748676e-03  0.029452729 -5.918770e-02  5.562626e-02
+## r_ID[187,Intercept] -9.302807e-02  0.029802553 -1.516136e-01 -3.479083e-02
+## r_ID[189,Intercept]  2.287741e-02  0.029206971 -3.421937e-02  8.084216e-02
+## r_ID[190,Intercept] -4.744368e-02  0.029198595 -1.039006e-01  1.080793e-02
+## r_ID[193,Intercept]  1.133945e-02  0.028440137 -4.527217e-02  6.749816e-02
+## r_ID[194,Intercept] -5.154635e-02  0.029726500 -1.088040e-01  7.064636e-03
+## r_ID[201,Intercept] -2.591737e-03  0.028926720 -5.903368e-02  5.350875e-02
+## r_ID[204,Intercept]  7.098459e-02  0.030249099  1.181447e-02  1.305028e-01
+## r_ID[205,Intercept]  1.769111e-03  0.028782975 -5.576374e-02  5.771985e-02
+## r_ID[208,Intercept]  1.049846e-02  0.029495558 -4.723132e-02  6.880338e-02
+## r_ID[209,Intercept]  1.659315e-02  0.028719383 -3.889772e-02  7.294587e-02
+## r_ID[211,Intercept] -3.766254e-02  0.028913961 -9.489054e-02  1.918218e-02
+## r_ID[214,Intercept]  6.297490e-02  0.029148063  5.743129e-03  1.205611e-01
+## r_ID[219,Intercept]  3.050963e-02  0.029443432 -2.716614e-02  8.776401e-02
+## r_ID[222,Intercept] -3.964643e-02  0.029367107 -9.815356e-02  1.754864e-02
+## r_ID[223,Intercept] -1.750833e-02  0.029072629 -7.544184e-02  3.974895e-02
+## r_ID[229,Intercept] -3.663063e-02  0.029287956 -9.366597e-02  2.057921e-02
+## prior_Intercept     -1.685822e-02  1.478493730 -2.955803e+00  2.896009e+00
+## prior_b             -1.742017e-03  1.506820774 -2.933896e+00  2.927901e+00
+## prior_sigma          9.982588e-01  1.008688946  2.677746e-02  3.757328e+00
+## prior_sd_ID          1.187039e+00  0.898901972  4.875643e-02  3.358880e+00
+## lp__                 2.300588e+02 11.380311991  2.065194e+02  2.513384e+02
+```
+
+---
+
+
+```r
+pp_check(mlm.3)
+```
+
+```
+## Using 10 posterior samples for ppc type 'dens_overlay' by default.
+```
+
+![](mlm-8_files/figure-html/unnamed-chunk-28-1.png)&lt;!-- --&gt;
+
+
+
+
+
+
 ---
 ## Random slopes
 
+.small[
 `$$y_i \sim \text{Normal}(\mu, \sigma)$$` 
 `$$\mu_i = \beta_{0j} + \beta_{1j}X_{ij}$$`
 $$
@@ -650,7 +862,6 @@ $$
 \beta_0 \\
 \beta_1\end{bmatrix}, \Sigma\bigg)$$`
 
-
 `$$\Sigma = 
 \left(\begin{array}{cc}
 \sigma_{\beta_0}&amp;0\\
@@ -660,13 +871,76 @@ $$
 \sigma_{\beta_0}&amp;0\\
 0&amp;\sigma_{\beta_1}
 \end{array}\right)$$`
-
 `$$\beta_0 \sim \text{Normal}(0, 1)$$`
 `$$\beta_1 \sim \text{Normal}(0, 1)$$`
 `$$\sigma_{\beta_0} \sim \text{Exponential}(1)$$`
 `$$\sigma_{\beta_1} \sim \text{Exponential}(1)$$`
 `$$\sigma \sim \text{Exponential}(1)$$`
 `$$\Omega \sim \text{LKJcorr(2)}$$`
+
+]
+
+
+
+---
+
+
+
+```r
+mlm.4 &lt;- 
+  brm(family = gaussian,
+      CON ~ 1 + time + (1 + time | ID),
+      prior = c(prior(normal(0, 1.5), class = Intercept),
+                prior(normal(0, 1.5), class = b),
+                prior(normal(0, 1.5), class = sd), 
+                prior(exponential(1), class = sigma)),
+      iter = 4000, warmup = 1000, chains = 4, cores = 4,
+      file = "mlm.4",
+      data = mlm)
+```
+
+---
+
+
+```r
+summary(mlm.4)
+```
+
+```
+## Warning: There were 181 divergent transitions after warmup. Increasing
+## adapt_delta above 0.8 may help. See http://mc-stan.org/misc/
+## warnings.html#divergent-transitions-after-warmup
+```
+
+```
+##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: CON ~ 1 + time + (1 + time | ID) 
+##    Data: mlm (Number of observations: 225) 
+## Samples: 4 chains, each with iter = 4000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 12000
+## 
+## Group-Level Effects: 
+## ~ID (Number of levels: 91) 
+##                     Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sd(Intercept)           0.06      0.01     0.05     0.07 1.00     2631     4000
+## sd(time)                0.00      0.00     0.00     0.01 1.01      588      294
+## cor(Intercept,time)    -0.09      0.49    -0.90     0.89 1.00     7792     6958
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept     0.19      0.01     0.18     0.21 1.00     2616     4045
+## time         -0.00      0.00    -0.01     0.00 1.00     2980     3815
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     0.05      0.00     0.04     0.05 1.00     3682     5728
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
