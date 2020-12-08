@@ -860,46 +860,300 @@ pp_check(mlm.3)
 ```
 
 
+---
+
+```{r}
+plot(mlm.3)
+```
+
+---
+## Mr. P
+aka multilevel regression with poststratification
+
+One of the biggest problems with psych data is that it is unrepresentative. Often survey weights are used. But if we know the  distribution of the broader population, we can reweight (post-stratify) our results to get more accurate estimates. Instead of making assumptions about how the observed sample was produced from the population, we make assumptions about how the observed sample can be used to reconstruct the rest of the population
+
+https://www.monicaalexander.com/posts/2019-08-07-mrp/
+https://bookdown.org/content/4857/models-with-memory.html#summary-bonus-post-stratification-in-an-example
 
 
+---
+```{r}
+mrp <-load("mrp.rds")
+mrp
+```
+
+```{r}
+head(d)
+```
+
+```{r}
+head(cell_counts)
+```
+
+---
+
+
+```{r}
+mlm.mrp <-
+  brm(family = binomial,
+      kept_name | trials(1) ~ 1 + (1 | age_group) + (1 | decade_married) + (1 | educ_group) + (1 | state_name),
+      prior = c(prior(normal(-1, 1), class = Intercept),
+                prior(exponential(1), class = sd)),
+      iter = 2000, warmup = 1000, chains = 4, cores = 4,
+      control = list(adapt_delta = .98),
+      data = d,
+      file = "mlm.mrp")
+```
+
+
+---
+
+```{r, echo = FALSE}
+posterior_samples(mlm.mrp) %>% 
+  select(starts_with("sd_")) %>% 
+  set_names(str_c("sigma[", c("age", "decade~married", "education", "state"), "]")) %>% 
+  pivot_longer(everything()) %>% 
+  group_by(name) %>%
+  median_qi(.width = seq(from = .70, to = .95, by = .1)) %>%
+  
+  ggplot(aes(x = value, xmin = .lower, xmax = .upper, y = reorder(name, value))) +
+  geom_interval(aes(alpha = .width), color = "orange3") +
+  scale_y_discrete(labels = ggplot2:::parse_safe) +
+  scale_alpha_continuous("CI width", range = c(.7, .15)) +
+  xlim(0, NA) +
+  theme(axis.text.y = element_text(hjust = 0),
+        panel.grid.major.y = element_blank())
+```
+
+
+---
+
+```{r}
+age_prop <- 
+  cell_counts %>% 
+  group_by(age_group) %>% 
+  mutate(prop = n / sum(n)) %>% 
+  ungroup()
+
+age_prop
+```
+
+
+---
+.small[
+```{r}
+p <- 
+  add_predicted_draws(mlm.mrp, newdata = age_prop %>% 
+                        filter(age_group > 20, 
+                               age_group < 80, 
+                               decade_married > 1969),
+                      allow_new_levels = T)
+p
+```
+]
+
+6,058 census categories * 4,000 samples = 24,232,000
+
+---
+
+If we group the results by age_group and .draw, we can sum the product of the posterior predictions and the weights, which will leave us with 4,000 stratified posterior draws for each of the 11 levels of age_group
+
+$$\frac{\sum_i N_i p_i}{\sum_i N_i}$$
+
+---
+
+```{r}
+p <-
+  p %>% 
+  group_by(age_group, .draw) %>% 
+  summarise(kept_name_predict = sum(.prediction * prop)) %>% 
+  group_by(age_group) %>% 
+  mean_qi(kept_name_predict)
+
+p
+```
+
+
+
+---
+.pull-left[
+```{r, echo = FALSE, message = FALSE}
+levels <- c("raw data", "multilevel", "MRP")
+
+p1 <-
+  # compute the proportions from the data
+  d %>% 
+  group_by(age_group, kept_name) %>%
+  summarise(n = n()) %>% 
+  group_by(age_group) %>% 
+  mutate(prop = n/sum(n),
+         type = factor("raw data", levels = levels)) %>% 
+  filter(kept_name == 1, age_group < 80, age_group > 20) %>%
+
+  # plot!
+  ggplot(aes(x = prop, y = age_group)) + 
+  geom_point() +
+  scale_x_continuous(breaks = c(0, .5, 1), limits = c(0, 1)) 
+
+
+nd <- distinct(d, age_group) %>% arrange(age_group)
+
+p2 <-
+  fitted(mlm.mrp,
+         re_formula = ~ (1 | age_group),
+         newdata = nd) %>% 
+  data.frame() %>% 
+  bind_cols(nd) %>% 
+  mutate(prop = Estimate,
+         type = factor("multilevel", levels = levels)) %>% 
+  
+  ggplot(aes(x = prop, xmin = Q2.5, xmax = Q97.5, y = age_group)) + 
+  geom_pointrange(color = "blue2", size = 0.8, fatten = 2) +
+  scale_x_continuous(breaks = c(0, .5, 1), limits = c(0, 1)) +
+  scale_y_discrete(labels = NULL) +
+  facet_wrap(~type)
+
+
+p3 <-
+  p %>%
+  mutate(type = factor("MRP", levels = levels)) %>% 
+
+  ggplot(aes(x = kept_name_predict, xmin = .lower, xmax = .upper, y = age_group)) + 
+  geom_pointrange(color = "orange2", size = 0.8, fatten = 2) +
+  scale_x_continuous(breaks = c(0, .5, 1), limits = c(0, 1)) +
+  scale_y_discrete(labels = NULL) +
+  facet_wrap(~type)
+
+# combine!
+(p1 | p2 | p3) +
+  plot_annotation(title = "Proportion of women keeping name after marriage, by age",
+                  subtitle = "Proportions are on the x-axis and age groups are on the y-axis.")
+
+```
+]
+
+.pull-right[The survey has an over-sample of highly educated women, who are more likely to keep their name, hence the regularization of MLM]
+
+---
+### Not limited to surveys
+
+Example (using brms) with experimental data -- can you generalize from your sample of undergraduates to other undergraduates at your university, let alone undergraduates in general, let alone young adults, to say nothing about the population of humans. 
+https://arxiv.org/pdf/1906.11323.pdf
 
 
 ---
 ## Random slopes
 
-.small[
+.pull-left[
+1. Modeling the joint population of intercepts and slopes, which means by modeling their covariance. We will use joint multivariate Gaussian distribution b/c it is max entropy distribution
+
+2. Involves lots of interactions
+]
+.pull-right[
+Level 1:
+$${Y}_{ij} = \beta_{0j}  + \beta_{1j}X_{ij} + \varepsilon_{ij}$$
+Level 2: 
+$${\beta}_{0j} = \gamma_{00} + \gamma_{01}G_{j} +   U_{0j}$$  
+$${\beta}_{1j} = \gamma_{10} + \gamma_{11}G_{j} + U_{1j}$$
+
+$$\begin{pmatrix} {U}_{0j} \\ {U}_{1j} \end{pmatrix}
+\sim \mathcal{N} \begin{pmatrix} 
+  0,      \tau_{00}^{2} & \tau_{01}\\ 
+  0,  \tau_{01} & \tau_{10}^{2}
+\end{pmatrix}$$
+
+
+
+]
+
+---
+## Random slopes
+
+.pull-left[.tiny[
 $$y_i \sim \text{Normal}(\mu, \sigma)$$ 
 $$\mu_i = \beta_{0j} + \beta_{1j}X_{ij}$$
-$$
-[\beta_{0j},
-\beta_{1j}]
-\sim \text{MVNormal}
-\begin{bmatrix}
-\beta_0 \\
-\beta_1\end{bmatrix}, \Sigma\bigg)$$
+$$(\beta_{0j}, \beta_{1j}) \sim \text{MVNormal}  ([\beta_0, \beta_1], \Sigma)$$
+
 
 $$\Sigma = 
 \left(\begin{array}{cc}
 \sigma_{\beta_0}&0\\
 0&\sigma_{\beta_1}
-\end{array}\right)\Omega
+\end{array}\right)R
 \left(\begin{array}{cc}
 \sigma_{\beta_0}&0\\
 0&\sigma_{\beta_1}
 \end{array}\right)$$
 $$\beta_0 \sim \text{Normal}(0, 1)$$
+
 $$\beta_1 \sim \text{Normal}(0, 1)$$
 $$\sigma_{\beta_0} \sim \text{Exponential}(1)$$
 $$\sigma_{\beta_1} \sim \text{Exponential}(1)$$
 $$\sigma \sim \text{Exponential}(1)$$
-$$\Omega \sim \text{LKJcorr(2)}$$
+$$R \sim \text{LKJcorr(2)}$$
+
+]]
+
+.pull-right[
+where Σ is the covariance matrix 
+$$\Sigma = 
+\left(\begin{array}{cc}
+\sigma^2_{\beta_0}&\sigma_{\beta_0}\sigma_{\beta_1}\rho\\
+\sigma_{\beta_0}\sigma_{\beta_1}\rho&\sigma^2_{\beta_1}
+\end{array}\right)$$
+
+and R is the correlation matrix R = $\begin{bmatrix} 1 & \rho \\ \rho & 1 \end{bmatrix}$.
+
+With more random effects, this matrix expands.
+
+
 
 ]
 
 
+---
+## lkj
+.pull-left[Our regularizing prior for correlation matrices. Has one parameter to tune the potential associations. 
+]
+
+.pull-right[
+```{r, echo=FALSE}
+
+library(forcats)
+
+expand.grid(
+  eta = 1:6,
+  K = 2:6
+) %>%
+  ggplot(aes(y = fct_rev(ordered(eta)), dist = "lkjcorr_marginal", arg1 = K, arg2 = eta)) +
+  stat_dist_slab() +
+  facet_grid(~ paste0(K, "x", K)) +
+  labs(
+    title = paste0(
+      "LKJ(eta) prior on different matrix sizes:\n"
+    ),
+    y = "eta",
+    x = "Marginal correlation"
+  ) +
+  theme(axis.title = element_text(hjust = 0))
+
+
+```
+
+]
+
 
 ---
 
+```{r}
+get_prior(family = gaussian,
+      CON ~ 1 + time + (1 + time | ID),
+      data = mlm)
+```
+
+6 parameters we are estimating
+
+---
 
 ```{r}
 
@@ -908,17 +1162,202 @@ mlm.4 <-
       CON ~ 1 + time + (1 + time | ID),
       prior = c(prior(normal(0, 1.5), class = Intercept),
                 prior(normal(0, 1.5), class = b),
-                prior(normal(0, 1.5), class = sd), 
-                prior(exponential(1), class = sigma)),
+                prior(normal(0, 1.5), class = sd, coef = Intercept, group = ID), 
+                prior(normal(0, 1.5), class = sd, coef = time, group = ID), 
+                prior(exponential(1), class = sigma),
+                prior(lkj(2), class = cor)),
       iter = 4000, warmup = 1000, chains = 4, cores = 4,
       file = "mlm.4",
       data = mlm)
       
 ```
 
+
 ---
 
 ```{r}
 summary(mlm.4)
 ```
+
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+p.mlm4 <- posterior_samples(mlm.4)
+library(rethinking)
+
+r_2 <- 
+  rlkjcorr(1000, K = 2, eta = 2) %>%
+  as_tibble()
+
+p.mlm4 %>%
+  ggplot() +
+  geom_density(data = r_2, aes(x = V2),
+               color = "transparent", fill = "blue", alpha = 3/4) +
+  geom_density(aes(x = cor_ID__Intercept__time),
+               color = "transparent", fill = "grey", alpha = 9/10) +
+  annotate(geom = "text", x = -0.15, y = 1.1, 
+           label = "posterior", color = "black", family = "Courier") +
+  annotate(geom = "text", x = .2, y = 1.35, 
+           label = "prior", color = "blue", alpha = 2/3, family = "Courier") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  labs(subtitle = "Correlation between intercepts\nand slopes, prior and posterior",
+  x = "correlation")
+```
+
+---
+
+```{r, echo = FALSE}
+partially_pooled_params <-
+  coef(mlm.4)$ID [ , 1, 1:2] %>%
+  as_tibble(rownames = "ID") 
+
+
+un_pooled_params <-
+  mlm %>%
+  group_by(ID, time) %>%
+  summarise(mean = mean(CON)) %>%
+  do(tidy(lm(mean ~ time, data=.))) %>% 
+  ungroup() %>%  
+  select(ID, term, estimate) %>% 
+  pivot_wider(names_from = term, values_from = estimate) %>% 
+  mutate(Intercept = `(Intercept)`) %>% 
+  select(-`(Intercept)`) %>% 
+  mutate(ID = as.character(ID))
+
+params <-
+  # `bind_rows()` will stack the second tibble below the first
+  bind_rows(partially_pooled_params, un_pooled_params) %>%
+  # index whether the estimates are pooled
+  mutate(pooled = rep(c("partially", "not"), each = nrow(.)/2)) 
+
+p1 <-
+  ggplot(data = params, aes(x = time, y = Intercept)) +
+  stat_ellipse(geom = "polygon", type = "norm", level = 1/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 2/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 3/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 4/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 5/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 6/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 7/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 8/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = 9/10, size = 0, alpha = 1/20, fill = "#E7CDC2") +
+  stat_ellipse(geom = "polygon", type = "norm", level = .99,  size = 0, alpha = 1/20, fill = "#E7CDC2") +
+  geom_point(aes(group = ID, color = pooled)) +
+  geom_line(aes(group = ID), size = 1/4) +
+  scale_color_manual("Pooled?",
+                     values = c("#80A0C7", "#A65141")) +
+  coord_cartesian(xlim = range(params$time),
+                  ylim = range(params$Intercept))
+p1
+```
+
+
+---
+
+```{r}
+get_variables(mlm.4)
+```
+
+---
+
+```{r}
+mlm.4 %>%
+  spread_draws(r_ID[ID,term]) 
+```
+
+---
+
+```{r}
+mlm.4 %>%
+  spread_draws(b_time, r_ID[ID, term]) %>%
+  filter(term == "time") %>% 
+  mutate(person_t = b_time + r_ID) %>% 
+ median_qi()
+```
+
+---
+.pull-left[
+```{r, eval = FALSE}
+
+mlm.4 %>%
+  spread_draws(b_time, r_ID[ID, term]) %>%
+  filter(term == "time") %>% 
+  median_qi(person_t = b_time + r_ID) %>%
+  ggplot(aes( y = reorder(ID, person_t), x = person_t, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() + xlab("est") + ylab("ID")
+```
+]
+
+.pull-right[
+```{r, echo = FALSE}
+
+mlm.4 %>%
+  spread_draws(b_time, r_ID[ID, term]) %>%
+  filter(term == "time") %>% 
+  median_qi(person_t = b_time + r_ID) %>%
+  ggplot(aes( y = reorder(ID, person_t), x = person_t, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() + xlab("est") + ylab("ID")
+```
+]
+
+---
+
+coef = fixef + raneff
+```{r}
+ranef(mlm.4)
+```
+
+---
+coef = fixef + raneff
+```{r}
+coef(mlm.4)
+```
+
+---
+```{r}
+mlm.5 <- 
+  brm(family = gaussian,
+      CON ~ 1 + time + (1 + time | ID),
+      prior = c(prior(normal(0, 1.5), class = Intercept),
+                prior(normal(0, 1.5), class = b),
+                prior(gamma(3, .1), class = sd, coef = Intercept, group = ID), 
+                prior(gamma(3, .1), class = sd, coef = time, group = ID), 
+                prior(exponential(1), class = sigma),
+                prior(lkj(2), class = cor)),
+      iter = 4000, warmup = 1000, chains = 4, cores = 4,
+      file = "mlm.5",
+      data = mlm)
+      
+```
+
+---
+```{r, echo = FALSE}
+tibble(x = seq(from = 0, to = 110, by = .1)) %>% 
+  
+  ggplot(aes(x = x, ymin = 0, ymax = dgamma(x, 3, 0.1))) +
+  geom_ribbon(size = 0, fill = "grey") +
+  annotate(geom = "text", x = 14.25, y = 0.015, label = "'gamma'*(3*', '*0.1)", 
+           parse = T, color = "black", size = 4.25) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 110)) +
+  scale_y_continuous(NULL, breaks = NULL, expand = expansion(mult = c(0, 0.05)))
+```
+
+---
+```{r}
+summary(mlm.5)
+
+```
+
+---
+
+
+```{r, echo = FALSE}
+mlm.5 %>%
+  spread_draws(b_time, r_ID[ID, term]) %>%
+  filter(term == "time") %>% 
+  median_qi(person_t = b_time + r_ID) %>%
+  ggplot(aes( y = reorder(ID, person_t), x = person_t, xmin = .lower, xmax = .upper)) +
+  geom_pointinterval() + xlab("est") + ylab("ID")
+```
+
 
