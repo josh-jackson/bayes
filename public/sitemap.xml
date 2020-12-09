@@ -3,17 +3,22 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/post/asyn-lecture-12-1/</loc>
-    <lastmod>2020-12-01T08:57:10-06:00</lastmod>
+    <loc>/post/12-8-async/</loc>
+    <lastmod>2020-12-08T19:59:29-06:00</lastmod>
   </url>
   
   <url>
     <loc>/</loc>
-    <lastmod>2020-12-01T08:57:10-06:00</lastmod>
+    <lastmod>2020-12-08T19:59:29-06:00</lastmod>
   </url>
   
   <url>
     <loc>/post/</loc>
+    <lastmod>2020-12-08T19:59:29-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/asyn-lecture-12-1/</loc>
     <lastmod>2020-12-01T08:57:10-06:00</lastmod>
   </url>
   
