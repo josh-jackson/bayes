@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>grabbag</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Josh Jackson" />
+    <script src="grabbag_files/header-attrs-2.5/header-attrs.js"></script>
+    <link href="grabbag_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+    <script src="grabbag_files/anchor-sections-1.0/anchor-sections.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+&lt;style type="text/css"&gt;
+.remark-slide-content {
+    font-size: 30px;
+    padding: 1em 4em 1em 4em;
+}
+
+.small{ 
+  font-size: 80%}
+.tiny{
+  font-size: 65%}
+&lt;/style&gt;
+
+## This time
+
+Hodgepodge:
+1. Mediation &amp; multivariate/distribution models
+2. Missing data
+3. IRT
+
+
+---
+## Simple mediation
+
+.pull-left[
+`$$M  = i_M + a X + e_M$$`
+`$$Y  = i_Y + c' X + b M + e_Y$$`
+
+]
+
+.pull-right[
+![](grabbag_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+]
+
+---
+# path analysis with lavaan
+
+
+
+```r
+library(lavaan)
+```
+
+```
+## This is lavaan 0.6-7
+```
+
+```
+## lavaan is BETA software! Please report any bugs.
+```
+
+```r
+X &lt;- rnorm(100)
+M &lt;- 0.5*X + rnorm(100)
+Y &lt;- 0.7*M + rnorm(100)
+Data &lt;- data.frame(X = X, Y = Y, M = M)
+model &lt;- ' # direct effect
+             Y ~ c*X
+           # mediator
+             M ~ a*X
+             Y ~ b*M
+           # indirect effect (a*b)
+             ab := a*b
+           # total effect
+             total := c + (a*b)
+         '
+fit &lt;- sem(model, data = Data)
+```
+
+
+---
+.tiny[
+
+```r
+summary(fit)
+```
+
+```
+## lavaan 0.6-7 ended normally after 11 iterations
+## 
+##   Estimator                                         ML
+##   Optimization method                           NLMINB
+##   Number of free parameters                          5
+##                                                       
+##   Number of observations                           100
+##                                                       
+## Model Test User Model:
+##                                                       
+##   Test statistic                                 0.000
+##   Degrees of freedom                                 0
+## 
+## Parameter Estimates:
+## 
+##   Standard errors                             Standard
+##   Information                                 Expected
+##   Information saturated (h1) model          Structured
+## 
+## Regressions:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)
+##   Y ~                                                 
+##     X          (c)    0.041    0.104    0.394    0.694
+##   M ~                                                 
+##     X          (a)    0.352    0.092    3.825    0.000
+##   Y ~                                                 
+##     M          (b)    0.827    0.105    7.846    0.000
+## 
+## Variances:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)
+##    .Y                 1.012    0.143    7.071    0.000
+##    .M                 0.912    0.129    7.071    0.000
+## 
+## Defined Parameters:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)
+##     ab                0.291    0.085    3.438    0.001
+##     total             0.332    0.123    2.692    0.007
+```
+]
+
+---
+
+
+```r
+library(blavaan)
+  b.fit &lt;- bsem(model, data=Data, mcmcfile = "blavaan.1")
+```
+
+```
+## 
+## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 1).
+## Chain 1: 
+## Chain 1: Gradient evaluation took 0.000441 seconds
+## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 4.41 seconds.
+## Chain 1: Adjust your expectations accordingly!
+## Chain 1: 
+## Chain 1: 
+## Chain 1: Iteration:    1 / 1500 [  0%]  (Warmup)
+## Chain 1: Iteration:  150 / 1500 [ 10%]  (Warmup)
+## Chain 1: Iteration:  300 / 1500 [ 20%]  (Warmup)
+## Chain 1: Iteration:  450 / 1500 [ 30%]  (Warmup)
+## Chain 1: Iteration:  501 / 1500 [ 33%]  (Sampling)
+## Chain 1: Iteration:  650 / 1500 [ 43%]  (Sampling)
+## Chain 1: Iteration:  800 / 1500 [ 53%]  (Sampling)
+## Chain 1: Iteration:  950 / 1500 [ 63%]  (Sampling)
+## Chain 1: Iteration: 1100 / 1500 [ 73%]  (Sampling)
+## Chain 1: Iteration: 1250 / 1500 [ 83%]  (Sampling)
+## Chain 1: Iteration: 1400 / 1500 [ 93%]  (Sampling)
+## Chain 1: Iteration: 1500 / 1500 [100%]  (Sampling)
+## Chain 1: 
+## Chain 1:  Elapsed Time: 0.715216 seconds (Warm-up)
+## Chain 1:                1.28302 seconds (Sampling)
+## Chain 1:                1.99824 seconds (Total)
+## Chain 1: 
+## 
+## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 2).
+## Chain 2: 
+## Chain 2: Gradient evaluation took 0.000361 seconds
+## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 3.61 seconds.
+## Chain 2: Adjust your expectations accordingly!
+## Chain 2: 
+## Chain 2: 
+## Chain 2: Iteration:    1 / 1500 [  0%]  (Warmup)
+## Chain 2: Iteration:  150 / 1500 [ 10%]  (Warmup)
+## Chain 2: Iteration:  300 / 1500 [ 20%]  (Warmup)
+## Chain 2: Iteration:  450 / 1500 [ 30%]  (Warmup)
+## Chain 2: Iteration:  501 / 1500 [ 33%]  (Sampling)
+## Chain 2: Iteration:  650 / 1500 [ 43%]  (Sampling)
+## Chain 2: Iteration:  800 / 1500 [ 53%]  (Sampling)
+## Chain 2: Iteration:  950 / 1500 [ 63%]  (Sampling)
+## Chain 2: Iteration: 1100 / 1500 [ 73%]  (Sampling)
+## Chain 2: Iteration: 1250 / 1500 [ 83%]  (Sampling)
+## Chain 2: Iteration: 1400 / 1500 [ 93%]  (Sampling)
+## Chain 2: Iteration: 1500 / 1500 [100%]  (Sampling)
+## Chain 2: 
+## Chain 2:  Elapsed Time: 0.740146 seconds (Warm-up)
+## Chain 2:                1.39809 seconds (Sampling)
+## Chain 2:                2.13823 seconds (Total)
+## Chain 2: 
+## 
+## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 3).
+## Chain 3: 
+## Chain 3: Gradient evaluation took 0.000211 seconds
+## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 2.11 seconds.
+## Chain 3: Adjust your expectations accordingly!
+## Chain 3: 
+## Chain 3: 
+## Chain 3: Iteration:    1 / 1500 [  0%]  (Warmup)
+## Chain 3: Iteration:  150 / 1500 [ 10%]  (Warmup)
+## Chain 3: Iteration:  300 / 1500 [ 20%]  (Warmup)
+## Chain 3: Iteration:  450 / 1500 [ 30%]  (Warmup)
+## Chain 3: Iteration:  501 / 1500 [ 33%]  (Sampling)
+## Chain 3: Iteration:  650 / 1500 [ 43%]  (Sampling)
+## Chain 3: Iteration:  800 / 1500 [ 53%]  (Sampling)
+## Chain 3: Iteration:  950 / 1500 [ 63%]  (Sampling)
+## Chain 3: Iteration: 1100 / 1500 [ 73%]  (Sampling)
+## Chain 3: Iteration: 1250 / 1500 [ 83%]  (Sampling)
+## Chain 3: Iteration: 1400 / 1500 [ 93%]  (Sampling)
+## Chain 3: Iteration: 1500 / 1500 [100%]  (Sampling)
+## Chain 3: 
+## Chain 3:  Elapsed Time: 0.752279 seconds (Warm-up)
+## Chain 3:                1.49682 seconds (Sampling)
+## Chain 3:                2.2491 seconds (Total)
+## Chain 3: 
+## Computing posterior predictives...
+```
+
+---
+.tiny[
+
+```r
+summary(b.fit)
+```
+
+```
+## blavaan (0.3-10) results of 1000 samples after 500 adapt/burnin iterations
+## 
+##   Number of observations                           100
+## 
+##   Number of missing patterns                         1
+## 
+##   Statistic                                 MargLogLik         PPP
+##   Value                                       -307.381       0.511
+## 
+## Regressions:
+##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
+##   Y ~                                                                          
+##     X          (c)    0.040    0.107   -0.165    0.246    1.000    normal(0,10)
+##   M ~                                                                          
+##     X          (a)    0.351    0.092    0.168    0.541    1.000    normal(0,10)
+##   Y ~                                                                          
+##     M          (b)    0.827    0.109    0.613    1.044    0.999    normal(0,10)
+## 
+## Intercepts:
+##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
+##    .Y                -0.036    0.104   -0.241    0.168    1.000    normal(0,10)
+##    .M                -0.100    0.096   -0.294    0.079    1.000    normal(0,10)
+## 
+## Variances:
+##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
+##    .Y                 1.070    0.155    0.806     1.42    1.000 gamma(1,.5)[sd]
+##    .M                 0.956    0.140    0.724    1.268    0.999 gamma(1,.5)[sd]
+## 
+## Defined Parameters:
+##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
+##     ab                0.290    0.085    0.124    0.456       NA                
+##     total             0.330    0.125    0.084    0.575       NA
+```
+
+]
+
+---
+# brms
+
+```r
+library(brms)
+```
+
+```
+## Loading 'brms' package (version 2.13.5). Useful instructions
+## can be found by typing help('brms'). A more detailed introduction
+## to the package is available through vignette('brms_overview').
+```
+
+```
+## 
+## Attaching package: 'brms'
+```
+
+```
+## The following objects are masked from 'package:tidybayes':
+## 
+##     dstudent_t, pstudent_t, qstudent_t, rstudent_t
+```
+
+```
+## The following object is masked from 'package:stats':
+## 
+##     ar
+```
+
+```r
+# describe your equations
+y_model &lt;- bf(Y ~ 1 + X + M)
+m_model &lt;- bf(M ~ 1 + X)
+
+# simultaneously estimate
+med.1 &lt;-
+  brm(family = gaussian,
+      y_model + m_model + set_rescor(FALSE),
+      data = Data,
+      cores = 4,
+      file = "med.1")
+```
+
+
+---
+.tiny[
+
+```r
+summary(med.1)
+```
+
+```
+##  Family: MV(gaussian, gaussian) 
+##   Links: mu = identity; sigma = identity
+##          mu = identity; sigma = identity 
+## Formula: Y ~ 1 + X + M 
+##          M ~ 1 + X 
+##    Data: Data (Number of observations: 100) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Y_Intercept    -0.17      0.09    -0.35     0.02 1.00     6324     2980
+## M_Intercept     0.01      0.09    -0.16     0.18 1.00     5560     2698
+## Y_X             0.01      0.12    -0.22     0.24 1.00     4839     2906
+## Y_M             0.80      0.11     0.58     1.02 1.00     4620     3253
+## M_X             0.51      0.10     0.32     0.71 1.00     5646     2485
+## 
+## Family Specific Parameters: 
+##         Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma_Y     0.95      0.07     0.83     1.10 1.01     5487     2878
+## sigma_M     0.90      0.06     0.79     1.04 1.00     6134     3151
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+]
+
+
+---
+## Indirect effects
+
+
+```r
+library(tidybayes)
+get_variables(med.1)
+```
+
+```
+##  [1] "b_Y_Intercept" "b_M_Intercept" "b_Y_X"         "b_Y_M"        
+##  [5] "b_M_X"         "sigma_Y"       "sigma_M"       "lp__"         
+##  [9] "accept_stat__" "stepsize__"    "treedepth__"   "n_leapfrog__" 
+## [13] "divergent__"   "energy__"
+```
+
+
+```r
+med.1 %&gt;% 
+  spread_draws(b_Y_M, b_M_X,b_Y_X) 
+```
+
+```
+## # A tibble: 4,000 x 6
+##    .chain .iteration .draw b_Y_M b_M_X    b_Y_X
+##     &lt;int&gt;      &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+##  1      1          1     1 0.748 0.552  0.00151
+##  2      1          2     2 0.679 0.388 -0.0409 
+##  3      1          3     3 0.985 0.637 -0.0148 
+##  4      1          4     4 0.702 0.419  0.113  
+##  5      1          5     5 0.530 0.535  0.182  
+##  6      1          6     6 0.487 0.588  0.201  
+##  7      1          7     7 0.569 0.653  0.0600 
+##  8      1          8     8 1.02  0.358 -0.0793 
+##  9      1          9     9 0.767 0.697 -0.0121 
+## 10      1         10    10 0.886 0.407 -0.0412 
+## # … with 3,990 more rows
+```
+
+
+---
+## calculate indirect effects
+
+```r
+med.1 %&gt;% 
+  spread_draws(b_Y_M, b_M_X, b_Y_X) %&gt;% 
+  mutate(indirect = b_Y_M * b_M_X) %&gt;% 
+  mutate(direct = b_Y_X) %&gt;% 
+  mutate(total = indirect + direct ) %&gt;% 
+  median_qi(indirect, direct,total)
+```
+
+```
+## # A tibble: 1 x 12
+##   indirect indirect.lower indirect.upper  direct direct.lower direct.upper total
+##      &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;   &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt; &lt;dbl&gt;
+## 1    0.407          0.234          0.616 0.00827       -0.221        0.241 0.423
+## # … with 5 more variables: total.lower &lt;dbl&gt;, total.upper &lt;dbl&gt;, .width &lt;dbl&gt;,
+## #   .point &lt;chr&gt;, .interval &lt;chr&gt;
+```
+
+
+---
+
+
+```r
+med.1 %&gt;% 
+  spread_draws(b_Y_M, b_M_X, b_Y_X) %&gt;% 
+  mutate(indirect = b_Y_M * b_M_X) %&gt;% 
+  mutate(direct = b_Y_X) %&gt;% 
+  mutate(total = indirect + direct ) %&gt;% 
+  select(indirect, direct, total) %&gt;% 
+  gather() %&gt;% 
+  ggplot(aes(y = key, x = value)) +
+  stat_dotsinterval()
+```
+
+![](grabbag_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+
+---
+## priors for mediation
+7 parameters to estimate
+
+
+```r
+get_prior(y_model + m_model + set_rescor(FALSE),
+          family = gaussian,
+          data = Data)
+```
+
+```
+##                      prior     class coef group resp dpar nlpar bound
+## 1                                  b                                 
+## 2                          Intercept                                 
+## 3                                  b               M                 
+## 4                                  b    X          M                 
+## 5  student_t(3, -0.2, 2.5) Intercept               M                 
+## 6     student_t(3, 0, 2.5)     sigma               M                 
+## 7                                  b               Y                 
+## 8                                  b    M          Y                 
+## 9                                  b    X          Y                 
+## 10 student_t(3, -0.2, 2.5) Intercept               Y                 
+## 11    student_t(3, 0, 2.5)     sigma               Y
+```
+
+
+---
+
+```r
+med.2 &lt;-
+  brm(family = gaussian,
+      y_model + m_model + set_rescor(FALSE),
+       prior = c(prior(normal(0, 1), class = Intercept, resp = M),
+                 prior(normal(0, 1), class = Intercept, resp = Y),
+                prior(normal(0, 2), class = b, coef = X, resp = M),
+                prior(normal(0, 2), class = b, coef = M, resp = Y),
+                prior(normal(0, 2), class = b, coef = X, resp = Y),
+                prior(exponential(1), class = sigma, resp = M),
+                prior(exponential(1), class = sigma, resp = Y)),
+      data = Data,
+      cores = 4,
+      file = "med.2")
+```
+
+---
+
+```r
+summary(med.2)
+```
+
+```
+##  Family: MV(gaussian, gaussian) 
+##   Links: mu = identity; sigma = identity
+##          mu = identity; sigma = identity 
+## Formula: Y ~ 1 + X + M 
+##          M ~ 1 + X 
+##    Data: Data (Number of observations: 100) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Y_Intercept    -0.08      0.11    -0.29     0.13 1.00     5503     3182
+## M_Intercept    -0.24      0.10    -0.43    -0.04 1.00     6293     2706
+## Y_X            -0.19      0.12    -0.43     0.04 1.00     4824     3017
+## Y_M             0.82      0.11     0.60     1.03 1.00     4907     3291
+## M_X             0.47      0.10     0.27     0.66 1.00     5753     2991
+## 
+## Family Specific Parameters: 
+##         Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma_Y     1.06      0.08     0.92     1.22 1.00     5604     3321
+## sigma_M     0.97      0.07     0.84     1.12 1.00     6127     2984
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+---
+
+
+```r
+med.2 %&gt;% 
+  spread_draws(b_Y_M, b_M_X) %&gt;% 
+  mutate(indirect = b_Y_M * b_M_X) %&gt;% 
+  median_qi(indirect)
+```
+
+```
+## # A tibble: 1 x 6
+##   indirect .lower .upper .width .point .interval
+##      &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+## 1    0.376  0.207  0.581   0.95 median qi
+```
+
+
+
+```r
+med.1 %&gt;% 
+  spread_draws(b_Y_M, b_M_X) %&gt;% 
+  mutate(indirect = b_Y_M * b_M_X) %&gt;% 
+  median_qi(indirect)
+```
+
+```
+## # A tibble: 1 x 6
+##   indirect .lower .upper .width .point .interval
+##      &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+## 1    0.407  0.234  0.616   0.95 median qi
+```
+
+---
+# Multiple Predictors, mediators and outcomes
+
+
+```r
+n &lt;- 1e3
+set.seed(4.5)
+mult.X &lt;-
+  tibble(X1 = rnorm(n, mean = 0, sd = 1),
+         X2 = rnorm(n, mean = 0, sd = 1),
+         X3 = rnorm(n, mean = 0, sd = 1)) %&gt;% 
+  mutate(med = rnorm(n, mean = 0 + X1 * -1 + X2 * 0 + X3 * 1, sd = 1),
+         dv  = rnorm(n, mean = 0 + X1 * 0 + X2 * .5 + X3 * 1 + M * .5, sd = 1))
+```
+
+
+![](grabbag_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+med.3 &lt;-
+  brm(family = gaussian,
+      bf(dv ~ 1 + X1 + X2 + X3 + med) + 
+        bf(med ~ 1 + X1 + X2 + X3) + 
+        set_rescor(FALSE),
+      data = mult.X, 
+      file = "med.3", 
+      cores = 4)
+```
+
+```
+## Compiling Stan program...
+```
+
+```
+## Trying to compile a simple C file
+```
+
+```
+## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
+## clang -mmacosx-version-min=10.13 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/Rcpp/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/unsupported"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/BH/include" -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/src/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppParallel/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include '/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include   -fPIC  -Wall -g -O2  -c foo.c -o foo.o
+## In file included from &lt;built-in&gt;:1:
+## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
+## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:88:
+## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:1: error: unknown type name 'namespace'
+## namespace Eigen {
+## ^
+## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:16: error: expected ';' after top level declarator
+## namespace Eigen {
+##                ^
+##                ;
+## In file included from &lt;built-in&gt;:1:
+## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
+## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: 'complex' file not found
+## #include &lt;complex&gt;
+##          ^~~~~~~~~
+## 3 errors generated.
+## make: *** [foo.o] Error 1
+```
+
+```
+## Start sampling
+```
+
+---
+
+```r
+summary(med.3)
+```
+
+```
+##  Family: MV(gaussian, gaussian) 
+##   Links: mu = identity; sigma = identity
+##          mu = identity; sigma = identity 
+## Formula: dv ~ 1 + X1 + X2 + X3 + med 
+##          med ~ 1 + X1 + X2 + X3 
+##    Data: mult.X (Number of observations: 1000) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## dv_Intercept     -0.06      0.04    -0.13     0.01 1.00     7463     3520
+## med_Intercept     0.00      0.03    -0.06     0.06 1.00     6236     3422
+## dv_X1             0.01      0.05    -0.08     0.11 1.00     2985     3070
+## dv_X2             0.56      0.04     0.49     0.63 1.00     6708     3193
+## dv_X3             1.01      0.05     0.91     1.11 1.00     3010     2789
+## dv_med           -0.04      0.04    -0.11     0.03 1.00     2529     2810
+## med_X1           -0.93      0.03    -0.99    -0.87 1.00     6961     3375
+## med_X2            0.03      0.03    -0.03     0.09 1.00     7103     3271
+## med_X3            0.98      0.03     0.92     1.04 1.00     5887     3144
+## 
+## Family Specific Parameters: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma_dv      1.13      0.03     1.08     1.18 1.00     6880     3095
+## sigma_med     0.97      0.02     0.93     1.02 1.00     6630     2882
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+
+---
+## Multiple outcomes
+
+
+```r
+n &lt;- 1e3
+
+set.seed(4.5)
+Ys &lt;-
+  tibble(X  = rnorm(n, mean = 0, sd = 1)) %&gt;% 
+  mutate(M = rnorm(n, mean = 0 + X * .5, sd = 1)) %&gt;% 
+  mutate(Y1 = rnorm(n, mean = 0 + X * -1 + M * 0,  sd = 1),
+         Y2 = rnorm(n, mean = 0 + X * 0  + M * .5, sd = 1),
+         Y3 = rnorm(n, mean = 0 + X * 1  + M * 1,  sd = 1))
+```
+
+
+![](grabbag_files/figure-html/unnamed-chunk-22-1.png)&lt;!-- --&gt;
+
+---
+
+```r
+mult.Ys &lt;-
+  brm(family = gaussian,
+      bf(Y1 ~ 1 + X + M) + 
+        bf(Y2 ~ 1 + X + M) + 
+        bf(Y3 ~ 1 + X + M) + 
+        bf(M ~ 1 + X) + 
+        set_rescor(FALSE),
+      data = Ys, 
+      cores = 4,
+      fit = "med.4")
+```
+
+```
+## Compiling Stan program...
+```
+
+```
+## Trying to compile a simple C file
+```
+
+```
+## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
+## clang -mmacosx-version-min=10.13 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/Rcpp/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/unsupported"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/BH/include" -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/src/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppParallel/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include '/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include   -fPIC  -Wall -g -O2  -c foo.c -o foo.o
+## In file included from &lt;built-in&gt;:1:
+## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
+## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:88:
+## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:1: error: unknown type name 'namespace'
+## namespace Eigen {
+## ^
+## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:16: error: expected ';' after top level declarator
+## namespace Eigen {
+##                ^
+##                ;
+## In file included from &lt;built-in&gt;:1:
+## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
+## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: 'complex' file not found
+## #include &lt;complex&gt;
+##          ^~~~~~~~~
+## 3 errors generated.
+## make: *** [foo.o] Error 1
+```
+
+```
+## Start sampling
+```
+
+---
+.small[
+
+```r
+summary(mult.Ys)
+```
+
+```
+##  Family: MV(gaussian, gaussian, gaussian, gaussian) 
+##   Links: mu = identity; sigma = identity
+##          mu = identity; sigma = identity
+##          mu = identity; sigma = identity
+##          mu = identity; sigma = identity 
+## Formula: Y1 ~ 1 + X + M 
+##          Y2 ~ 1 + X + M 
+##          Y3 ~ 1 + X + M 
+##          M ~ 1 + X 
+##    Data: Ys (Number of observations: 1000) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Y1_Intercept     0.01      0.03    -0.05     0.07 1.00    10510     2884
+## Y2_Intercept     0.00      0.03    -0.06     0.06 1.00     9502     2776
+## Y3_Intercept    -0.01      0.03    -0.07     0.05 1.00    10377     2917
+## M_Intercept      0.03      0.03    -0.04     0.09 1.00     8109     2568
+## Y1_X            -1.05      0.04    -1.12    -0.98 1.00     7429     3454
+## Y1_M             0.05      0.03    -0.01     0.11 1.00     7699     3655
+## Y2_X             0.05      0.04    -0.01     0.13 1.00     6810     3250
+## Y2_M             0.53      0.03     0.47     0.59 1.00     6923     2998
+## Y3_X             1.03      0.04     0.95     1.10 1.00     7123     3277
+## Y3_M             1.06      0.03     1.00     1.12 1.00     7409     3340
+## M_X              0.53      0.03     0.46     0.59 1.00    10981     2659
+## 
+## Family Specific Parameters: 
+##          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma_Y1     0.98      0.02     0.93     1.02 1.00     9144     3183
+## sigma_Y2     0.97      0.02     0.93     1.02 1.00     9556     2787
+## sigma_Y3     1.00      0.02     0.96     1.05 1.00    10641     3224
+## sigma_M      1.00      0.02     0.96     1.04 1.00     9318     2974
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+]
+
+---
+## Multiple Mediators
+
+parallel vs serial
+
+![](grabbag_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+Note we can compute individual and total indirect effects
+
+---
+## parallel
+
+```r
+m1_model &lt;- bf(M1 ~ 1 + X)
+m2_model &lt;- bf(M2  ~ 1 + X)
+y_model  &lt;- bf(Y ~ 1 + X + M1 + M2)
+
+par &lt;-
+  brm(family = gaussian,
+      y_model + m1_model + m2_model + set_rescor(FALSE),
+      data = d)
+```
+3 indirect effects can be calculated
+---
+## serial
+
+```r
+ser &lt;-
+  brm(family = gaussian,
+        bf(M1 ~ 1 + X) + 
+        bf(M2 ~ 1 + X + M1) + 
+        bf(Y ~ 1 + X + M1 + M2) + 
+        set_rescor(FALSE),
+        data=d)
+```
+
+4 indirect effects can be calculated
+
+---
+## moderated mediation? 
+
+```r
+y_model &lt;- bf(Y ~ 1 + X + M)
+m_model &lt;- bf(M ~ 1 + X*moderator)
+
+med.5 &lt;-
+  brm(family = gaussian,
+      y_model + m_model + set_rescor(FALSE),
+      data = Data,
+      cores = 4,
+      file = "med.5")
+```
+
+---
+# Multivariate models
+
+
+
+---
+# Distributional Models
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

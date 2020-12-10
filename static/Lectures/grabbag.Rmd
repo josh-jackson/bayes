@@ -1,0 +1,503 @@
+---
+title: "grabbag"
+author: Josh Jackson
+date: "12-10-20"
+output:
+  xaringan::moon_reader:
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    css: xaringan-themer.css
+    seal: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      ratio: "16:9"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "#23395b",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Droid Mono"),
+)
+
+library(tidyverse)
+library(broom)
+library(tidybayes)
+library(modelr)
+```
+
+<style type="text/css">
+.remark-slide-content {
+    font-size: 30px;
+    padding: 1em 4em 1em 4em;
+}
+
+.small{ 
+  font-size: 80%}
+.tiny{
+  font-size: 65%}
+</style>
+
+## This time
+
+Hodgepodge:
+1. Mediation & multivariate/distribution models
+2. Missing data
+3. IRT
+
+
+---
+## Simple mediation
+
+.pull-left[
+$$M  = i_M + a X + e_M$$
+$$Y  = i_Y + c' X + b M + e_Y$$
+
+]
+
+.pull-right[
+```{r, echo = FALSE, message = FALSE}
+
+library(ggdag)
+
+dag_coords <-
+  tibble(name = c("X", "M", "Y"),
+         x    = c(1, 2, 3),
+         y    = c(2, 1, 2))
+
+p1 <-
+  dagify(M ~ X,
+       Y ~ X + M,
+       coords = dag_coords) %>%
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(color = "black", alpha = 1/4, size = 10) +
+  geom_dag_text(color = "black") +
+  geom_dag_edges(edge_color = "black") +
+  scale_x_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  scale_y_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  theme_bw() +
+  theme(panel.grid = element_blank())+
+  ggtitle("direct + indirect effect")
+
+p2 <-
+  dagify(Y ~ X,
+       coords = dag_coords) %>%
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(color = "black", alpha = 1/4, size = 10) +
+  geom_dag_text(color = "black") +
+  geom_dag_edges(edge_color = "black") +
+  scale_x_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  scale_y_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  theme_bw() +
+  theme(panel.grid = element_blank())+
+  ggtitle("Total effect")
+
+library(patchwork)
+
+p2 | p1
+
+```
+]
+
+---
+# path analysis with lavaan
+
+
+```{r}
+library(lavaan)
+
+X <- rnorm(100)
+M <- 0.5*X + rnorm(100)
+Y <- 0.7*M + rnorm(100)
+Data <- data.frame(X = X, Y = Y, M = M)
+model <- ' # direct effect
+             Y ~ c*X
+           # mediator
+             M ~ a*X
+             Y ~ b*M
+           # indirect effect (a*b)
+             ab := a*b
+           # total effect
+             total := c + (a*b)
+         '
+fit <- sem(model, data = Data)
+
+```
+
+
+---
+.tiny[
+```{r}
+
+summary(fit)
+```
+]
+
+---
+
+```{r, message = FALSE, warning = FALSE}
+library(blavaan)
+  b.fit <- bsem(model, data=Data, mcmcfile = "blavaan.1")
+
+```
+
+---
+.tiny[
+```{r}
+summary(b.fit)
+```
+
+]
+
+---
+# brms
+```{r}
+library(brms)
+# describe your equations
+y_model <- bf(Y ~ 1 + X + M)
+m_model <- bf(M ~ 1 + X)
+
+# simultaneously estimate
+med.1 <-
+  brm(family = gaussian,
+      y_model + m_model + set_rescor(FALSE),
+      data = Data,
+      cores = 4,
+      file = "med.1")
+
+```
+
+
+---
+.tiny[
+```{r}
+summary(med.1)
+```
+]
+
+
+---
+## Indirect effects
+
+```{r}
+library(tidybayes)
+get_variables(med.1)
+```
+
+```{r}
+med.1 %>% 
+  spread_draws(b_Y_M, b_M_X,b_Y_X) 
+
+```
+
+
+---
+## calculate indirect effects
+```{r}
+med.1 %>% 
+  spread_draws(b_Y_M, b_M_X, b_Y_X) %>% 
+  mutate(indirect = b_Y_M * b_M_X) %>% 
+  mutate(direct = b_Y_X) %>% 
+  mutate(total = indirect + direct ) %>% 
+  median_qi(indirect, direct,total)
+```
+
+
+---
+
+```{r}
+med.1 %>% 
+  spread_draws(b_Y_M, b_M_X, b_Y_X) %>% 
+  mutate(indirect = b_Y_M * b_M_X) %>% 
+  mutate(direct = b_Y_X) %>% 
+  mutate(total = indirect + direct ) %>% 
+  select(indirect, direct, total) %>% 
+  gather() %>% 
+  ggplot(aes(y = key, x = value)) +
+  stat_dotsinterval()
+```
+
+---
+## priors for mediation
+7 parameters to estimate
+
+```{r}
+get_prior(y_model + m_model + set_rescor(FALSE),
+          family = gaussian,
+          data = Data)
+```
+
+
+---
+```{r}
+med.2 <-
+  brm(family = gaussian,
+      y_model + m_model + set_rescor(FALSE),
+       prior = c(prior(normal(0, 1), class = Intercept, resp = M),
+                 prior(normal(0, 1), class = Intercept, resp = Y),
+                prior(normal(0, 2), class = b, coef = X, resp = M),
+                prior(normal(0, 2), class = b, coef = M, resp = Y),
+                prior(normal(0, 2), class = b, coef = X, resp = Y),
+                prior(exponential(1), class = sigma, resp = M),
+                prior(exponential(1), class = sigma, resp = Y)),
+      data = Data,
+      cores = 4,
+      file = "med.2")
+```
+
+---
+```{r}
+summary(med.2)
+```
+
+---
+
+```{r}
+med.2 %>% 
+  spread_draws(b_Y_M, b_M_X) %>% 
+  mutate(indirect = b_Y_M * b_M_X) %>% 
+  median_qi(indirect)
+```
+
+
+```{r}
+med.1 %>% 
+  spread_draws(b_Y_M, b_M_X) %>% 
+  mutate(indirect = b_Y_M * b_M_X) %>% 
+  median_qi(indirect)
+```
+
+---
+# Multiple Predictors, mediators and outcomes
+
+```{r}
+n <- 1e3
+set.seed(4.5)
+mult.X <-
+  tibble(X1 = rnorm(n, mean = 0, sd = 1),
+         X2 = rnorm(n, mean = 0, sd = 1),
+         X3 = rnorm(n, mean = 0, sd = 1)) %>% 
+  mutate(med = rnorm(n, mean = 0 + X1 * -1 + X2 * 0 + X3 * 1, sd = 1),
+         dv  = rnorm(n, mean = 0 + X1 * 0 + X2 * .5 + X3 * 1 + M * .5, sd = 1))
+
+```
+
+
+```{r, echo = FALSE}
+MultX_coords <-
+  tibble(name = c("X1","X2","X3",  "M", "Y"),
+         x    = c(1,1,1, 2, 3),
+         y    = c(2,1,3, 1, 2))
+
+X1 <-
+  dagify(M ~ X1 + X2 + X3,
+       Y ~ X1 + X2 + X3 + M,
+       coords = MultX_coords) %>%
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(color = "black", alpha = 1/4, size = 10) +
+  geom_dag_text(color = "black") +
+  geom_dag_edges(edge_color = "black") +
+  scale_x_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  scale_y_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  theme_bw() +
+  theme(panel.grid = element_blank())+
+  ggtitle("direct + indirect effect")
+X1
+```
+
+---
+
+```{r}
+med.3 <-
+  brm(family = gaussian,
+      bf(dv ~ 1 + X1 + X2 + X3 + med) + 
+        bf(med ~ 1 + X1 + X2 + X3) + 
+        set_rescor(FALSE),
+      data = mult.X, 
+      file = "med.3", 
+      cores = 4)
+```
+
+---
+```{r}
+summary(med.3)
+```
+
+
+---
+## Multiple outcomes
+
+```{r}
+n <- 1e3
+
+set.seed(4.5)
+Ys <-
+  tibble(X  = rnorm(n, mean = 0, sd = 1)) %>% 
+  mutate(M = rnorm(n, mean = 0 + X * .5, sd = 1)) %>% 
+  mutate(Y1 = rnorm(n, mean = 0 + X * -1 + M * 0,  sd = 1),
+         Y2 = rnorm(n, mean = 0 + X * 0  + M * .5, sd = 1),
+         Y3 = rnorm(n, mean = 0 + X * 1  + M * 1,  sd = 1))
+
+```
+
+
+```{r, echo = FALSE}
+MultY_coords <-
+  tibble(name = c("X","M","Y1",  "Y2", "Y3"),
+         x    = c(1,2,3, 3, 3),
+         y    = c(2,2.25,1, 2, 3))
+
+Y1 <-
+  dagify(M ~ X,
+       Y1 ~ X +  M,
+       Y2 ~ X +  M,
+       Y3 ~ X +  M,
+       coords = MultY_coords) %>%
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(color = "black", alpha = 1/4, size = 10) +
+  geom_dag_text(color = "black") +
+  geom_dag_edges(edge_color = "black") +
+  scale_x_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  scale_y_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  theme_bw() +
+  theme(panel.grid = element_blank())+
+  ggtitle("direct + indirect effect")
+Y1
+
+```
+
+---
+```{r}
+mult.Ys <-
+  brm(family = gaussian,
+      bf(Y1 ~ 1 + X + M) + 
+        bf(Y2 ~ 1 + X + M) + 
+        bf(Y3 ~ 1 + X + M) + 
+        bf(M ~ 1 + X) + 
+        set_rescor(FALSE),
+      data = Ys, 
+      cores = 4,
+      fit = "med.4")
+```
+
+---
+.small[
+```{r}
+summary(mult.Ys)
+```
+]
+
+---
+## Multiple Mediators
+
+parallel vs serial
+
+```{r, echo = FALSE}
+parallel <-
+  tibble(name = c("X","M1","M2",  "Y"),
+         x    = c(1,2,2,3),
+         y    = c(2,2.25,1.75, 2))
+
+
+ X2<- dagify(M1 ~ X,
+       M2 ~ X ,
+       Y ~ X +  M1,
+       Y ~ X +  M2,
+       coords = parallel) %>%
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(color = "black", alpha = 1/4, size = 10) +
+  geom_dag_text(color = "black") +
+  geom_dag_edges(edge_color = "black") +
+  scale_x_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  scale_y_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  theme_bw() +
+  theme(panel.grid = element_blank())+
+  ggtitle("parallel")
+ 
+ 
+ serial <-
+  tibble(name = c("X","M1","M2",  "Y"),
+         x    = c(1,1.5,2.5,3),
+         y    = c(2,2.25,2.25, 2))
+ 
+  X3<- dagify(M1 ~ X,
+       M2 ~ M1 ,
+        M2 ~ X ,
+       Y ~ M1,
+       Y ~ X +  M2,
+       coords = serial)  %>%
+  
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(color = "black", alpha = 1/4, size = 10) +
+  geom_dag_text(color = "black") +
+  geom_dag_edges(edge_color = "black") +
+  scale_x_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  scale_y_continuous(NULL, breaks = NULL, expand = c(.1, .1)) +
+  theme_bw() +
+  theme(panel.grid = element_blank())+
+  ggtitle("serial")
+
+X2 | X3
+```
+Note we can compute individual and total indirect effects
+
+---
+## parallel
+```{r, eval = FALSE}
+m1_model <- bf(M1 ~ 1 + X)
+m2_model <- bf(M2  ~ 1 + X)
+y_model  <- bf(Y ~ 1 + X + M1 + M2)
+
+par <-
+  brm(family = gaussian,
+      y_model + m1_model + m2_model + set_rescor(FALSE),
+      data = d)
+```
+3 indirect effects can be calculated
+---
+## serial
+```{r, eval = FALSE}
+ser <-
+  brm(family = gaussian,
+        bf(M1 ~ 1 + X) + 
+        bf(M2 ~ 1 + X + M1) + 
+        bf(Y ~ 1 + X + M1 + M2) + 
+        set_rescor(FALSE),
+        data=d)
+
+```
+
+4 indirect effects can be calculated
+
+---
+## moderated mediation? 
+```{r, eval = FALSE}
+y_model <- bf(Y ~ 1 + X + M)
+m_model <- bf(M ~ 1 + X*moderator)
+
+med.5 <-
+  brm(family = gaussian,
+      y_model + m_model + set_rescor(FALSE),
+      data = Data,
+      cores = 4,
+      file = "med.5")
+```
+
+---
+# Multivariate models
+
+
+
+---
+# Distributional Models
+
