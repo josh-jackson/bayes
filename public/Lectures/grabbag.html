@@ -16,10 +16,16 @@
 
 
 
-&lt;style type="text/css"&gt;
 
-.small{font-size: 80%}
-.tiny{font-size: 55%}
+
+&lt;style type="text/css"&gt;
+/* custom.css */
+  
+.small { font-size: 80% }
+.tiny { font-size: 35% }
+
+
+&lt;style type="text/css"&gt;
 
 .remark-slide-content {
     font-size: 30px;
@@ -27,6 +33,7 @@
 }
 
 
+&lt;/style&gt;
 
 &lt;/style&gt;
 
@@ -48,7 +55,7 @@ Hodgepodge:
 ]
 
 .pull-right[
-![](grabbag_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+![](grabbag_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
 ]
 
 ---
@@ -96,7 +103,7 @@ summary(fit)
 ```
 
 ```
-## lavaan 0.6-7 ended normally after 13 iterations
+## lavaan 0.6-7 ended normally after 11 iterations
 ## 
 ##   Estimator                                         ML
 ##   Optimization method                           NLMINB
@@ -118,22 +125,23 @@ summary(fit)
 ## Regressions:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)
 ##   Y ~                                                 
-##     X          (c)    0.139    0.143    0.971    0.332
+##     X          (c)    0.089    0.101    0.882    0.378
 ##   M ~                                                 
-##     X          (a)    0.802    0.094    8.574    0.000
+##     X          (a)    0.423    0.102    4.161    0.000
 ##   Y ~                                                 
-##     M          (b)    0.639    0.116    5.509    0.000
+##     M          (b)    0.637    0.092    6.907    0.000
 ## 
 ## Variances:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)
-##    .Y                 1.011    0.143    7.071    0.000
-##    .M                 0.751    0.106    7.071    0.000
+##    .Y                 0.934    0.132    7.071    0.000
+##    .M                 1.098    0.155    7.071    0.000
 ## 
 ## Defined Parameters:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)
-##     ab                0.513    0.111    4.635    0.000
-##     total             0.652    0.124    5.257    0.000
+##     ab                0.269    0.076    3.564    0.000
+##     total             0.359    0.114    3.151    0.002
 ```
+
 ]
 
 ---
@@ -148,8 +156,8 @@ library(blavaan)
 ## 
 ## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 1).
 ## Chain 1: 
-## Chain 1: Gradient evaluation took 0.000419 seconds
-## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 4.19 seconds.
+## Chain 1: Gradient evaluation took 0.000368 seconds
+## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 3.68 seconds.
 ## Chain 1: Adjust your expectations accordingly!
 ## Chain 1: 
 ## Chain 1: 
@@ -166,15 +174,15 @@ library(blavaan)
 ## Chain 1: Iteration: 1400 / 1500 [ 93%]  (Sampling)
 ## Chain 1: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 1: 
-## Chain 1:  Elapsed Time: 0.878435 seconds (Warm-up)
-## Chain 1:                1.45065 seconds (Sampling)
-## Chain 1:                2.32908 seconds (Total)
+## Chain 1:  Elapsed Time: 0.752722 seconds (Warm-up)
+## Chain 1:                1.39744 seconds (Sampling)
+## Chain 1:                2.15016 seconds (Total)
 ## Chain 1: 
 ## 
 ## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 2).
 ## Chain 2: 
-## Chain 2: Gradient evaluation took 0.000208 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 2.08 seconds.
+## Chain 2: Gradient evaluation took 0.000213 seconds
+## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 2.13 seconds.
 ## Chain 2: Adjust your expectations accordingly!
 ## Chain 2: 
 ## Chain 2: 
@@ -191,15 +199,15 @@ library(blavaan)
 ## Chain 2: Iteration: 1400 / 1500 [ 93%]  (Sampling)
 ## Chain 2: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 2: 
-## Chain 2:  Elapsed Time: 0.793911 seconds (Warm-up)
-## Chain 2:                1.60587 seconds (Sampling)
-## Chain 2:                2.39978 seconds (Total)
+## Chain 2:  Elapsed Time: 0.714928 seconds (Warm-up)
+## Chain 2:                1.38792 seconds (Sampling)
+## Chain 2:                2.10285 seconds (Total)
 ## Chain 2: 
 ## 
 ## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 3).
 ## Chain 3: 
-## Chain 3: Gradient evaluation took 0.000261 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 2.61 seconds.
+## Chain 3: Gradient evaluation took 0.000356 seconds
+## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 3.56 seconds.
 ## Chain 3: Adjust your expectations accordingly!
 ## Chain 3: 
 ## Chain 3: 
@@ -216,9 +224,9 @@ library(blavaan)
 ## Chain 3: Iteration: 1400 / 1500 [ 93%]  (Sampling)
 ## Chain 3: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 3: 
-## Chain 3:  Elapsed Time: 0.779455 seconds (Warm-up)
-## Chain 3:                1.40112 seconds (Sampling)
-## Chain 3:                2.18058 seconds (Total)
+## Chain 3:  Elapsed Time: 0.691837 seconds (Warm-up)
+## Chain 3:                1.31445 seconds (Sampling)
+## Chain 3:                2.00629 seconds (Total)
 ## Chain 3: 
 ## Computing posterior predictives...
 ```
@@ -238,31 +246,31 @@ summary(b.fit)
 ##   Number of missing patterns                         1
 ## 
 ##   Statistic                                 MargLogLik         PPP
-##   Value                                       -297.474       0.492
+##   Value                                       -312.590       0.503
 ## 
 ## Regressions:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
 ##   Y ~                                                                          
-##     X          (c)    0.142    0.147   -0.143    0.422    0.999    normal(0,10)
+##     X          (c)    0.094    0.104   -0.105    0.293    1.000    normal(0,10)
 ##   M ~                                                                          
-##     X          (a)    0.802    0.096    0.613    0.996    1.000    normal(0,10)
+##     X          (a)    0.423    0.104    0.224     0.63    0.999    normal(0,10)
 ##   Y ~                                                                          
-##     M          (b)    0.635    0.119    0.402    0.871    0.999    normal(0,10)
+##     M          (b)    0.636    0.095    0.452    0.819    0.999    normal(0,10)
 ## 
 ## Intercepts:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
-##    .Y                 0.081    0.106   -0.126     0.29    1.000    normal(0,10)
-##    .M                -0.120    0.091   -0.298    0.057    1.000    normal(0,10)
+##    .Y                 0.100    0.097    -0.09    0.291    1.000    normal(0,10)
+##    .M                 0.070    0.105   -0.139    0.284    1.000    normal(0,10)
 ## 
 ## Variances:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
-##    .Y                 1.072    0.161     0.81    1.415    1.000 gamma(1,.5)[sd]
-##    .M                 0.789    0.119    0.589    1.058    1.000 gamma(1,.5)[sd]
+##    .Y                 0.990    0.149    0.744    1.328    1.000 gamma(1,.5)[sd]
+##    .M                 1.151    0.168    0.873    1.518    0.999 gamma(1,.5)[sd]
 ## 
 ## Defined Parameters:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
-##     ab                0.509    0.113    0.288    0.731       NA                
-##     total             0.652    0.127    0.403      0.9       NA
+##     ab                0.269    0.078    0.117    0.421       NA                
+##     total             0.362    0.118    0.132    0.593       NA
 ```
 
 ]
@@ -286,7 +294,7 @@ med.1 &lt;-
 
 
 ---
-.tiny[
+.small[
 
 ```r
 summary(med.1)
@@ -400,7 +408,7 @@ med.1 %&gt;%
 ```
 ]
 .pull-right[
-![](grabbag_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+![](grabbag_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
 ]
 
 ---
@@ -415,18 +423,18 @@ get_prior(y_model + m_model + set_rescor(FALSE),
 ```
 
 ```
-##                      prior     class coef group resp dpar nlpar bound
-## 1                                  b                                 
-## 2                          Intercept                                 
-## 3                                  b               M                 
-## 4                                  b    X          M                 
-## 5  student_t(3, -0.1, 2.5) Intercept               M                 
-## 6     student_t(3, 0, 2.5)     sigma               M                 
-## 7                                  b               Y                 
-## 8                                  b    M          Y                 
-## 9                                  b    X          Y                 
-## 10  student_t(3, 0.1, 2.5) Intercept               Y                 
-## 11    student_t(3, 0, 2.5)     sigma               Y
+##                     prior     class coef group resp dpar nlpar bound
+## 1                                 b                                 
+## 2                         Intercept                                 
+## 3                                 b               M                 
+## 4                                 b    X          M                 
+## 5    student_t(3, 0, 2.5) Intercept               M                 
+## 6    student_t(3, 0, 2.5)     sigma               M                 
+## 7                                 b               Y                 
+## 8                                 b    M          Y                 
+## 9                                 b    X          Y                 
+## 10 student_t(3, 0.2, 2.5) Intercept               Y                 
+## 11   student_t(3, 0, 2.5)     sigma               Y
 ```
 
 
@@ -532,7 +540,7 @@ mult.X &lt;-
 ]
 
 .pull-right[
-![](grabbag_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+![](grabbag_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
 ]
 
 ---
@@ -550,7 +558,7 @@ med.3 &lt;-
 ```
 
 ---
-.tiny[
+.small[
 
 ```r
 summary(med.3)
@@ -607,7 +615,7 @@ Ys &lt;-
 ]
 
 .pull-right[
-![](grabbag_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
+![](grabbag_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
 ]
 
 ---
@@ -685,24 +693,24 @@ summary(mult.Ys)
 ## 
 ## Population-Level Effects: 
 ##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Y1_Intercept     0.01      0.03    -0.04     0.07 1.00    10353     3013
-## Y2_Intercept    -0.00      0.03    -0.06     0.06 1.00     9999     3097
-## Y3_Intercept    -0.01      0.03    -0.07     0.05 1.00     8058     2969
-## M_Intercept      0.03      0.03    -0.04     0.09 1.00     8929     2946
-## Y1_X            -1.05      0.04    -1.12    -0.98 1.00     6525     3395
-## Y1_M             0.05      0.03    -0.01     0.11 1.00     7189     3284
-## Y2_X             0.06      0.04    -0.01     0.12 1.00     6829     3415
-## Y2_M             0.53      0.03     0.47     0.59 1.00     6855     2962
-## Y3_X             1.03      0.04     0.95     1.10 1.00     7332     3348
-## Y3_M             1.06      0.03     1.00     1.12 1.00     7391     2867
-## M_X              0.53      0.03     0.46     0.59 1.00    10938     2839
+## Y1_Intercept     0.01      0.03    -0.05     0.07 1.00     9459     2763
+## Y2_Intercept     0.00      0.03    -0.06     0.06 1.00     9163     2662
+## Y3_Intercept    -0.01      0.03    -0.07     0.05 1.00     9842     3308
+## M_Intercept      0.02      0.03    -0.04     0.09 1.00     8590     2549
+## Y1_X            -1.05      0.03    -1.12    -0.98 1.00     7202     3732
+## Y1_M             0.05      0.03    -0.01     0.11 1.00     6649     3414
+## Y2_X             0.05      0.03    -0.01     0.12 1.00     6633     3190
+## Y2_M             0.53      0.03     0.47     0.59 1.00     6527     3180
+## Y3_X             1.03      0.04     0.96     1.10 1.00     7374     3690
+## Y3_M             1.06      0.03     1.00     1.12 1.00     7178     3509
+## M_X              0.53      0.03     0.46     0.59 1.00     9660     2625
 ## 
 ## Family Specific Parameters: 
 ##          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma_Y1     0.98      0.02     0.93     1.02 1.00     9442     3207
-## sigma_Y2     0.97      0.02     0.93     1.02 1.00     9502     2899
-## sigma_Y3     1.00      0.02     0.96     1.05 1.00    10154     2613
-## sigma_M      1.00      0.02     0.96     1.04 1.00    10140     3356
+## sigma_Y1     0.98      0.02     0.93     1.02 1.00     9521     2933
+## sigma_Y2     0.97      0.02     0.93     1.02 1.00     7604     3106
+## sigma_Y3     1.00      0.02     0.96     1.05 1.00     9755     3088
+## sigma_M      1.00      0.02     0.96     1.04 1.00    10248     3121
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -715,7 +723,7 @@ summary(mult.Ys)
 
 parallel vs serial
 
-![](grabbag_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
+![](grabbag_files/figure-html/unnamed-chunk-27-1.png)&lt;!-- --&gt;
 Note we can compute individual and total indirect effects
 
 ---

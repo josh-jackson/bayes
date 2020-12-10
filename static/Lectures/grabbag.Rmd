@@ -16,6 +16,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 ```{r xaringan-themer, include = FALSE}
 library(xaringanthemer)
 mono_light(
@@ -32,10 +33,15 @@ library(modelr)
 library(brms)
 ```
 
-<style type="text/css">
 
-.small{font-size: 80%}
-.tiny{font-size: 55%}
+```{css, echo=FALSE}
+/* custom.css */
+  
+.small { font-size: 80% }
+.tiny { font-size: 35% }
+
+
+<style type="text/css">
 
 .remark-slide-content {
     font-size: 30px;
@@ -43,8 +49,9 @@ library(brms)
 }
 
 
-
 </style>
+
+```
 
 ## This time
 
@@ -138,9 +145,10 @@ fit <- sem(model, data = Data)
 ---
 
 .tiny[
-```{r, fig.height=4}
+```{r}
 summary(fit)
 ```
+
 ]
 
 ---
@@ -178,7 +186,7 @@ med.1 <-
 
 
 ---
-.tiny[
+.small[
 ```{r}
 summary(med.1)
 ```
@@ -345,7 +353,7 @@ med.3 <-
 ```
 
 ---
-.tiny[
+.small[
 ```{r}
 summary(med.3)
 ```
