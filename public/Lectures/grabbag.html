@@ -17,15 +17,17 @@
 
 
 &lt;style type="text/css"&gt;
+
+.small{font-size: 80%}
+.tiny{font-size: 55%}
+
 .remark-slide-content {
     font-size: 30px;
     padding: 1em 4em 1em 4em;
 }
 
-.small{ 
-  font-size: 80%}
-.tiny{
-  font-size: 65%}
+
+
 &lt;/style&gt;
 
 ## This time
@@ -50,7 +52,7 @@ Hodgepodge:
 ]
 
 ---
-# path analysis with lavaan
+## path analysis with lavaan
 
 
 
@@ -86,6 +88,7 @@ fit &lt;- sem(model, data = Data)
 
 
 ---
+
 .tiny[
 
 ```r
@@ -93,7 +96,7 @@ summary(fit)
 ```
 
 ```
-## lavaan 0.6-7 ended normally after 11 iterations
+## lavaan 0.6-7 ended normally after 13 iterations
 ## 
 ##   Estimator                                         ML
 ##   Optimization method                           NLMINB
@@ -115,21 +118,21 @@ summary(fit)
 ## Regressions:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)
 ##   Y ~                                                 
-##     X          (c)    0.041    0.104    0.394    0.694
+##     X          (c)    0.139    0.143    0.971    0.332
 ##   M ~                                                 
-##     X          (a)    0.352    0.092    3.825    0.000
+##     X          (a)    0.802    0.094    8.574    0.000
 ##   Y ~                                                 
-##     M          (b)    0.827    0.105    7.846    0.000
+##     M          (b)    0.639    0.116    5.509    0.000
 ## 
 ## Variances:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)
-##    .Y                 1.012    0.143    7.071    0.000
-##    .M                 0.912    0.129    7.071    0.000
+##    .Y                 1.011    0.143    7.071    0.000
+##    .M                 0.751    0.106    7.071    0.000
 ## 
 ## Defined Parameters:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)
-##     ab                0.291    0.085    3.438    0.001
-##     total             0.332    0.123    2.692    0.007
+##     ab                0.513    0.111    4.635    0.000
+##     total             0.652    0.124    5.257    0.000
 ```
 ]
 
@@ -145,8 +148,8 @@ library(blavaan)
 ## 
 ## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 1).
 ## Chain 1: 
-## Chain 1: Gradient evaluation took 0.000441 seconds
-## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 4.41 seconds.
+## Chain 1: Gradient evaluation took 0.000419 seconds
+## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 4.19 seconds.
 ## Chain 1: Adjust your expectations accordingly!
 ## Chain 1: 
 ## Chain 1: 
@@ -163,15 +166,15 @@ library(blavaan)
 ## Chain 1: Iteration: 1400 / 1500 [ 93%]  (Sampling)
 ## Chain 1: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 1: 
-## Chain 1:  Elapsed Time: 0.715216 seconds (Warm-up)
-## Chain 1:                1.28302 seconds (Sampling)
-## Chain 1:                1.99824 seconds (Total)
+## Chain 1:  Elapsed Time: 0.878435 seconds (Warm-up)
+## Chain 1:                1.45065 seconds (Sampling)
+## Chain 1:                2.32908 seconds (Total)
 ## Chain 1: 
 ## 
 ## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 2).
 ## Chain 2: 
-## Chain 2: Gradient evaluation took 0.000361 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 3.61 seconds.
+## Chain 2: Gradient evaluation took 0.000208 seconds
+## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 2.08 seconds.
 ## Chain 2: Adjust your expectations accordingly!
 ## Chain 2: 
 ## Chain 2: 
@@ -188,15 +191,15 @@ library(blavaan)
 ## Chain 2: Iteration: 1400 / 1500 [ 93%]  (Sampling)
 ## Chain 2: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 2: 
-## Chain 2:  Elapsed Time: 0.740146 seconds (Warm-up)
-## Chain 2:                1.39809 seconds (Sampling)
-## Chain 2:                2.13823 seconds (Total)
+## Chain 2:  Elapsed Time: 0.793911 seconds (Warm-up)
+## Chain 2:                1.60587 seconds (Sampling)
+## Chain 2:                2.39978 seconds (Total)
 ## Chain 2: 
 ## 
 ## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 3).
 ## Chain 3: 
-## Chain 3: Gradient evaluation took 0.000211 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 2.11 seconds.
+## Chain 3: Gradient evaluation took 0.000261 seconds
+## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 2.61 seconds.
 ## Chain 3: Adjust your expectations accordingly!
 ## Chain 3: 
 ## Chain 3: 
@@ -213,9 +216,9 @@ library(blavaan)
 ## Chain 3: Iteration: 1400 / 1500 [ 93%]  (Sampling)
 ## Chain 3: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 3: 
-## Chain 3:  Elapsed Time: 0.752279 seconds (Warm-up)
-## Chain 3:                1.49682 seconds (Sampling)
-## Chain 3:                2.2491 seconds (Total)
+## Chain 3:  Elapsed Time: 0.779455 seconds (Warm-up)
+## Chain 3:                1.40112 seconds (Sampling)
+## Chain 3:                2.18058 seconds (Total)
 ## Chain 3: 
 ## Computing posterior predictives...
 ```
@@ -235,64 +238,37 @@ summary(b.fit)
 ##   Number of missing patterns                         1
 ## 
 ##   Statistic                                 MargLogLik         PPP
-##   Value                                       -307.381       0.511
+##   Value                                       -297.474       0.492
 ## 
 ## Regressions:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
 ##   Y ~                                                                          
-##     X          (c)    0.040    0.107   -0.165    0.246    1.000    normal(0,10)
+##     X          (c)    0.142    0.147   -0.143    0.422    0.999    normal(0,10)
 ##   M ~                                                                          
-##     X          (a)    0.351    0.092    0.168    0.541    1.000    normal(0,10)
+##     X          (a)    0.802    0.096    0.613    0.996    1.000    normal(0,10)
 ##   Y ~                                                                          
-##     M          (b)    0.827    0.109    0.613    1.044    0.999    normal(0,10)
+##     M          (b)    0.635    0.119    0.402    0.871    0.999    normal(0,10)
 ## 
 ## Intercepts:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
-##    .Y                -0.036    0.104   -0.241    0.168    1.000    normal(0,10)
-##    .M                -0.100    0.096   -0.294    0.079    1.000    normal(0,10)
+##    .Y                 0.081    0.106   -0.126     0.29    1.000    normal(0,10)
+##    .M                -0.120    0.091   -0.298    0.057    1.000    normal(0,10)
 ## 
 ## Variances:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
-##    .Y                 1.070    0.155    0.806     1.42    1.000 gamma(1,.5)[sd]
-##    .M                 0.956    0.140    0.724    1.268    0.999 gamma(1,.5)[sd]
+##    .Y                 1.072    0.161     0.81    1.415    1.000 gamma(1,.5)[sd]
+##    .M                 0.789    0.119    0.589    1.058    1.000 gamma(1,.5)[sd]
 ## 
 ## Defined Parameters:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
-##     ab                0.290    0.085    0.124    0.456       NA                
-##     total             0.330    0.125    0.084    0.575       NA
+##     ab                0.509    0.113    0.288    0.731       NA                
+##     total             0.652    0.127    0.403      0.9       NA
 ```
 
 ]
 
 ---
-# brms
-
-```r
-library(brms)
-```
-
-```
-## Loading 'brms' package (version 2.13.5). Useful instructions
-## can be found by typing help('brms'). A more detailed introduction
-## to the package is available through vignette('brms_overview').
-```
-
-```
-## 
-## Attaching package: 'brms'
-```
-
-```
-## The following objects are masked from 'package:tidybayes':
-## 
-##     dstudent_t, pstudent_t, qstudent_t, rstudent_t
-```
-
-```
-## The following object is masked from 'package:stats':
-## 
-##     ar
-```
+## brms
 
 ```r
 # describe your equations
@@ -409,7 +385,7 @@ med.1 %&gt;%
 
 
 ---
-
+.pull-left[
 
 ```r
 med.1 %&gt;% 
@@ -422,8 +398,10 @@ med.1 %&gt;%
   ggplot(aes(y = key, x = value)) +
   stat_dotsinterval()
 ```
-
-![](grabbag_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+]
+.pull-right[
+![](grabbag_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+]
 
 ---
 ## priors for mediation
@@ -442,12 +420,12 @@ get_prior(y_model + m_model + set_rescor(FALSE),
 ## 2                          Intercept                                 
 ## 3                                  b               M                 
 ## 4                                  b    X          M                 
-## 5  student_t(3, -0.2, 2.5) Intercept               M                 
+## 5  student_t(3, -0.1, 2.5) Intercept               M                 
 ## 6     student_t(3, 0, 2.5)     sigma               M                 
 ## 7                                  b               Y                 
 ## 8                                  b    M          Y                 
 ## 9                                  b    X          Y                 
-## 10 student_t(3, -0.2, 2.5) Intercept               Y                 
+## 10  student_t(3, 0.1, 2.5) Intercept               Y                 
 ## 11    student_t(3, 0, 2.5)     sigma               Y
 ```
 
@@ -538,8 +516,8 @@ med.1 %&gt;%
 ```
 
 ---
-# Multiple Predictors, mediators and outcomes
-
+## Multiple Predictors, mediators and outcomes
+.pull-left[
 
 ```r
 n &lt;- 1e3
@@ -551,9 +529,11 @@ mult.X &lt;-
   mutate(med = rnorm(n, mean = 0 + X1 * -1 + X2 * 0 + X3 * 1, sd = 1),
          dv  = rnorm(n, mean = 0 + X1 * 0 + X2 * .5 + X3 * 1 + M * .5, sd = 1))
 ```
+]
 
-
-![](grabbag_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+.pull-right[
+![](grabbag_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+]
 
 ---
 
@@ -569,43 +549,8 @@ med.3 &lt;-
       cores = 4)
 ```
 
-```
-## Compiling Stan program...
-```
-
-```
-## Trying to compile a simple C file
-```
-
-```
-## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
-## clang -mmacosx-version-min=10.13 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/Rcpp/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/unsupported"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/BH/include" -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/src/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppParallel/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include '/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include   -fPIC  -Wall -g -O2  -c foo.c -o foo.o
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:88:
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:1: error: unknown type name 'namespace'
-## namespace Eigen {
-## ^
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:16: error: expected ';' after top level declarator
-## namespace Eigen {
-##                ^
-##                ;
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: 'complex' file not found
-## #include &lt;complex&gt;
-##          ^~~~~~~~~
-## 3 errors generated.
-## make: *** [foo.o] Error 1
-```
-
-```
-## Start sampling
-```
-
 ---
+.tiny[
 
 ```r
 summary(med.3)
@@ -642,11 +587,11 @@ summary(med.3)
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
 ## scale reduction factor on split chains (at convergence, Rhat = 1).
 ```
-
+]
 
 ---
-## Multiple outcomes
-
+## Multiple Outcomes
+.pull-left[
 
 ```r
 n &lt;- 1e3
@@ -659,9 +604,11 @@ Ys &lt;-
          Y2 = rnorm(n, mean = 0 + X * 0  + M * .5, sd = 1),
          Y3 = rnorm(n, mean = 0 + X * 1  + M * 1,  sd = 1))
 ```
+]
 
-
-![](grabbag_files/figure-html/unnamed-chunk-22-1.png)&lt;!-- --&gt;
+.pull-right[
+![](grabbag_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
+]
 
 ---
 
@@ -715,7 +662,8 @@ mult.Ys &lt;-
 ```
 
 ---
-.small[
+
+.tiny[
 
 ```r
 summary(mult.Ys)
@@ -737,24 +685,24 @@ summary(mult.Ys)
 ## 
 ## Population-Level Effects: 
 ##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Y1_Intercept     0.01      0.03    -0.05     0.07 1.00    10510     2884
-## Y2_Intercept     0.00      0.03    -0.06     0.06 1.00     9502     2776
-## Y3_Intercept    -0.01      0.03    -0.07     0.05 1.00    10377     2917
-## M_Intercept      0.03      0.03    -0.04     0.09 1.00     8109     2568
-## Y1_X            -1.05      0.04    -1.12    -0.98 1.00     7429     3454
-## Y1_M             0.05      0.03    -0.01     0.11 1.00     7699     3655
-## Y2_X             0.05      0.04    -0.01     0.13 1.00     6810     3250
-## Y2_M             0.53      0.03     0.47     0.59 1.00     6923     2998
-## Y3_X             1.03      0.04     0.95     1.10 1.00     7123     3277
-## Y3_M             1.06      0.03     1.00     1.12 1.00     7409     3340
-## M_X              0.53      0.03     0.46     0.59 1.00    10981     2659
+## Y1_Intercept     0.01      0.03    -0.04     0.07 1.00    10353     3013
+## Y2_Intercept    -0.00      0.03    -0.06     0.06 1.00     9999     3097
+## Y3_Intercept    -0.01      0.03    -0.07     0.05 1.00     8058     2969
+## M_Intercept      0.03      0.03    -0.04     0.09 1.00     8929     2946
+## Y1_X            -1.05      0.04    -1.12    -0.98 1.00     6525     3395
+## Y1_M             0.05      0.03    -0.01     0.11 1.00     7189     3284
+## Y2_X             0.06      0.04    -0.01     0.12 1.00     6829     3415
+## Y2_M             0.53      0.03     0.47     0.59 1.00     6855     2962
+## Y3_X             1.03      0.04     0.95     1.10 1.00     7332     3348
+## Y3_M             1.06      0.03     1.00     1.12 1.00     7391     2867
+## M_X              0.53      0.03     0.46     0.59 1.00    10938     2839
 ## 
 ## Family Specific Parameters: 
 ##          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma_Y1     0.98      0.02     0.93     1.02 1.00     9144     3183
-## sigma_Y2     0.97      0.02     0.93     1.02 1.00     9556     2787
-## sigma_Y3     1.00      0.02     0.96     1.05 1.00    10641     3224
-## sigma_M      1.00      0.02     0.96     1.04 1.00     9318     2974
+## sigma_Y1     0.98      0.02     0.93     1.02 1.00     9442     3207
+## sigma_Y2     0.97      0.02     0.93     1.02 1.00     9502     2899
+## sigma_Y3     1.00      0.02     0.96     1.05 1.00    10154     2613
+## sigma_M      1.00      0.02     0.96     1.04 1.00    10140     3356
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -767,7 +715,7 @@ summary(mult.Ys)
 
 parallel vs serial
 
-![](grabbag_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+![](grabbag_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
 Note we can compute individual and total indirect effects
 
 ---
@@ -815,12 +763,183 @@ med.5 &lt;-
 ```
 
 ---
-# Multivariate models
+## Multivariate models
+The mediation models presented above are examples of multivariate models. What are multivariate models? Any model that has more than 1 DV. While common within SEM frameworks, multivariate models are not often used within standard linear modeling, mostly because of computational difficulties. 
 
+When do you want to use multivariate models? All the time! Mediation, path models, distributional models, IRT models, parallel process MLMs, etc etc. 
+
+What are advantages? Fewer models than doing separate, additional parameters, novel Qs. 
 
 
 ---
-# Distributional Models
+## multivariate MLMs
+
+
+.pull-left[
+
+```r
+mlm.4 &lt;- 
+  brm(family = gaussian,
+      CON ~ 1 + time + (1 + time | ID),
+      prior = c(prior(normal(0, 1.5), class = Intercept),
+                prior(normal(0, 1.5), class = b),
+                prior(normal(0, 1.5), class = sd, coef = Intercept, group = ID), 
+                prior(normal(0, 1.5), class = sd, coef = time, group = ID), 
+                prior(exponential(1), class = sigma),
+                prior(lkj(2), class = cor)),
+      iter = 4000, warmup = 1000, chains = 4, cores = 4,
+      file = "mlm.4",
+      data = mlm)
+```
+]
+
+.pull-right[
+
+```r
+mv.1 &lt;- 
+  brm(family = gaussian,
+      mvbind(CON, DAN) ~ 1 + time + (1 + time | ID),
+      prior = c(prior(normal(0, 1.5), class = Intercept),
+                prior(normal(0, 1.5), class = b),
+                prior(lkj(2), class = cor),
+                prior(lkj(2), class = rescor)),
+      iter = 4000, warmup = 1000, chains = 4, cores = 4,
+      file = "mv.1",
+      data = mlm)
+```
+]
+
+---
+.tiny[
+
+```r
+summary(mv.1)
+```
+
+```
+## Warning: There were 103 divergent transitions after warmup. Increasing
+## adapt_delta above 0.8 may help. See http://mc-stan.org/misc/
+## warnings.html#divergent-transitions-after-warmup
+```
+
+```
+##  Family: MV(gaussian, gaussian) 
+##   Links: mu = identity; sigma = identity
+##          mu = identity; sigma = identity 
+## Formula: CON ~ 1 + time + (1 + time | ID) 
+##          DAN ~ 1 + time + (1 + time | ID) 
+##    Data: mlm (Number of observations: 225) 
+## Samples: 4 chains, each with iter = 4000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 12000
+## 
+## Group-Level Effects: 
+## ~ID (Number of levels: 91) 
+##                             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+## sd(CON_Intercept)               0.06      0.01     0.05     0.07 1.00     2999
+## sd(CON_time)                    0.00      0.00     0.00     0.01 1.00     1145
+## sd(DAN_Intercept)               0.04      0.01     0.03     0.05 1.00     2098
+## sd(DAN_time)                    0.00      0.00     0.00     0.01 1.01     1001
+## cor(CON_Intercept,CON_time)    -0.12      0.39    -0.79     0.70 1.00     4537
+## cor(DAN_Intercept,DAN_time)    -0.04      0.41    -0.75     0.77 1.00     5895
+##                             Tail_ESS
+## sd(CON_Intercept)               4362
+## sd(CON_time)                    1297
+## sd(DAN_Intercept)               1609
+## sd(DAN_time)                     781
+## cor(CON_Intercept,CON_time)     2874
+## cor(DAN_Intercept,DAN_time)     5598
+## 
+## Population-Level Effects: 
+##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## CON_Intercept     0.19      0.01     0.18     0.21 1.00     4259     6190
+## DAN_Intercept     0.20      0.01     0.19     0.22 1.00     4537     4876
+## CON_time         -0.00      0.00    -0.01     0.00 1.00    10046     9297
+## DAN_time         -0.01      0.00    -0.01    -0.00 1.00     9678     8426
+## 
+## Family Specific Parameters: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma_CON     0.05      0.00     0.04     0.05 1.00     2714     2520
+## sigma_DAN     0.05      0.00     0.04     0.06 1.00     1939      985
+## 
+## Residual Correlations: 
+##                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## rescor(CON,DAN)     0.12      0.09    -0.06     0.29 1.00     5116     6552
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+]
+
+---
+## Distributional Models
+
+In basic regression with a Gaussian DV, we predict the mean, `\(\mu\)` through some linear model. The second parameter of the normal distribution – the residual standard deviation `\(\sigma\)` – is assumed to be constant across observations. We estimate it but do not try to predict it.
+
+This extends beyond Gaussian DVs, as most response distributions have a "location" parameter and one or more "scale" or "shape" parameters. Instead of only predicting the location parameters, we can also predict the scale parameters
+
+When to use? Well, you've seen this with Welch's t-test, and if you've ever done SEM you can model variance differences with group models all the time. 
+
+---
+
+`$$y_{ik} \sim t(\mu_{ik}, \sigma_{ik})$$`
+`$$\mu_{ik} = \beta_0 + \beta_1 Group_{ik}$$`
+`$$\sigma_{ik} = \gamma_0 + \gamma_1 Group_{ik}$$`
+
+---
+
+```r
+week3 &lt;- "https://raw.githubusercontent.com/josh-jackson/bayes/master/week3.csv"
+welch &lt;- read.csv(week3)
+welch &lt;- welch %&gt;% 
+mutate(mood.group.d = recode(mood.group, 
+                             '0' = "control", 
+                             '1' = "tx", 
+                             '2' = "tx")) 
+
+d.1 &lt;- 
+  brm(family = student,
+     bf( health ~ 0 + mood.group.d,
+         sigma ~ 0 + mood.group.d),
+                file = "d.1",
+                data = welch)
+```
+
+---
+
+```r
+summary(d.1)
+```
+
+```
+##  Family: student 
+##   Links: mu = identity; sigma = log; nu = identity 
+## Formula: health ~ 0 + mood.group.d 
+##          sigma ~ 0 + mood.group.d
+##    Data: welch (Number of observations: 200) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##                           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+## mood.group.dcontrol           7.99      0.34     7.33     8.68 1.00     4361
+## mood.group.dtx                8.77      0.24     8.31     9.25 1.00     4683
+## sigma_mood.group.dcontrol     1.01      0.09     0.84     1.20 1.00     4590
+## sigma_mood.group.dtx          1.00      0.07     0.87     1.14 1.00     4411
+##                           Tail_ESS
+## mood.group.dcontrol           2697
+## mood.group.dtx                2933
+## sigma_mood.group.dcontrol     3175
+## sigma_mood.group.dtx          3194
+## 
+## Family Specific Parameters: 
+##    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## nu    29.30     14.84     9.82    66.05 1.00     4313     3116
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).
+```
 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
