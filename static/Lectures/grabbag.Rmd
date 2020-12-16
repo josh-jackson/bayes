@@ -34,13 +34,6 @@ library(brms)
 ```
 
 
-```{css, echo=FALSE}
-/* custom.css */
-  
-.small { font-size: 80% }
-.tiny { font-size: 35% }
-
-
 <style type="text/css">
 
 .remark-slide-content {
@@ -49,9 +42,11 @@ library(brms)
 }
 
 
+.small { font-size: 80% }
+.tiny { font-size: 55% }
+
 </style>
 
-```
 
 ## This time
 
@@ -428,8 +423,7 @@ summary(mult.Ys)
 
 ---
 ## Multiple Mediators
-
-parallel vs serial
+Note we can compute individual and total indirect effects
 
 ```{r, echo = FALSE}
 parallel <-
@@ -479,7 +473,6 @@ parallel <-
 
 X2 | X3
 ```
-Note we can compute individual and total indirect effects
 
 ---
 ## parallel
@@ -574,11 +567,23 @@ mv.1 <-
 ]
 
 ---
-.tiny[
+.small[
 ```{r}
 summary(mv.1)
 ```
 ]
+
+---
+```{r}
+fixef(mv.1)
+```
+
+```{r}
+
+mv.1 %>% 
+  spread_draws(rescor__CON__DAN) %>% 
+   median_qi()
+```
 
 ---
 ## Distributional Models
@@ -618,4 +623,619 @@ d.1 <-
 ```{r}
 summary(d.1)
 ```
+
+---
+
+```{r}
+d.2 <- 
+  brm(family = student,
+     bf( health ~ 0 + mood.group.d,
+         sigma ~ 0 + mood.group.d*SES),
+                file = "d.2",
+                data = welch)
+```
+
+---
+
+```{r}
+summary(d.2)
+```
+
+---
+## MELSM
+.pull-left[
+Mixed effects location scale model
+```{r, messages = FALSE, warning=FALSE}
+library(readr)
+melsm <- read_csv("melsm.csv") %>% 
+  mutate(day01 = (day - 2) / max((day - 2)))
+```
+]
+
+.pull-right[
+```{r}
+head(melsm)
+
+```
+
+```{r}
+melsm %>% 
+distinct(record_id) %>% 
+  count()
+```
+]
+
+---
+.pull-left[
+Participants filled out daily affective measures and physical activity
+
+```{r, eval=FALSE}
+melsm %>% 
+    count(record_id) %>% 
+  ggplot(aes(x = n)) +
+  geom_bar() +
+  scale_x_continuous("number of days", limits = c(0, NA))
+```
+]
+
+.pull-right[
+
+```{r, echo=FALSE}
+melsm %>% 
+    count(record_id) %>% 
+  ggplot(aes(x = n)) +
+  geom_bar() +
+  scale_x_continuous("number of days", limits = c(0, NA))
+```
+
+
+]
+
+---
+Participant level
+
+.pull-left[
+```{r, eval = FALSE}
+melsm %>% 
+  nest(data = c(X1, P_A.std, day, P_A.lag, N_A.lag, steps.pm, steps.pmd, N_A.std, day01)) %>% 
+  slice_sample(n = 16) %>% 
+  unnest(data) %>% 
+  ggplot(aes(x = day, y = N_A.lag)) +
+  geom_line(color = "black") +
+  geom_point(color = "black", size = 1/2) +
+  ylab("negative affect (standardized)") +
+  facet_wrap(~record_id)
+```
+]
+
+.pull-right[
+```{r, echo = FALSE}
+melsm %>% 
+  nest(data = c(X1, P_A.std, day, P_A.lag, N_A.lag, steps.pm, steps.pmd, N_A.std, day01)) %>% 
+  slice_sample(n = 16) %>% 
+  unnest(data) %>% 
+  ggplot(aes(x = day, y = N_A.lag)) +
+  geom_line(color = "black") +
+  geom_point(color = "black", size = 1/2) +
+  ylab("negative affect (standardized)") +
+  facet_wrap(~record_id)
+```
+]
+
+
+---
+## Standard MLM treatment
+
+```{r}
+melsm.1 <-
+  brm(family = gaussian,
+      N_A.std ~ 1 + day01 + (1 + day01 | record_id),
+      prior = c(prior(normal(0, 0.2), class = Intercept),
+                prior(normal(0, 1), class = b),
+                prior(exponential(1), class = sd),
+                prior(exponential(1), class = sigma),
+                prior(lkj(2), class = cor)),
+      iter = 3000, warmup = 1000, chains = 4, cores = 4,
+      data = melsm,
+      file = "melsm.1")
+```
+
+
+---
+
+```{r}
+summary(melsm.1)
+```
+
+---
+## MLM assumptions
+
+.pull-left[
+Sigma, which captures the variation in NA not accounted for by the intercepts, time predictors, and the correlation. An assumption is that sigma does NOT vary across persons, occasions, or other variables. 
+
+Posterior predictive interval is the same (and fitted) even though it seem inappropriate from person to person
+]
+
+.pull-right[
+```{r, echo = FALSE}
+newd <-
+  melsm %>% 
+  filter(record_id %in% c(30, 115)) %>% 
+  select(record_id, N_A.std, day01)
+
+fits <- newd %>%
+  add_fitted_draws(melsm.1)
+
+preds <- newd %>%
+  add_predicted_draws(melsm.1)
+
+fits %>% 
+ggplot(aes(x = day01, y = N_A.std)) +
+  stat_lineribbon(aes(y = .value),.width = c(.95), alpha = 1/4, color ="grey") +
+  stat_lineribbon(data = preds, aes(y = .prediction),.width = c(.90), alpha = 1/4, color ="blue") +
+  geom_point(data = newd) +
+  facet_wrap(~record_id)
+```
+]
+
+
+
+---
+
+.tiny[
+
+$$NA_{ij} \sim \operatorname{Normal}(\mu_{ij}, \sigma_{i})$$
+
+$$\mu_{ij}  = \beta_0 + \beta_1 time_{ij} + u_{0i} + u_{1i} time_{ij}$$
+$$\log(\sigma_i )  = \eta_0 + u_{2i}$$
+
+$$\begin{bmatrix} u_{0i} \\ u_{1i} \\ {u_{2i}} \end{bmatrix}  \sim \operatorname{MVNormal}\begin{pmatrix} \begin{bmatrix} 0 \\ 0 \\ 0 \end{bmatrix}, \mathbf S \mathbf R \mathbf S \end{pmatrix}$$
+$$\mathbf S  = \begin{bmatrix} \sigma_0 & 0 & 0 \\ 0 & \sigma_1 & 0 \\ 0 & 0 & \sigma_2 \end{bmatrix}$$
+$$\mathbf R = \begin{bmatrix} 1 & \rho_{12} & \rho_{13} \\ \rho_{21} & 1 & \rho_{23} \\ \rho_{31} & \rho_{32} & 1 \end{bmatrix}$$
+$$\beta_0  \sim \operatorname{Normal}(0, 0.2)$$
+$$\beta_1 \text{and } \eta_0  \sim \operatorname{Normal}(0, 1) $$
+$$ \sigma_0,\dots, \sigma_2 \sim \operatorname{Exponential}(1) $$
+$$\mathbf R  \sim \operatorname{LKJ}(2)$$
+]
+
+---
+
+note: 1) brms default is to use log-link when modeling sigma
+2) |i| syntax within the parentheses allow for correlated random effects. Without this, the random intercept and slope would not correlated with the random sigma term, effectively setting the correlation equal to zero 
+```{r}
+melsm.2 <-
+  brm(family = gaussian,
+      bf(N_A.std ~ 1 + day01 + (1 + day01 |i| record_id),
+         sigma ~ 1 + (1 |i| record_id)),
+                prior = c(prior(normal(0, 0.2), class = Intercept),
+                prior(normal(0, 1), class = b),
+                prior(exponential(1), class = sd),
+                prior(normal(0, 1), class = Intercept, dpar = sigma),
+                prior(exponential(1), class = sd, dpar = sigma),
+                prior(lkj(2), class = cor)),
+      iter = 3000, warmup = 1000, chains = 4, cores = 4,
+      data = melsm,
+      file = "melsm.2")
+```
+
+---
+
+.small[
+
+```{r}
+summary(melsm.2)
+```
+]
+
+---
+
+```{r}
+
+melsm.2 %>% 
+  spread_draws(b_sigma_Intercept) %>% 
+  exp() %>% 
+  median_qi()
+```
+
+---
+
+```{r}
+melsm.2 %>% 
+spread_draws(b_sigma_Intercept,r_record_id__sigma[ID, term]) 
+```
+
+8000 samples * 193 participants = 1544000
+
+---
+
+.pull-left[
+```{r, eval = FALSE}
+melsm.2 %>% 
+spread_draws(b_sigma_Intercept,r_record_id__sigma[ID, term]) %>% 
+  mutate(b_sigma_Intercept = exp(b_sigma_Intercept)) %>% 
+  mutate(r_record_id__sigma = exp(r_record_id__sigma)) %>% 
+   median_qi(estimate = b_sigma_Intercept + r_record_id__sigma) %>% 
+  ggplot(aes(x = reorder(ID, estimate), y = estimate, ymin = .lower, ymax = .upper)) +
+   geom_pointinterval(point_colour = "black", interval_color = "grey", point_alpha = .25) + scale_x_discrete("Participants ranked by posterior SD", breaks = NULL) + ylab("sigma estimate") + theme_light()
+```
+]
+
+.pull-right[
+```{r, echo = FALSE}
+melsm.2 %>% 
+spread_draws(b_sigma_Intercept,r_record_id__sigma[ID, term]) %>% 
+  mutate(b_sigma_Intercept = exp(b_sigma_Intercept)) %>% 
+  mutate(r_record_id__sigma = exp(r_record_id__sigma)) %>% 
+   median_qi(estimate = b_sigma_Intercept + r_record_id__sigma) %>% 
+  ggplot(aes(x = reorder(ID, estimate), y = estimate, ymin = .lower, ymax = .upper)) +
+   geom_pointinterval(point_colour = "black", interval_color = "grey", point_alpha = .25) + scale_x_discrete("Participants ranked by posterior SD", breaks = NULL) + ylab("sigma estimate") + theme_light()
+```
+]
+
+---
+.pull-left[
+```{r, eval = FALSE}
+
+fits2 <- newd %>%
+  add_fitted_draws(melsm.2)
+
+preds2 <- newd %>%
+  add_predicted_draws(melsm.2)
+
+fits2 %>% 
+ggplot(aes(x = day01, y = N_A.std)) +
+  stat_lineribbon(aes(y = .value),.width = c(.95), alpha = 1/4, color ="grey") +
+  stat_lineribbon(data = preds2, aes(y = .prediction),.width = c(.90), alpha = 1/4, color ="blue") +
+  geom_point(data = newd) +
+  facet_wrap(~record_id)
+```
+
+]
+
+```{r, echo = FALSE}
+
+fits2 <- newd %>%
+  add_fitted_draws(melsm.2)
+
+preds2 <- newd %>%
+  add_predicted_draws(melsm.2)
+
+fits2 %>% 
+ggplot(aes(x = day01, y = N_A.std)) +
+  stat_lineribbon(aes(y = .value),.width = c(.95), alpha = 1/4, color ="grey") +
+  stat_lineribbon(data = preds2, aes(y = .prediction),.width = c(.90), alpha = 1/4, color ="blue") +
+  geom_point(data = newd) +
+  facet_wrap(~record_id)
+```
+
+
+
+
+---
+### time as a predictor of sigma
+
+```{r}
+melsm.3 <-
+  brm(family = gaussian,
+      bf(N_A.std ~ 1 + day01 + (1 + day01 |i| record_id),
+         sigma ~ 1 + day01 + (1 + day01 |i| record_id)),
+      prior = c(prior(normal(0, 0.2), class = Intercept),
+                prior(normal(0, 1), class = b),
+                prior(exponential(1), class = sd),
+                prior(normal(0, 1), class = Intercept, dpar = sigma),
+                prior(normal(0, 1), class = b, dpar = sigma),
+                prior(exponential(1), class = sd, dpar = sigma),
+                prior(lkj(2), class = cor)),
+      iter = 3000, warmup = 1000, chains = 4, cores = 4,
+      data = melsm,
+      file = "melsm.3")
+```
+
+
+---
+
+.small[
+
+
+```{r}
+summary(melsm.3)
+```
+
+]
+
+---
+
+.pull-left[
+```{r, eval = FALSE}
+
+fits3 <- newd %>%
+  add_fitted_draws(melsm.3)
+
+preds3 <- newd %>%
+  add_predicted_draws(melsm.3)
+
+fits3 %>% 
+ggplot(aes(x = day01, y = N_A.std)) +
+  stat_lineribbon(aes(y = .value),.width = c(.95), alpha = 1/4, color ="grey") +
+  stat_lineribbon(data = preds3, aes(y = .prediction),.width = c(.90), alpha = 1/4, color ="blue") +
+  geom_point(data = newd) +
+  facet_wrap(~record_id)
+```
+
+]
+
+.pull-right[
+```{r, echo = FALSE}
+
+fits3 <- newd %>%
+  add_fitted_draws(melsm.3)
+
+preds3 <- newd %>%
+  add_predicted_draws(melsm.3)
+
+fits3 %>% 
+ggplot(aes(x = day01, y = N_A.std)) +
+  stat_lineribbon(aes(y = .value),.width = c(.95), alpha = 1/4, color ="grey") +
+  stat_lineribbon(data = preds3, aes(y = .prediction),.width = c(.90), alpha = 1/4, color ="blue") +
+  geom_point(data = newd) +
+  facet_wrap(~record_id)
+```
+
+]
+
+
+
+---
+### Multivariate MELSM
+
+```{r, eval = FALSE}
+melsm.4 <-
+  brm(family = gaussian,
+      bf(mvbind(N_A.std, P_A.std) ~ 1 + day01 + (1 + day01 |i| record_id),
+         sigma ~ 1 + day01 + (1 + day01 |i| record_id)) + set_rescor(rescor = FALSE),
+      prior = c(prior(normal(0, 0.2), class = Intercept, resp = NAstd),
+                prior(normal(0, 1), class = b, resp = NAstd),
+                prior(exponential(1), class = sd, resp = NAstd),
+                prior(normal(0, 1), class = Intercept, dpar = sigma, resp = NAstd),
+                prior(normal(0, 1), class = b, dpar = sigma, resp = NAstd),
+                prior(exponential(1), class = sd, dpar = sigma, resp = NAstd),
+                prior(normal(0, 0.2), class = Intercept, resp = PAstd),
+                prior(normal(0, 1), class = b, resp = PAstd),
+                prior(exponential(1), class = sd, resp = PAstd),
+                prior(normal(0, 1), class = Intercept, dpar = sigma, resp = PAstd),
+                prior(normal(0, 1), class = b, dpar = sigma, resp = PAstd),
+                prior(exponential(1), class = sd, dpar = sigma, resp = PAstd),
+                prior(lkj(2), class = cor)),
+      iter = 3000, warmup = 1000, chains = 4, cores = 4,
+      data = melsm,
+      file = "melsm.4")
+```
+
+---
+
+.small[
+
+```{r, eval = FALSE}
+summary(melsm.4)
+```
+
+]
+
+
+
+---
+
+```{r, eval = FALSE, warning = FALSE, message=FALSE}
+levels <- c("beta[0]^'NA'", "beta[1]^'NA'", "eta[0]^'NA'", "eta[1]^'NA'",
+            "beta[0]^'PA'", "beta[1]^'PA'", "eta[0]^'PA'", "eta[1]^'PA'")
+
+# two different options for ordering the parameters
+# levels <- c("beta[0]^'NA'", "beta[1]^'NA'", "beta[0]^'PA'", "beta[1]^'PA'", "eta[0]^'NA'", "eta[1]^'NA'", "eta[0]^'PA'", "eta[1]^'PA'")
+# levels <- c("beta[0]^'NA'", "beta[0]^'PA'", "beta[1]^'NA'", "beta[1]^'PA'","eta[0]^'NA'", "eta[0]^'PA'", "eta[1]^'NA'", "eta[1]^'PA'")
+
+rho <-
+  posterior_summary(melsm.4) %>% 
+  data.frame() %>% 
+  rownames_to_column("param") %>% 
+  filter(str_detect(param, "cor_")) %>% 
+  mutate(param = str_remove(param, "cor_record_id__")) %>% 
+  separate(param, into = c("left", "right"), sep = "__") %>% 
+  mutate(
+    left = case_when(
+      left == "NAstd_Intercept"       ~ "beta[0]^'NA'",
+      left == "NAstd_day01"           ~ "beta[1]^'NA'",
+      left == "sigma_NAstd_Intercept" ~ "eta[0]^'NA'",
+      left == "sigma_NAstd_day01"     ~ "eta[1]^'NA'",
+      left == "PAstd_Intercept"       ~ "beta[0]^'PA'",
+      left == "PAstd_day01"           ~ "beta[1]^'PA'",
+      left == "sigma_PAstd_Intercept" ~ "eta[0]^'PA'",
+      left == "sigma_PAstd_day01"     ~ "eta[1]^'PA'"
+      ),
+    right = case_when(
+      right == "NAstd_Intercept"       ~ "beta[0]^'NA'",
+      right == "NAstd_day01"           ~ "beta[1]^'NA'",
+      right == "sigma_NAstd_Intercept" ~ "eta[0]^'NA'",
+      right == "sigma_NAstd_day01"     ~ "eta[1]^'NA'",
+      right == "PAstd_Intercept"       ~ "beta[0]^'PA'",
+      right == "PAstd_day01"           ~ "beta[1]^'PA'",
+      right == "sigma_PAstd_Intercept" ~ "eta[0]^'PA'",
+      right == "sigma_PAstd_day01"     ~ "eta[1]^'PA'"
+    )
+  ) %>% 
+  mutate(label = formatC(Estimate, digits = 2, format = "f") %>% str_replace(., "0.", ".")) %>% 
+  mutate(left  = factor(left, levels = levels),
+         right = factor(right, levels = levels)) %>% 
+  mutate(right = fct_rev(right))
+
+rho %>% 
+  full_join(rename(rho, right = left, left = right),
+            by = c("left", "right", "Estimate", "Est.Error", "Q2.5", "Q97.5", "label")) %>%
+  ggplot(aes(x = left, y = right)) +
+  geom_tile(aes(fill = Estimate)) +
+  geom_hline(yintercept = 4.5, color = "#100F14") +
+  geom_vline(xintercept = 4.5, color = "#100F14") +
+  geom_text(aes(label = label),
+            family = "Courier", size = 3) +
+  scale_fill_gradient2(expression(rho),
+                       low = "#59708b", mid = "#FCF9F0", high = "#A65141", midpoint = 0,
+                       labels = c(-1, "", 0, "", 1), limits = c(-1, 1)) +
+  scale_x_discrete(NULL, expand = c(0, 0), labels = ggplot2:::parse_safe, position = "top") +
+  scale_y_discrete(NULL, expand = c(0, 0), labels = ggplot2:::parse_safe) +
+  theme(axis.text = element_text(size = 12),
+        axis.ticks = element_blank(),
+        legend.text = element_text(hjust = 1))
+
+```
+
+---
+## Missing data
+How to solve? 
+1. Listwise
+2. Estimation algorithm eg FIML
+3. Multiple Imputation
+4. Bayesian
+
+---
+## brms and multiple imputation
+
+Each missing value is not imputed N times leading to a total of N fully imputed data sets. The model is fitted to each data sets separately and results are pooled across models.
+
+```{r, message=FALSE, warning=FALSE}
+library(mice)
+#multivariate imputation by chained equations
+```
+
+---
+```{r, message=FALSE, warning=FALSE}
+data("nhanes")
+#National Health and Nutrition Examination Survey
+nhanes
+```
+
+---
+```{r}
+nhanes.imp <- mice(nhanes, m = 10)
+```
+
+---
+```{r}
+nhanes.imp
+```
+pre- dictive mean matching (pmm). 
+
+More information, usually results in better imputations. 
+
+---
+### brm_multiple
+
+works well with mice objects, but brm_multiple also takes any list of dataframes. Helpful if you use amelia or mi. 
+```{r}
+imp.1 <- brm_multiple(family = gaussian,
+                      bmi ~ age*chl, 
+                      data = nhanes.imp,
+                      cores = 4, 
+                      file = "imp.1")
+```
+
+
+---
+Pooling across models is trivial in a Bayesian framework but not in frequentist. 
+40 Chains! 40k samples! (10 datasets + default 4 chains and 1k samples)
+```{r}
+summary(imp.1)
+```
+
+
+---
+
+```{r}
+plot(imp.1)
+```
+
+---
+## bayesian imputation within brms
+
+1) Which variables contain missingness? 2) Which variables should predict missingness 3) what imputed variables are used as predictors
+
+Taking care of this in brms ends up creating a multivariate model
+```{r}
+bform <- bf(bmi | mi() ~ age * mi(chl)) +
+  bf(chl | mi() ~ age) + set_rescor(FALSE)
+imp.2 <- brm(bform, data = nhanes, file = "imp.2")
+```
+
+
+---
+```{r}
+summary(imp.2)
+```
+
+---
+### pro v con
+
+Pros: Can use multilevel structure and complex non-linear relationships for the imputation of missing values, which is not achieved as easily in standard multiple imputation software
+
+Cons: cannot impute discrete values within brms/Stan
+
+---
+
+```{r}
+posterior_summary(imp.2)
+```
+
+---
+
+```{r}
+
+imp.2 %>% 
+  spread_draws(Ymi_chl[ID]) 
+```
+
+4000* * 10 (missing for chl) = 40,000
+---
+
+.pull-left[
+```{r, eval = FALSE}
+imp.2 %>% 
+  spread_draws(Ymi_chl[ID]) %>% 
+  ggplot(aes(x = Ymi_chl, 
+             y = reorder(ID, Ymi_chl))) +
+  stat_slab(fill = "black", alpha = 3/4, height = 1.6, slab_color = "black", slab_size = 1/4) +
+  labs(x = "Chl imputed values", y = "IDs") +
+  theme_ggdist()
+```
+]
+
+.pull-right[
+
+```{r, echo = FALSE}
+imp.2 %>% 
+  spread_draws(Ymi_chl[ID]) %>% 
+  ggplot(aes(x = Ymi_chl, 
+             y = reorder(ID, Ymi_chl))) +
+  stat_slab(fill = "black", alpha = 3/4, height = 1.6, slab_color = "black", slab_size = 1/4) +
+  labs(x = "Chl imputed values", y = "IDs") +
+  theme_ggdist()
+```
+
+
+]
+
+---
+
+```{r, echo = FALSE}
+imp.2 %>% 
+  spread_draws(Ymi_bmi[ID]) %>% 
+  ggplot(aes(x = Ymi_bmi, 
+             y = reorder(ID, Ymi_bmi))) +
+  stat_slab(fill = "black", alpha = 3/4, height = 1.6, slab_color = "black", slab_size = 1/4) +
+  labs(x = "BMI imputed values", y = "IDs") +
+  theme_ggdist()
+```
+
+
+
+
+
+
 
