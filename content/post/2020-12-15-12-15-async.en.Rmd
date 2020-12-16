@@ -1,0 +1,20 @@
+---
+title: 12-15 async
+author: ''
+date: '2020-12-15'
+slug: 12-15-async
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-12-15T16:08:27-06:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+https://wustl.zoom.us/rec/play/bITrkrz0Sm99Rsc5JsHB8HQELXcbWvhhNZ5Wsj5gfexXF3-nnnqn_XS0r5HwcVj4mjTGYILFpwYuqO17.cMlRfhOsieaMsC03?continueMode=true&_x_zm_rtaid=4o-OcZKnRp6Y1VUsGsUjOA.1608070043370.bdfd7901eacc4777f0ebca3b2506c4ff&_x_zm_rhtaid=150
