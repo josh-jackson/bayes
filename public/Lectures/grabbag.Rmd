@@ -1234,6 +1234,67 @@ imp.2 %>%
 ```
 
 
+---
+## Semester review
+
+Three goals: 
+1. Understand Bayesian estimation
+2. Better understanding of linear models
+3. To use brms and tidybayes to explore the posterior
+
+---
+## "Bayesian analysis is just counting"
+
+MCMC is just counting the ways that your data are consistent with different parameter values. Parameter values that are more consistent with your data will emerge more in the posterior samples. 
+
+---
+## "Bayesian inference is reallocation of credibility across parameter values"
+
+A `prior` distribution can be thought of as previous counts/parameters. We merely update this distribution through the collection of new data. 
+
+Regardless of whether the prior is made up, reflects past results, or the result of 1 data point in our new sample, each posterior we have can then be used as a prior for a new analysis. This is `bayesian updating` where you can always improve your model. 
+
+No deep distinction between prior and posterior
+
+---
+## Bayesian models are generative
+
+Generative models allow one to `generate` new data. Most of the linear models you have been working with are descriptive, and do not incorporate all of the components needed to generate the same data. SR talks about these as pushing data forward and backwards. Forwards to get parameters, and backwards to simulate data. We do this push and pull when we want to evaluate models. 
+
+---
+## Model statements
+
+We now have a language to describe a full generative model. Even for a simple regression we now are able to describe all components that lead to the generation of the data. The spread of your DV, sigma, plays a large role of this but is usually not even examined, let alone modeled with standard frequentest frameworks
+
+P_Height_i ~ Normal( $\mu_i$ , $\sigma$ )  
+$\mu_i$ = $\beta_0$ + $\beta_1$ ( $\text{C_Height}_i$ - ${\overline{\mbox{C_Height}}}$ ) 
+$\beta_0$ ~ Normal(68, 5)
+$\beta_1$ ~ Normal(0, 5)  
+$\sigma$  ~ HalfCauchy(0,1)
+
+---
+## Propogation of uncertainty
+
+One of the key components of Bayesian (and generative modeling) is that we include all of the uncertainty in our estimates. With standard frequentist we do not, as we use our best guess (the regression line) and sigma -- and do not incorporate uncertainty in the estimation of our parameter.
+
+Uncertainty estimates baked into the model also allow for easy calculation of credible intervals/bands. Just count up the samples to calculate. Within frequentist you have to use equations that make assumptions about data distribution and/or bootstrap.  
+
+---
+## Linear models all the way down (and up)
+
+Anova, logistic, etc are all parts of the glm. If you learn the glm you can model anything. 
+
+
+---
+## brms
+
+Analysis options change all the time. brms (and tidyverse) make the transition to bayesian models easier. But it doesn't have to be this way. ~40 Bayesian packages within R, Stan (within R or not), Python (Stan, PyMC), julia (Turing), etc, etc. 
+
+---
+## Terms
+
+Prior, Likelihood, Posterior. 
+Grid estimation, Credible Interval, Highest Posterior Density Interval, MAP, Posterior Predictive Distribution, prior predictive distribution, fitted values/predicted values. 
 
 
 

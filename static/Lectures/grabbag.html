@@ -98,7 +98,7 @@ summary(fit)
 ```
 
 ```
-## lavaan 0.6-7 ended normally after 13 iterations
+## lavaan 0.6-7 ended normally after 12 iterations
 ## 
 ##   Estimator                                         ML
 ##   Optimization method                           NLMINB
@@ -120,21 +120,21 @@ summary(fit)
 ## Regressions:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)
 ##   Y ~                                                 
-##     X          (c)    0.001    0.108    0.009    0.993
+##     X          (c)   -0.054    0.111   -0.484    0.629
 ##   M ~                                                 
-##     X          (a)    0.619    0.101    6.147    0.000
+##     X          (a)    0.647    0.105    6.139    0.000
 ##   Y ~                                                 
-##     M          (b)    0.744    0.091    8.176    0.000
+##     M          (b)    0.826    0.090    9.181    0.000
 ## 
 ## Variances:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)
-##    .Y                 0.955    0.135    7.071    0.000
-##    .M                 1.154    0.163    7.071    0.000
+##    .Y                 1.034    0.146    7.071    0.000
+##    .M                 1.279    0.181    7.071    0.000
 ## 
 ## Defined Parameters:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)
-##     ab                0.460    0.094    4.913    0.000
-##     total             0.461    0.118    3.899    0.000
+##     ab                0.534    0.105    5.103    0.000
+##     total             0.480    0.129    3.734    0.000
 ```
 
 ]
@@ -151,8 +151,8 @@ library(blavaan)
 ## 
 ## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 1).
 ## Chain 1: 
-## Chain 1: Gradient evaluation took 0.000325 seconds
-## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 3.25 seconds.
+## Chain 1: Gradient evaluation took 0.000337 seconds
+## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 3.37 seconds.
 ## Chain 1: Adjust your expectations accordingly!
 ## Chain 1: 
 ## Chain 1: 
@@ -169,15 +169,15 @@ library(blavaan)
 ## Chain 1: Iteration: 1400 / 1500 [ 93%]  (Sampling)
 ## Chain 1: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 1: 
-## Chain 1:  Elapsed Time: 0.824428 seconds (Warm-up)
-## Chain 1:                1.57699 seconds (Sampling)
-## Chain 1:                2.40141 seconds (Total)
+## Chain 1:  Elapsed Time: 0.788508 seconds (Warm-up)
+## Chain 1:                1.38226 seconds (Sampling)
+## Chain 1:                2.17077 seconds (Total)
 ## Chain 1: 
 ## 
 ## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 2).
 ## Chain 2: 
-## Chain 2: Gradient evaluation took 0.000219 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 2.19 seconds.
+## Chain 2: Gradient evaluation took 0.000198 seconds
+## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 1.98 seconds.
 ## Chain 2: Adjust your expectations accordingly!
 ## Chain 2: 
 ## Chain 2: 
@@ -194,15 +194,15 @@ library(blavaan)
 ## Chain 2: Iteration: 1400 / 1500 [ 93%]  (Sampling)
 ## Chain 2: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 2: 
-## Chain 2:  Elapsed Time: 0.756372 seconds (Warm-up)
-## Chain 2:                1.41519 seconds (Sampling)
-## Chain 2:                2.17157 seconds (Total)
+## Chain 2:  Elapsed Time: 0.776099 seconds (Warm-up)
+## Chain 2:                1.55845 seconds (Sampling)
+## Chain 2:                2.33454 seconds (Total)
 ## Chain 2: 
 ## 
 ## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 3).
 ## Chain 3: 
-## Chain 3: Gradient evaluation took 0.000208 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 2.08 seconds.
+## Chain 3: Gradient evaluation took 0.000215 seconds
+## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 2.15 seconds.
 ## Chain 3: Adjust your expectations accordingly!
 ## Chain 3: 
 ## Chain 3: 
@@ -219,9 +219,9 @@ library(blavaan)
 ## Chain 3: Iteration: 1400 / 1500 [ 93%]  (Sampling)
 ## Chain 3: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 3: 
-## Chain 3:  Elapsed Time: 0.78721 seconds (Warm-up)
-## Chain 3:                1.36751 seconds (Sampling)
-## Chain 3:                2.15472 seconds (Total)
+## Chain 3:  Elapsed Time: 0.845786 seconds (Warm-up)
+## Chain 3:                1.63372 seconds (Sampling)
+## Chain 3:                2.47951 seconds (Total)
 ## Chain 3: 
 ## Computing posterior predictives...
 ```
@@ -241,31 +241,31 @@ summary(b.fit)
 ##   Number of missing patterns                         1
 ## 
 ##   Statistic                                 MargLogLik         PPP
-##   Value                                       -316.052       0.485
+##   Value                                       -325.030       0.500
 ## 
 ## Regressions:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
 ##   Y ~                                                                          
-##     X          (c)    0.000    0.113   -0.223    0.222    0.999    normal(0,10)
+##     X          (c)   -0.053    0.116   -0.278    0.175    0.999    normal(0,10)
 ##   M ~                                                                          
-##     X          (a)    0.619    0.103    0.413    0.823    0.999    normal(0,10)
+##     X          (a)    0.647    0.110    0.432    0.856    0.999    normal(0,10)
 ##   Y ~                                                                          
-##     M          (b)    0.744    0.093    0.564    0.924    1.001    normal(0,10)
+##     M          (b)    0.826    0.092    0.642    1.006    1.000    normal(0,10)
 ## 
 ## Intercepts:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
-##    .Y                 0.038    0.102    -0.16    0.242    0.999    normal(0,10)
-##    .M                 0.110    0.111   -0.104    0.327    0.999    normal(0,10)
+##    .Y                 0.085    0.105   -0.124    0.292    0.999    normal(0,10)
+##    .M                 0.055    0.112   -0.165    0.276    1.000    normal(0,10)
 ## 
 ## Variances:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
-##    .Y                 1.011    0.154    0.756    1.349    0.999 gamma(1,.5)[sd]
-##    .M                 1.207    0.171    0.916    1.593    1.000 gamma(1,.5)[sd]
+##    .Y                 1.096    0.161    0.832    1.458    1.000 gamma(1,.5)[sd]
+##    .M                 1.339    0.194    1.015    1.769    1.000 gamma(1,.5)[sd]
 ## 
 ## Defined Parameters:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
-##     ab                0.460    0.097    0.269    0.651       NA                
-##     total             0.460    0.123     0.22    0.701       NA
+##     ab                0.534    0.107    0.325    0.743       NA                
+##     total             0.481    0.134    0.219    0.743       NA
 ```
 
 ]
@@ -418,18 +418,18 @@ get_prior(y_model + m_model + set_rescor(FALSE),
 ```
 
 ```
-##                     prior     class coef group resp dpar nlpar bound
-## 1                                 b                                 
-## 2                         Intercept                                 
-## 3                                 b               M                 
-## 4                                 b    X          M                 
-## 5  student_t(3, 0.2, 2.5) Intercept               M                 
-## 6    student_t(3, 0, 2.5)     sigma               M                 
-## 7                                 b               Y                 
-## 8                                 b    M          Y                 
-## 9                                 b    X          Y                 
-## 10 student_t(3, 0.2, 2.5) Intercept               Y                 
-## 11   student_t(3, 0, 2.5)     sigma               Y
+##                      prior     class coef group resp dpar nlpar bound
+## 1                                  b                                 
+## 2                          Intercept                                 
+## 3                                  b               M                 
+## 4                                  b    X          M                 
+## 5   student_t(3, 0.1, 2.5) Intercept               M                 
+## 6     student_t(3, 0, 2.5)     sigma               M                 
+## 7                                  b               Y                 
+## 8                                  b    M          Y                 
+## 9                                  b    X          Y                 
+## 10 student_t(3, -0.1, 2.5) Intercept               Y                 
+## 11    student_t(3, 0, 2.5)     sigma               Y
 ```
 
 
@@ -688,24 +688,24 @@ summary(mult.Ys)
 ## 
 ## Population-Level Effects: 
 ##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Y1_Intercept     0.01      0.03    -0.04     0.07 1.00     8913     3127
-## Y2_Intercept     0.00      0.03    -0.06     0.06 1.00     8585     2645
-## Y3_Intercept    -0.01      0.03    -0.07     0.05 1.00     9169     3158
-## M_Intercept      0.03      0.03    -0.04     0.09 1.00     9358     3139
-## Y1_X            -1.05      0.04    -1.12    -0.98 1.00     7167     3420
-## Y1_M             0.05      0.03    -0.01     0.11 1.00     6890     3642
-## Y2_X             0.05      0.04    -0.02     0.12 1.00     6050     3149
-## Y2_M             0.53      0.03     0.47     0.59 1.00     6163     3437
-## Y3_X             1.03      0.04     0.96     1.10 1.00     7496     3220
-## Y3_M             1.06      0.03     1.00     1.12 1.00     6714     3006
-## M_X              0.53      0.03     0.46     0.59 1.00     8892     3060
+## Y1_Intercept     0.01      0.03    -0.05     0.07 1.00     7757     2835
+## Y2_Intercept     0.00      0.03    -0.06     0.06 1.00     8660     3209
+## Y3_Intercept    -0.01      0.03    -0.07     0.05 1.00     7679     2739
+## M_Intercept      0.03      0.03    -0.04     0.09 1.00     8022     2706
+## Y1_X            -1.05      0.04    -1.12    -0.98 1.00     6948     3600
+## Y1_M             0.05      0.03    -0.01     0.11 1.00     6217     3454
+## Y2_X             0.05      0.03    -0.01     0.12 1.00     6170     3487
+## Y2_M             0.53      0.03     0.47     0.59 1.00     6481     3273
+## Y3_X             1.03      0.04     0.95     1.10 1.00     6137     3148
+## Y3_M             1.06      0.03     1.00     1.12 1.00     6071     3191
+## M_X              0.53      0.03     0.46     0.59 1.00     7487     2751
 ## 
 ## Family Specific Parameters: 
 ##          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma_Y1     0.98      0.02     0.93     1.02 1.00     9017     2887
-## sigma_Y2     0.97      0.02     0.93     1.02 1.00     7329     2636
-## sigma_Y3     1.00      0.02     0.96     1.05 1.00     9012     3007
-## sigma_M      1.00      0.02     0.96     1.04 1.00     8834     3023
+## sigma_Y1     0.98      0.02     0.94     1.02 1.00     8422     2965
+## sigma_Y2     0.97      0.02     0.93     1.02 1.00     7544     3142
+## sigma_Y3     1.00      0.02     0.96     1.05 1.00     7590     3445
+## sigma_M      1.00      0.02     0.96     1.04 1.00    11487     2730
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1146,42 +1146,6 @@ melsm.1 &lt;-
       file = "melsm.1")
 ```
 
-```
-## Compiling Stan program...
-```
-
-```
-## Trying to compile a simple C file
-```
-
-```
-## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
-## clang -mmacosx-version-min=10.13 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/Rcpp/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/unsupported"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/BH/include" -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/src/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppParallel/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include '/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include   -fPIC  -Wall -g -O2  -c foo.c -o foo.o
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:88:
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:1: error: unknown type name 'namespace'
-## namespace Eigen {
-## ^
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:16: error: expected ';' after top level declarator
-## namespace Eigen {
-##                ^
-##                ;
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: 'complex' file not found
-## #include &lt;complex&gt;
-##          ^~~~~~~~~
-## 3 errors generated.
-## make: *** [foo.o] Error 1
-```
-
-```
-## Start sampling
-```
-
 
 ---
 
@@ -1201,22 +1165,22 @@ summary(melsm.1)
 ## Group-Level Effects: 
 ## ~record_id (Number of levels: 193) 
 ##                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
-## sd(Intercept)            0.77      0.04     0.70     0.86 1.00     1300
-## sd(day01)                0.65      0.04     0.57     0.74 1.00     2640
-## cor(Intercept,day01)    -0.34      0.08    -0.48    -0.19 1.00     2643
+## sd(Intercept)            0.77      0.04     0.70     0.86 1.00     1447
+## sd(day01)                0.65      0.05     0.57     0.75 1.00     2782
+## cor(Intercept,day01)    -0.34      0.08    -0.49    -0.18 1.00     2855
 ##                      Tail_ESS
-## sd(Intercept)            2803
-## sd(day01)                4088
-## cor(Intercept,day01)     4174
+## sd(Intercept)            2864
+## sd(day01)                4965
+## cor(Intercept,day01)     4221
 ## 
 ## Population-Level Effects: 
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept     0.03      0.06    -0.08     0.14 1.00      642     1176
-## day01        -0.16      0.06    -0.27    -0.05 1.00     1946     3488
+## Intercept     0.03      0.06    -0.08     0.15 1.00      707     1450
+## day01        -0.16      0.06    -0.27    -0.05 1.00     2426     4367
 ## 
 ## Family Specific Parameters: 
 ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma     0.61      0.00     0.60     0.62 1.00    15627     5615
+## sigma     0.61      0.00     0.60     0.62 1.00    14365     4831
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1277,48 +1241,6 @@ melsm.2 &lt;-
       file = "melsm.2")
 ```
 
-```
-## Compiling Stan program...
-```
-
-```
-## Trying to compile a simple C file
-```
-
-```
-## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
-## clang -mmacosx-version-min=10.13 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/Rcpp/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/unsupported"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/BH/include" -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/src/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppParallel/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include '/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include   -fPIC  -Wall -g -O2  -c foo.c -o foo.o
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:88:
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:1: error: unknown type name 'namespace'
-## namespace Eigen {
-## ^
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:16: error: expected ';' after top level declarator
-## namespace Eigen {
-##                ^
-##                ;
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: 'complex' file not found
-## #include &lt;complex&gt;
-##          ^~~~~~~~~
-## 3 errors generated.
-## make: *** [foo.o] Error 1
-```
-
-```
-## Start sampling
-```
-
-```
-## Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.
-## Running the chains for more iterations may help. See
-## http://mc-stan.org/misc/warnings.html#bulk-ess
-```
-
 ---
 
 .small[
@@ -1340,25 +1262,25 @@ summary(melsm.2)
 ## Group-Level Effects: 
 ## ~record_id (Number of levels: 193) 
 ##                                Estimate Est.Error l-95% CI u-95% CI Rhat
-## sd(Intercept)                      0.76      0.04     0.69     0.85 1.01
-## sd(day01)                          0.61      0.04     0.53     0.70 1.00
-## sd(sigma_Intercept)                0.70      0.04     0.63     0.77 1.01
-## cor(Intercept,day01)              -0.34      0.08    -0.49    -0.18 1.00
-## cor(Intercept,sigma_Intercept)     0.61      0.05     0.51     0.70 1.00
-## cor(day01,sigma_Intercept)        -0.10      0.08    -0.25     0.05 1.01
+## sd(Intercept)                      0.76      0.04     0.69     0.84 1.00
+## sd(day01)                          0.60      0.04     0.52     0.69 1.00
+## sd(sigma_Intercept)                0.69      0.04     0.63     0.77 1.00
+## cor(Intercept,day01)              -0.33      0.08    -0.49    -0.17 1.00
+## cor(Intercept,sigma_Intercept)     0.61      0.05     0.51     0.70 1.01
+## cor(day01,sigma_Intercept)        -0.10      0.08    -0.26     0.06 1.01
 ##                                Bulk_ESS Tail_ESS
-## sd(Intercept)                       464     1051
-## sd(day01)                          1465     2223
-## sd(sigma_Intercept)                 685     1432
-## cor(Intercept,day01)                769     2040
-## cor(Intercept,sigma_Intercept)      645     1440
-## cor(day01,sigma_Intercept)          714     2055
+## sd(Intercept)                       708     1265
+## sd(day01)                          1644     3365
+## sd(sigma_Intercept)                 694     1520
+## cor(Intercept,day01)                735     1374
+## cor(Intercept,sigma_Intercept)      800     1466
+## cor(day01,sigma_Intercept)          542     1343
 ## 
 ## Population-Level Effects: 
 ##                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept           0.03      0.05    -0.07     0.13 1.02      256      626
-## sigma_Intercept    -0.79      0.05    -0.88    -0.69 1.01      491      938
-## day01              -0.16      0.05    -0.26    -0.06 1.00      745     1740
+## Intercept           0.04      0.05    -0.07     0.14 1.01      283      574
+## sigma_Intercept    -0.78      0.05    -0.88    -0.68 1.00      339      713
+## day01              -0.16      0.05    -0.26    -0.05 1.00      477     1023
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1380,7 +1302,7 @@ melsm.2 %&gt;%
 ## # A tibble: 1 x 6
 ##   b_sigma_Intercept .lower .upper .width .point .interval
 ##               &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
-## 1             0.456  0.415  0.500   0.95 median qi
+## 1             0.459  0.413  0.507   0.95 median qi
 ```
 
 ---
@@ -1396,16 +1318,16 @@ spread_draws(b_sigma_Intercept,r_record_id__sigma[ID, term])
 ## # Groups:   ID, term [193]
 ##    .chain .iteration .draw b_sigma_Intercept    ID term      r_record_id__sigma
 ##     &lt;int&gt;      &lt;int&gt; &lt;int&gt;             &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;                  &lt;dbl&gt;
-##  1      1          1     1            -0.813     1 Intercept             0.411 
-##  2      1          1     1            -0.813     2 Intercept            -1.16  
-##  3      1          1     1            -0.813     3 Intercept             0.142 
-##  4      1          1     1            -0.813     4 Intercept             0.788 
-##  5      1          1     1            -0.813     5 Intercept            -0.649 
-##  6      1          1     1            -0.813     6 Intercept             0.242 
-##  7      1          1     1            -0.813     7 Intercept             0.0956
-##  8      1          1     1            -0.813     8 Intercept            -0.901 
-##  9      1          1     1            -0.813     9 Intercept            -0.223 
-## 10      1          1     1            -0.813    10 Intercept            -0.309 
+##  1      1          1     1            -0.773     1 Intercept              0.400
+##  2      1          1     1            -0.773     2 Intercept             -1.23 
+##  3      1          1     1            -0.773     3 Intercept              0.246
+##  4      1          1     1            -0.773     4 Intercept              0.659
+##  5      1          1     1            -0.773     5 Intercept             -0.963
+##  6      1          1     1            -0.773     6 Intercept              0.306
+##  7      1          1     1            -0.773     7 Intercept              0.103
+##  8      1          1     1            -0.773     8 Intercept             -0.973
+##  9      1          1     1            -0.773     9 Intercept             -0.549
+## 10      1          1     1            -0.773    10 Intercept             -0.322
 ## # … with 1,543,990 more rows
 ```
 
@@ -1474,48 +1396,6 @@ melsm.3 &lt;-
       iter = 3000, warmup = 1000, chains = 4, cores = 4,
       data = melsm,
       file = "melsm.3")
-```
-
-```
-## Compiling Stan program...
-```
-
-```
-## Trying to compile a simple C file
-```
-
-```
-## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
-## clang -mmacosx-version-min=10.13 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/Rcpp/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/unsupported"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/BH/include" -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/src/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppParallel/include/"  -I"/Library/Frameworks/R.framework/Versions/4.0/Resources/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include '/Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include   -fPIC  -Wall -g -O2  -c foo.c -o foo.o
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:88:
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:1: error: unknown type name 'namespace'
-## namespace Eigen {
-## ^
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:613:16: error: expected ';' after top level declarator
-## namespace Eigen {
-##                ^
-##                ;
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## /Library/Frameworks/R.framework/Versions/4.0/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: 'complex' file not found
-## #include &lt;complex&gt;
-##          ^~~~~~~~~
-## 3 errors generated.
-## make: *** [foo.o] Error 1
-```
-
-```
-## Start sampling
-```
-
-```
-## Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.
-## Running the chains for more iterations may help. See
-## http://mc-stan.org/misc/warnings.html#bulk-ess
 ```
 
 
@@ -2060,6 +1940,67 @@ imp.2 %&gt;%
 ![](grabbag_files/figure-html/unnamed-chunk-78-1.png)&lt;!-- --&gt;
 
 
+---
+## Semester review
+
+Three goals: 
+1. Understand Bayesian estimation
+2. Better understanding of linear models
+3. To use brms and tidybayes to explore the posterior
+
+---
+## "Bayesian analysis is just counting"
+
+MCMC is just counting the ways that your data are consistent with different parameter values. Parameter values that are more consistent with your data will emerge more in the posterior samples. 
+
+---
+## "Bayesian inference is reallocation of credibility across parameter values"
+
+A `prior` distribution can be thought of as previous counts/parameters. We merely update this distribution through the collection of new data. 
+
+Regardless of whether the prior is made up, reflects past results, or the result of 1 data point in our new sample, each posterior we have can then be used as a prior for a new analysis. This is `bayesian updating` where you can always improve your model. 
+
+No deep distinction between prior and posterior
+
+---
+## Bayesian models are generative
+
+Generative models allow one to `generate` new data. Most of the linear models you have been working with are descriptive, and do not incorporate all of the components needed to generate the same data. SR talks about these as pushing data forward and backwards. Forwards to get parameters, and backwards to simulate data. We do this push and pull when we want to evaluate models. 
+
+---
+## Model statements
+
+We now have a language to describe a full generative model. Even for a simple regression we now are able to describe all components that lead to the generation of the data. The spread of your DV, sigma, plays a large role of this but is usually not even examined, let alone modeled with standard frequentest frameworks
+
+P_Height_i ~ Normal( `\(\mu_i\)` , `\(\sigma\)` )  
+`\(\mu_i\)` = `\(\beta_0\)` + `\(\beta_1\)` ( `\(\text{C_Height}_i\)` - `\({\overline{\mbox{C_Height}}}\)` ) 
+`\(\beta_0\)` ~ Normal(68, 5)
+`\(\beta_1\)` ~ Normal(0, 5)  
+`\(\sigma\)`  ~ HalfCauchy(0,1)
+
+---
+## Propogation of uncertainty
+
+One of the key components of Bayesian (and generative modeling) is that we include all of the uncertainty in our estimates. With standard frequentist we do not, as we use our best guess (the regression line) and sigma -- and do not incorporate uncertainty in the estimation of our parameter.
+
+Uncertainty estimates baked into the model also allow for easy calculation of credible intervals/bands. Just count up the samples to calculate. Within frequentist you have to use equations that make assumptions about data distribution and/or bootstrap.  
+
+---
+## Linear models all the way down (and up)
+
+Anova, logistic, etc are all parts of the glm. If you learn the glm you can model anything. 
+
+
+---
+## brms
+
+Analysis options change all the time. brms (and tidyverse) make the transition to bayesian models easier. But it doesn't have to be this way. ~40 Bayesian packages within R, Stan (within R or not), Python (Stan, PyMC), julia (Turing), etc, etc. 
+
+---
+## Terms
+
+Prior, Likelihood, Posterior. 
+Grid estimation, Credible Interval, Highest Posterior Density Interval, MAP, Posterior Predictive Distribution, prior predictive distribution, fitted values/predicted values. 
 
 
 
