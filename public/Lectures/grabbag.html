@@ -120,21 +120,21 @@ summary(fit)
 ## Regressions:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)
 ##   Y ~                                                 
-##     X          (c)   -0.048    0.115   -0.415    0.678
+##     X          (c)    0.168    0.118    1.428    0.153
 ##   M ~                                                 
-##     X          (a)    0.562    0.119    4.735    0.000
+##     X          (a)    0.445    0.106    4.197    0.000
 ##   Y ~                                                 
-##     M          (b)    0.645    0.087    7.373    0.000
+##     M          (b)    0.487    0.103    4.753    0.000
 ## 
 ## Variances:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)
-##    .Y                 0.824    0.116    7.071    0.000
-##    .M                 1.077    0.152    7.071    0.000
+##    .Y                 1.022    0.144    7.071    0.000
+##    .M                 0.972    0.137    7.071    0.000
 ## 
 ## Defined Parameters:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)
-##     ab                0.362    0.091    3.984    0.000
-##     total             0.315    0.129    2.440    0.015
+##     ab                0.217    0.069    3.146    0.002
+##     total             0.385    0.120    3.201    0.001
 ```
 
 ]
@@ -151,8 +151,8 @@ library(blavaan)
 ## 
 ## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 1).
 ## Chain 1: 
-## Chain 1: Gradient evaluation took 0.000438 seconds
-## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 4.38 seconds.
+## Chain 1: Gradient evaluation took 0.00041 seconds
+## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 4.1 seconds.
 ## Chain 1: Adjust your expectations accordingly!
 ## Chain 1: 
 ## Chain 1: 
@@ -169,15 +169,15 @@ library(blavaan)
 ## Chain 1: Iteration: 1400 / 1500 [ 93%]  (Sampling)
 ## Chain 1: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 1: 
-## Chain 1:  Elapsed Time: 0.862688 seconds (Warm-up)
-## Chain 1:                1.58263 seconds (Sampling)
-## Chain 1:                2.44531 seconds (Total)
+## Chain 1:  Elapsed Time: 0.802134 seconds (Warm-up)
+## Chain 1:                1.50085 seconds (Sampling)
+## Chain 1:                2.30298 seconds (Total)
 ## Chain 1: 
 ## 
 ## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 2).
 ## Chain 2: 
-## Chain 2: Gradient evaluation took 0.000215 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 2.15 seconds.
+## Chain 2: Gradient evaluation took 0.000223 seconds
+## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 2.23 seconds.
 ## Chain 2: Adjust your expectations accordingly!
 ## Chain 2: 
 ## Chain 2: 
@@ -194,15 +194,15 @@ library(blavaan)
 ## Chain 2: Iteration: 1400 / 1500 [ 93%]  (Sampling)
 ## Chain 2: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 2: 
-## Chain 2:  Elapsed Time: 0.861261 seconds (Warm-up)
-## Chain 2:                1.56894 seconds (Sampling)
-## Chain 2:                2.4302 seconds (Total)
+## Chain 2:  Elapsed Time: 0.814231 seconds (Warm-up)
+## Chain 2:                1.53685 seconds (Sampling)
+## Chain 2:                2.35108 seconds (Total)
 ## Chain 2: 
 ## 
 ## SAMPLING FOR MODEL 'stanmarg' NOW (CHAIN 3).
 ## Chain 3: 
-## Chain 3: Gradient evaluation took 0.000232 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 2.32 seconds.
+## Chain 3: Gradient evaluation took 0.000211 seconds
+## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 2.11 seconds.
 ## Chain 3: Adjust your expectations accordingly!
 ## Chain 3: 
 ## Chain 3: 
@@ -219,9 +219,9 @@ library(blavaan)
 ## Chain 3: Iteration: 1400 / 1500 [ 93%]  (Sampling)
 ## Chain 3: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 3: 
-## Chain 3:  Elapsed Time: 0.834851 seconds (Warm-up)
-## Chain 3:                1.55574 seconds (Sampling)
-## Chain 3:                2.39059 seconds (Total)
+## Chain 3:  Elapsed Time: 0.764392 seconds (Warm-up)
+## Chain 3:                1.53165 seconds (Sampling)
+## Chain 3:                2.29604 seconds (Total)
 ## Chain 3: 
 ## Computing posterior predictives...
 ```
@@ -241,31 +241,31 @@ summary(b.fit)
 ##   Number of missing patterns                         1
 ## 
 ##   Statistic                                 MargLogLik         PPP
-##   Value                                       -305.096       0.489
+##   Value                                       -310.715       0.529
 ## 
 ## Regressions:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
 ##   Y ~                                                                          
-##     X          (c)   -0.048    0.119   -0.287    0.181    1.000    normal(0,10)
+##     X          (c)    0.170    0.117   -0.058    0.406    1.000    normal(0,10)
 ##   M ~                                                                          
-##     X          (a)    0.562    0.124    0.318    0.799    0.999    normal(0,10)
+##     X          (a)    0.444    0.107    0.231    0.656    1.000    normal(0,10)
 ##   Y ~                                                                          
-##     M          (b)    0.645    0.089    0.463     0.82    0.999    normal(0,10)
+##     M          (b)    0.486    0.104    0.284    0.687    1.001    normal(0,10)
 ## 
 ## Intercepts:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
-##    .Y                 0.006    0.095    -0.18    0.195    0.999    normal(0,10)
-##    .M                 0.123    0.107   -0.089    0.328    0.999    normal(0,10)
+##    .Y                -0.186    0.103    -0.39    0.019    0.999    normal(0,10)
+##    .M                -0.111    0.101   -0.304    0.079    1.000    normal(0,10)
 ## 
 ## Variances:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
-##    .Y                 0.869    0.134    0.641    1.176    1.000 gamma(1,.5)[sd]
-##    .M                 1.126    0.166    0.842    1.498    0.999 gamma(1,.5)[sd]
+##    .Y                 1.080    0.154     0.82    1.428    1.000 gamma(1,.5)[sd]
+##    .M                 1.017    0.152    0.766    1.362    1.001 gamma(1,.5)[sd]
 ## 
 ## Defined Parameters:
 ##                    Estimate  Post.SD pi.lower pi.upper     Rhat    Prior       
-##     ab                0.362    0.096    0.174     0.55       NA                
-##     total             0.314    0.137    0.046    0.582       NA
+##     ab                0.216    0.071    0.077    0.355       NA                
+##     total             0.386    0.122    0.146    0.625       NA
 ```
 
 ]
@@ -418,18 +418,18 @@ get_prior(y_model + m_model + set_rescor(FALSE),
 ```
 
 ```
-##                     prior     class coef group resp dpar nlpar bound
-## 1                                 b                                 
-## 2                         Intercept                                 
-## 3                                 b               M                 
-## 4                                 b    X          M                 
-## 5    student_t(3, 0, 2.5) Intercept               M                 
-## 6    student_t(3, 0, 2.5)     sigma               M                 
-## 7                                 b               Y                 
-## 8                                 b    M          Y                 
-## 9                                 b    X          Y                 
-## 10 student_t(3, 0.1, 2.5) Intercept               Y                 
-## 11   student_t(3, 0, 2.5)     sigma               Y
+##                      prior     class coef group resp dpar nlpar bound
+## 1                                  b                                 
+## 2                          Intercept                                 
+## 3                                  b               M                 
+## 4                                  b    X          M                 
+## 5  student_t(3, -0.1, 2.5) Intercept               M                 
+## 6     student_t(3, 0, 2.5)     sigma               M                 
+## 7                                  b               Y                 
+## 8                                  b    M          Y                 
+## 9                                  b    X          Y                 
+## 10 student_t(3, -0.2, 2.5) Intercept               Y                 
+## 11    student_t(3, 0, 2.5)     sigma               Y
 ```
 
 
@@ -688,24 +688,24 @@ summary(mult.Ys)
 ## 
 ## Population-Level Effects: 
 ##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Y1_Intercept     0.01      0.03    -0.05     0.07 1.00     8661     3356
-## Y2_Intercept     0.00      0.03    -0.06     0.06 1.00     9254     2992
-## Y3_Intercept    -0.01      0.03    -0.07     0.05 1.00     9449     3040
-## M_Intercept      0.03      0.03    -0.04     0.09 1.00     9779     2669
-## Y1_X            -1.05      0.03    -1.11    -0.98 1.00     6383     3194
-## Y1_M             0.05      0.03    -0.01     0.11 1.00     6997     3726
-## Y2_X             0.05      0.04    -0.02     0.13 1.00     6500     3244
-## Y2_M             0.53      0.03     0.47     0.59 1.00     6548     3242
-## Y3_X             1.03      0.04     0.96     1.10 1.00     5648     3255
-## Y3_M             1.06      0.03     1.00     1.12 1.00     5627     2624
-## M_X              0.53      0.03     0.46     0.59 1.00     8287     3108
+## Y1_Intercept     0.01      0.03    -0.05     0.07 1.00    10293     2935
+## Y2_Intercept     0.00      0.03    -0.06     0.06 1.00     8168     3069
+## Y3_Intercept    -0.01      0.03    -0.07     0.05 1.00     9527     2920
+## M_Intercept      0.03      0.03    -0.03     0.09 1.00    10131     3256
+## Y1_X            -1.05      0.04    -1.12    -0.98 1.00     6745     3227
+## Y1_M             0.05      0.03    -0.01     0.11 1.00     6361     3356
+## Y2_X             0.05      0.04    -0.01     0.12 1.00     6099     3330
+## Y2_M             0.53      0.03     0.47     0.59 1.00     7032     3157
+## Y3_X             1.03      0.04     0.96     1.10 1.00     7668     3123
+## Y3_M             1.06      0.03     1.00     1.12 1.00     7737     3702
+## M_X              0.53      0.03     0.47     0.59 1.00     8934     3095
 ## 
 ## Family Specific Parameters: 
 ##          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma_Y1     0.98      0.02     0.93     1.02 1.00     9570     2860
-## sigma_Y2     0.97      0.02     0.93     1.02 1.01     7865     2848
-## sigma_Y3     1.00      0.02     0.96     1.05 1.00    10791     3324
-## sigma_M      1.00      0.02     0.96     1.05 1.00     9102     2689
+## sigma_Y1     0.98      0.02     0.93     1.02 1.00    10207     2772
+## sigma_Y2     0.97      0.02     0.93     1.02 1.00     9525     2580
+## sigma_Y3     1.00      0.02     0.96     1.05 1.01    11919     2840
+## sigma_M      1.00      0.02     0.96     1.04 1.00     9375     2575
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1421,34 +1421,34 @@ summary(melsm.3)
 ## Group-Level Effects: 
 ## ~record_id (Number of levels: 193) 
 ##                                  Estimate Est.Error l-95% CI u-95% CI Rhat
-## sd(Intercept)                        0.76      0.04     0.68     0.84 1.00
+## sd(Intercept)                        0.76      0.04     0.68     0.84 1.01
 ## sd(day01)                            0.60      0.04     0.52     0.69 1.00
 ## sd(sigma_Intercept)                  0.70      0.04     0.63     0.78 1.00
 ## sd(sigma_day01)                      0.36      0.04     0.29     0.44 1.00
-## cor(Intercept,day01)                -0.31      0.08    -0.46    -0.14 1.00
-## cor(Intercept,sigma_Intercept)       0.64      0.05     0.54     0.72 1.00
-## cor(day01,sigma_Intercept)          -0.20      0.08    -0.35    -0.04 1.00
-## cor(Intercept,sigma_day01)          -0.16      0.10    -0.36     0.04 1.00
-## cor(day01,sigma_day01)               0.61      0.09     0.42     0.77 1.00
-## cor(sigma_Intercept,sigma_day01)    -0.15      0.10    -0.34     0.04 1.00
+## cor(Intercept,day01)                -0.31      0.08    -0.47    -0.14 1.00
+## cor(Intercept,sigma_Intercept)       0.64      0.05     0.55     0.72 1.00
+## cor(day01,sigma_Intercept)          -0.20      0.08    -0.36    -0.04 1.00
+## cor(Intercept,sigma_day01)          -0.16      0.11    -0.36     0.05 1.00
+## cor(day01,sigma_day01)               0.61      0.09     0.42     0.76 1.00
+## cor(sigma_Intercept,sigma_day01)    -0.15      0.10    -0.33     0.04 1.00
 ##                                  Bulk_ESS Tail_ESS
-## sd(Intercept)                        1046     1957
-## sd(day01)                            2334     4023
-## sd(sigma_Intercept)                  1508     3128
-## sd(sigma_day01)                      4226     5997
-## cor(Intercept,day01)                 1418     2881
-## cor(Intercept,sigma_Intercept)       1720     2973
-## cor(day01,sigma_Intercept)           1376     2765
-## cor(Intercept,sigma_day01)           4632     5361
-## cor(day01,sigma_day01)               3943     4737
-## cor(sigma_Intercept,sigma_day01)     4026     5917
+## sd(Intercept)                         539     1690
+## sd(day01)                            2261     3983
+## sd(sigma_Intercept)                  1633     3157
+## sd(sigma_day01)                      4420     6391
+## cor(Intercept,day01)                 1330     1961
+## cor(Intercept,sigma_Intercept)       1470     3460
+## cor(day01,sigma_Intercept)           1262     1962
+## cor(Intercept,sigma_day01)           4779     6053
+## cor(day01,sigma_day01)               3928     4856
+## cor(sigma_Intercept,sigma_day01)     3950     5666
 ## 
 ## Population-Level Effects: 
 ##                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept           0.03      0.05    -0.07     0.13 1.01      470     1003
-## sigma_Intercept    -0.75      0.05    -0.85    -0.65 1.01      809     1675
-## day01              -0.15      0.05    -0.26    -0.05 1.01     1175     2181
-## sigma_day01        -0.11      0.04    -0.18    -0.03 1.00     3317     5095
+## Intercept           0.03      0.05    -0.08     0.13 1.03      382      692
+## sigma_Intercept    -0.75      0.05    -0.86    -0.65 1.01      716     1626
+## day01              -0.15      0.05    -0.26    -0.05 1.01     1224     2634
+## sigma_day01        -0.11      0.04    -0.18    -0.03 1.00     3306     5612
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1940,6 +1940,67 @@ imp.2 %&gt;%
 ![](grabbag_files/figure-html/unnamed-chunk-78-1.png)&lt;!-- --&gt;
 
 
+---
+## Semester review
+
+Three goals: 
+1. Understand Bayesian estimation
+2. Better understanding of linear models
+3. To use brms and tidybayes to explore the posterior
+
+---
+## "Bayesian analysis is just counting"
+
+MCMC is just counting the ways that your data are consistent with different parameter values. Parameter values that are more consistent with your data will emerge more in the posterior samples. 
+
+---
+## "Bayesian inference is reallocation of credibility across parameter values"
+
+A `prior` distribution can be thought of as previous counts/parameters. We merely update this distribution through the collection of new data. 
+
+Regardless of whether the prior is made up, reflects past results, or the result of 1 data point in our new sample, each posterior we have can then be used as a prior for a new analysis. This is `bayesian updating` where you can always improve your model. 
+
+No deep distinction between prior and posterior
+
+---
+## Bayesian models are generative
+
+Generative models allow one to `generate` new data. Most of the linear models you have been working with are descriptive, and do not incorporate all of the components needed to generate the same data. SR talks about these as pushing data forward and backwards. Forwards to get parameters, and backwards to simulate data. We do this push and pull when we want to evaluate models. 
+
+---
+## Model statements
+
+We now have a language to describe a full generative model. Even for a simple regression we now are able to describe all components that lead to the generation of the data. The spread of your DV, sigma, plays a large role of this but is usually not even examined, let alone modeled with standard frequentest frameworks
+
+P_Height_i ~ Normal( `\(\mu_i\)` , `\(\sigma\)` )  
+`\(\mu_i\)` = `\(\beta_0\)` + `\(\beta_1\)` ( `\(\text{C_Height}_i\)` - `\({\overline{\mbox{C_Height}}}\)` ) 
+`\(\beta_0\)` ~ Normal(68, 5)
+`\(\beta_1\)` ~ Normal(0, 5)  
+`\(\sigma\)`  ~ HalfCauchy(0,1)
+
+---
+## Propogation of uncertainty
+
+One of the key components of Bayesian (and generative modeling) is that we include all of the uncertainty in our estimates. With standard frequentist we do not, as we use our best guess (the regression line) and sigma -- and do not incorporate uncertainty in the estimation of our parameter.
+
+Uncertainty estimates baked into the model also allow for easy calculation of credible intervals/bands. Just count up the samples to calculate. Within frequentist you have to use equations that make assumptions about data distribution and/or bootstrap.  
+
+---
+## Linear models all the way down (and up)
+
+Anova, logistic, etc are all parts of the glm. If you learn the glm you can model anything. 
+
+
+---
+## brms
+
+Analysis options change all the time. brms (and tidyverse) make the transition to bayesian models easier. But it doesn't have to be this way. ~40 Bayesian packages within R, Stan (within R or not), Python (Stan, PyMC), julia (Turing), etc, etc. 
+
+---
+## Terms
+
+Prior, Likelihood, Posterior. 
+Grid estimation, Credible Interval, Highest Posterior Density Interval, MAP, Posterior Predictive Distribution, prior predictive distribution, fitted values/predicted values, index variables, maximum entropy, loo, waic, Rope, zero-inflated models, ordinal regression models, monotonic regression models, hyperprior, shrinkage, MrP, multivariate and distributional models. 
 
 
 
